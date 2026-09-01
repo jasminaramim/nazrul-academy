@@ -34,9 +34,13 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
           {/* Col 1: About School */}
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#00732A] flex items-center justify-center font-bold text-white border border-[#CA0000]">
-                না
-              </div>
+              {globalConfig.logoUrl ? (
+                <img src={globalConfig.logoUrl} alt="Logo" className="w-10 h-10 object-contain bg-white rounded-full p-0.5" />
+              ) : (
+                <div className="w-10 h-10 rounded-full bg-[#00732A] flex items-center justify-center font-bold text-white border border-[#CA0000]">
+                  না
+                </div>
+              )}
               <div>
                 <h4 className="text-base font-bold text-white">{globalConfig.siteTitle}</h4>
                 <p className="text-[11px] text-slate-400">স্থাপিত: ১৯১৩ খ্রিষ্টাব্দ</p>

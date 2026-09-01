@@ -46,18 +46,17 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
             className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer"
           >
             <div className="relative w-12 h-14 shrink-0 flex items-center justify-center">
-              <img
-                src={globalConfig.logoUrl}
-                alt="ত্রিশাল সরকারি নজরুল একাডেমি"
-                className="w-12 h-14 object-contain transition-transform group-hover:scale-105"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-              {/* Fallback emblem */}
-              <div className="w-12 h-12 rounded-full bg-[#00732A] text-white flex items-center justify-center font-bold text-lg border-2 border-[#CA0000] shadow-sm">
-                না
-              </div>
+              {globalConfig.logoUrl ? (
+                <img
+                  src={globalConfig.logoUrl}
+                  alt="ত্রিশাল সরকারি নজরুল একাডেমি"
+                  className="w-12 h-14 object-contain transition-transform group-hover:scale-105"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-[#00732A] text-white flex items-center justify-center font-bold text-lg border-2 border-[#CA0000] shadow-sm">
+                  না
+                </div>
+              )}
             </div>
 
             <div>

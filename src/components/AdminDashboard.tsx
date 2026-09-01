@@ -3013,12 +3013,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                   </div>
 
                   <div className="sm:col-span-2">
-                    <label className="text-xs font-bold text-slate-700 block mb-1">লোগো URL</label>
-                    <input
-                      type="url"
-                      value={globalConfig.logoUrl}
-                      onChange={(e) => setGlobalConfig({ ...globalConfig, logoUrl: e.target.value })}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
+                    <ImageUploader
+                      label="লোগো URL (Drag & Drop / Cloudinary আপলোড)"
+                      value={globalConfig.logoUrl || ''}
+                      onChange={(url) => setGlobalConfig({ ...globalConfig, logoUrl: url })}
+                      aspectRatio="video"
+                      placeholder="সাইটের লোগো ড্রপ বা নির্বাচন করুন"
                     />
                   </div>
 
@@ -3119,7 +3119,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                   <input
                     type="text"
                     placeholder="mongodb+srv://username:password@cluster0.mongodb.net/trishal_alumni"
-                    defaultValue={process.env.MONGODB_URI || ''}
+                    defaultValue={mongoStatus.mongoUri || ''}
                     onBlur={async (e) => {
                       if (e.target.value) {
                         const res = await apiService.updateMongoConfig(e.target.value);
