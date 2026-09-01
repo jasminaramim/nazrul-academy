@@ -1,0 +1,787 @@
+{
+  "users": [
+    {
+      "id": "usr-admin-jasmin",
+      "name": "Jasmin (প্রধান প্রশাসক)",
+      "nameEn": "Jasmin",
+      "username": "jasmin",
+      "email": "jasmin@nazrulacademy.edu.bd",
+      "passwordHash": "$2b$10$lrGprHWCMFneba4LvUSZ5ugMcjn745jAewAQSb.IT9fha1frVrYWu",
+      "role": "admin",
+      "phone": "+880 1797-585073",
+      "bloodGroup": "B+",
+      "batch": "২০০৫",
+      "location": "ত্রিশাল, ময়মনসিংহ",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "প্রধান আইটি প্রশাসক",
+      "company": "অ্যালামনাই আইটি সেল",
+      "status": "approved",
+      "createdAt": "2026-08-31T13:08:25.055Z"
+    }
+  ],
+  "globalConfig": {
+    "siteTitle": "ত্রিশাল সরকারি নজরুল একাডেমি",
+    "siteSubtitle": "প্রাক্তন ছাত্র-ছাত্রী অ্যালামনাই অ্যাসোসিয়েশন ও পুনর্মিলনী উৎসব ২০২৬",
+    "logoUrl": "https://upload.wikimedia.org/wikipedia/bn/thumb/8/87/%E0%A6%A4%E0%A7%8D%E0%A6%B0%E0%A6%BF%E0%A6%B6%E0%A6%BE%E0%A6%B2_%E0%A6%B8%E0%A6%B0%E0%A6%95%E0%A6%BE%E0%A6%B0%E0%A6%BF_%E0%A6%A8%E0%A6%9C%E0%A6%B0%E0%A7%81%E0%A6%B2_%E0%A6%8F%E0%A6%95%E0%A6%BE%E0%A6%A1%E0%A7%87%E0%A6%AE%E0%A6%BF%E0%A6%B0_%E0%A6%B2%E0%A7%8B%E0%A6%97%E0%A7%8B.png/250px-%E0%A6%A4%E0%A7%8D%E0%A6%B0%E0%A6%BF%E0%A6%B6%E0%A6%BE%E0%A6%B2_%E0%A6%B8%E0%A6%B0%E0%A6%95%E0%A6%BE%E0%A6%B0%E0%A6%BF_%E0%A6%A8%E0%A6%9C%E0%A6%B0%E0%A7%81%E0%A6%B2_%E0%A6%8F%E0%A6%95%E0%A6%BE%E0%A6%A1%E0%A7%87%E0%A6%AE%E0%A6%BF%E0%A6%B0_%E0%A6%B2%E0%A7%8B%E0%A6%97%E0%A7%8B.png",
+    "schoolName": "ত্রিশাল সরকারি নজরুল একাডেমি",
+    "schoolEstablished": "১৯১৩ খ্রি.",
+    "contactPhone1": "+880 1797-585073",
+    "contactPhone2": "+880 1708-859491",
+    "contactEmail": "info@trishalnazrulacademy.edu.bd",
+    "address": "নজরুল রোড, ত্রিশাল, ময়মনসিংহ - ২২২০, বাংলাদেশ",
+    "facebookUrl": "https://facebook.com/trishalnazrulacademy",
+    "youtubeUrl": "https://youtube.com",
+    "registrationOpen": true
+  },
+  "heroSlides": [
+    {
+      "id": "hero-1",
+      "title": "ত্রিশাল সরকারি নজরুল একাডেমি পুনর্মিলনী ২০২৬",
+      "subtitle": "শতবর্ষের স্মৃতিবিজড়িত নজরুল আঙিনায় ফিরে দেখার আনন্দ মিলনমেলা",
+      "imageUrl": "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=80",
+      "badgeText": "মহাপুনর্মিলনী উৎসব ২০২৬",
+      "order": 1
+    },
+    {
+      "id": "hero-2",
+      "title": "নজরুলের স্মৃতিধন্য বিদ্যাপীঠ আমাদের অহংকার",
+      "subtitle": "১৯১৩ সালে প্রতিষ্ঠিত প্রাচীন ঐতিহ্যবাহী নজরুল একাডেমি প্রাঙ্গণে সকল প্রাক্তনদের সাদর আমন্ত্রণ",
+      "imageUrl": "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1600&q=80",
+      "badgeText": "ঐতিহ্যের ১১২ বছর",
+      "order": 2
+    },
+    {
+      "id": "hero-3",
+      "title": "এসো মিলি প্রাণের টানে, শেকড়ের জয়গানে",
+      "subtitle": "সহপাঠী, বন্ধু ও শ্রদ্ধেয় শিক্ষকদের সান্নিধ্যে এক অবিস্মরণীয় সোনালী মুহূর্ত",
+      "imageUrl": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1600&q=80",
+      "badgeText": "স্মৃতির মিলনমেলা",
+      "order": 3
+    }
+  ],
+  "teacherMessages": [
+    {
+      "id": "tm-1",
+      "name": "মুহাম্মদ এনামুল হক",
+      "designation": "প্রধান শিক্ষক ও সভাপতি",
+      "schoolName": "ত্রিশাল সরকারি নজরুল একাডেমি, ত্রিশাল",
+      "image": "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80",
+      "heading": "প্রাক্তনদের প্রতি প্রধান শিক্ষকের উদাত্ত আহ্বান",
+      "bismillahText": "বিসমিল্লাহির রাহমানির রাহিম",
+      "greeting": "আসসালামু আলাইকুম ওয়া রাহমাতুল্লাহি ওয়া বারাকাতুহু।",
+      "description": "ত্রিশাল সরকারি নজরুল একাডেমি আমাদের প্রাণের বিদ্যাপীঠ। এই প্রতিষ্ঠানের প্রতিটি ধূলিকণা জাতীয় কবি কাজী নজরুল ইসলামের স্মৃতিমাখা। প্রিয় প্রাক্তন শিক্ষার্থীবৃন্দ, তোমরা যারা দেশ-বিদেশের বিভিন্ন প্রান্তে নিজেদের যোগ্যতায় প্রতিষ্ঠিত হয়েছ, তোমাদের সকলকে পুনর্মিলনী ২০২৬-এ আন্তরিক স্বাগতম। এই উৎসব কেবল একটি অনুষ্ঠান নয়, বরং শেকড় ও স্মৃতির সাথে নতুন করে সংযোগ স্থাপনের মহতী প্ল্যাটফর্ম। তোমাদের সক্রিয় অংশগ্রহণ ও উপস্থিতি অনুষ্ঠানকে মহিমান্বিত করবে।",
+      "order": 1
+    },
+    {
+      "id": "tm-2",
+      "name": "আব্দুস সাত্তার সরকার",
+      "designation": "প্রাক্তন শিক্ষক ও প্রধান উপদেষ্টা",
+      "schoolName": "ত্রিশাল সরকারি নজরুল একাডেমি, ত্রিশাল",
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80",
+      "heading": "স্নেহের প্রাক্তনদের প্রতি প্রবীণ শিক্ষকের আশীর্বাদ বাণী",
+      "bismillahText": "বিসমিল্লাহির রাহমানির রাহিম",
+      "greeting": "স্নেহের প্রিয় ছাত্র-ছাত্রীবৃন্দ,",
+      "description": "দীর্ঘদিন পর নজরুল একাডেমির সবুজ প্রাঙ্গণে আবার তোমাদের কলকাকলিতে মুখরিত হবে জেনে মন আনন্দে ভরে উঠছে। তোমাদের শৈশব ও কৈশোরের সোনালী দিনগুলো এই ক্যাম্পাসের ক্লাসরুমে, খেলার মাঠে কেটেছে। আজ তোমরা জীবনের নানা ক্ষেত্রে সফল। পুনর্মিলনীর এই পবিত্র দিনে সকল মান-অভিমান ভুলে একে অপরের পাশে এসে দাঁড়াও এবং প্রিয় বিদ্যালয়ের উন্নয়নে একাত্ম হও। আল্লাহ তোমাদের মঙ্গল করুন।",
+      "order": 2
+    },
+    {
+      "id": "tm-3",
+      "name": "মো. হাবিবুর রহমান খান",
+      "designation": "সহকারী প্রধান শিক্ষক",
+      "schoolName": "ত্রিশাল সরকারি নজরুল একাডেমি, ত্রিশাল",
+      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80",
+      "heading": "নজরুল আঙিনায় সৌহার্দ্যের সেতুবন্ধন",
+      "bismillahText": "বিসমিল্লাহির রাহমানির রাহিম",
+      "greeting": "শ্রদ্ধেয় সুধী ও স্নেহের ছাত্র-ছাত্রীগণ,",
+      "description": "একটি শিক্ষাপ্রতিষ্ঠানের সর্বশ্রেষ্ঠ সম্পদ তার প্রাক্তন শিক্ষার্থীরা। তোমাদের পদচারণায় মুখরিত বিদ্যাপীঠ নতুন প্রজন্মের শিক্ষার্থীদের অনুপ্রাণিত করে। পুনর্মিলনী অনুষ্ঠান সাফল্যমণ্ডিত করতে সকল উপকমিটি নিরলস কাজ করছে। তোমাদের উপস্থিতি ও সার্বিক সহযোগিতা কামনা করছি।",
+      "order": 3
+    }
+  ],
+  "statsData": {
+    "registeredStudents": 703,
+    "familyMembersCount": 80,
+    "festivalDate": "২০২৬-০৩-২৬",
+    "festivalTime": "সকাল ০৯:০০ টা",
+    "festivalTitle": "পুনর্মিলনী ও বসন্ত উৎসব ২০২৬"
+  },
+  "students": [
+    {
+      "id": "std-1",
+      "name": "রাকিবুল হাসান রাশেদ",
+      "nameEn": "Rakibul Hasan Rashed",
+      "image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১১",
+      "batchType": "new",
+      "location": "ঢাকা, বাংলাদেশ",
+      "bloodGroup": "A+",
+      "phone": "01711223344",
+      "email": "rakibul@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "সফটওয়্যার ইঞ্জিনিয়ার",
+      "company": "টেক লিমিটেড",
+      "tshirtSize": "L",
+      "familyMembersCount": 2,
+      "status": "approved"
+    },
+    {
+      "id": "std-3",
+      "name": "প্রফেসর ড. বিলাল সরকার",
+      "nameEn": "Prof. Dr. Billal Sorker",
+      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৮৫",
+      "batchType": "old",
+      "location": "রাজশাহী বিশ্ববিদ্যালয়",
+      "bloodGroup": "O+",
+      "phone": "01911223344",
+      "email": "billal@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "অধ্যাপক ও বিভাগীয় প্রধান",
+      "company": "রাজশাহী বিশ্ববিদ্যালয়",
+      "tshirtSize": "L",
+      "familyMembersCount": 2,
+      "status": "approved"
+    },
+    {
+      "id": "std-4",
+      "name": "মো. মনিরুজ্জামান",
+      "nameEn": "Md. Moniruzzaman",
+      "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০০০",
+      "batchType": "old",
+      "location": "ত্রিশাল, ময়মনসিংহ",
+      "bloodGroup": "A+",
+      "phone": "01715889900",
+      "email": "monir@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "ব্যবসায়ী ও সমাজসেবক",
+      "company": "নজরুল এন্টারপ্রাইজ",
+      "tshirtSize": "XL",
+      "familyMembersCount": 3,
+      "status": "approved"
+    },
+    {
+      "id": "std-5",
+      "name": "মো. ইসমাইল হোসেন",
+      "nameEn": "Md. Ismail Hossen",
+      "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০০৮",
+      "batchType": "old",
+      "location": "গাজীপুর, ঢাকা",
+      "bloodGroup": "A+",
+      "phone": "01720334455",
+      "email": "ismail@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "সহকারী অধ্যাপক",
+      "company": "জাতীয় বিশ্ববিদ্যালয়",
+      "tshirtSize": "M",
+      "familyMembersCount": 1,
+      "status": "approved"
+    },
+    {
+      "id": "std-6",
+      "name": "মো. ওমর ফারুক",
+      "nameEn": "Md. Omar Faruk",
+      "image": "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১২",
+      "batchType": "new",
+      "location": "ঢাকা",
+      "bloodGroup": "B+",
+      "phone": "01611223344",
+      "email": "omar@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "নির্বাহী কর্মকর্তা",
+      "company": "প্রাণ-আরএফএল গ্রুপ",
+      "tshirtSize": "L",
+      "familyMembersCount": 0,
+      "status": "approved"
+    },
+    {
+      "id": "std-7",
+      "name": "অ্যাডভোকেট মো. শফিকুল ইসলাম",
+      "nameEn": "Adv. Md. Shafiqul Islam",
+      "image": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৯৫",
+      "batchType": "old",
+      "location": "ময়মনসিংহ",
+      "bloodGroup": "AB+",
+      "phone": "01733445566",
+      "email": "shafiqul@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "বাংলাদেশ সুপ্রিম কোর্ট ও জেলা বার",
+      "company": "জেলা জজ আদালত",
+      "tshirtSize": "XL",
+      "familyMembersCount": 2,
+      "status": "approved"
+    },
+    {
+      "id": "std-8",
+      "name": "মো. রশিদুজ্জামান",
+      "nameEn": "Md. Rashiduzzaman",
+      "image": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৯৯",
+      "batchType": "old",
+      "location": "ত্রিশাল",
+      "bloodGroup": "O+",
+      "phone": "01822334455",
+      "email": "rashid@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "প্রধান শিক্ষক",
+      "company": "মডেল হাইস্কুল",
+      "tshirtSize": "L",
+      "familyMembersCount": 1,
+      "status": "approved"
+    },
+    {
+      "id": "std-9",
+      "name": "প্রকৌশলী মো. মাহাবুবুর রহমান",
+      "nameEn": "Engr. Md. Mahbubur Rahman",
+      "image": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০০০",
+      "batchType": "old",
+      "location": "ঢাকা",
+      "bloodGroup": "O+",
+      "phone": "01744556677",
+      "email": "mahbub@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "নির্বাহী প্রকৌশলী",
+      "company": "এলজিইডি ভবন, আগারগাঁও",
+      "tshirtSize": "XL",
+      "familyMembersCount": 2,
+      "status": "approved"
+    },
+    {
+      "id": "std-10",
+      "name": "ডা. সায়েদা আক্তার",
+      "nameEn": "Dr. Sayeda Akter",
+      "image": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১৫",
+      "batchType": "new",
+      "location": "ময়মনসিংহ",
+      "bloodGroup": "B+",
+      "phone": "01955667788",
+      "email": "sayeda@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "সহকারী সার্জন",
+      "company": "ময়মনসিংহ মেডিকেল কলেজ হাসপাতাল",
+      "tshirtSize": "M",
+      "familyMembersCount": 1,
+      "status": "approved"
+    },
+    {
+      "id": "std-11",
+      "name": "সায়মা বিনতে লিমা",
+      "nameEn": "Sayma Binte Lima",
+      "image": "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১৭",
+      "batchType": "new",
+      "location": "ঢাকা",
+      "bloodGroup": "O+",
+      "phone": "01766778899",
+      "email": "sayma@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "সিনিয়র লেকচারার",
+      "company": "নর্থ সাউথ বিশ্ববিদ্যালয়",
+      "tshirtSize": "M",
+      "familyMembersCount": 0,
+      "status": "approved"
+    },
+    {
+      "id": "std-12",
+      "name": "আল আলী মো. রাজিব",
+      "nameEn": "Al Ali Md Rajib",
+      "image": "https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১০",
+      "batchType": "old",
+      "location": "ত্রিশাল, ময়মনসিংহ",
+      "bloodGroup": "O+",
+      "phone": "01877889900",
+      "email": "rajib@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "উদ্যোক্তা ও পরিচালক",
+      "company": "রাজিব এগ্রো অ্যান্ড ট্রেডিং",
+      "tshirtSize": "XXL",
+      "familyMembersCount": 2,
+      "status": "approved"
+    },
+    {
+      "id": "std-13",
+      "name": "মো. তরিকুল ইসলাম",
+      "nameEn": "Md. Tariqul Islam",
+      "image": "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১৪",
+      "batchType": "new",
+      "location": "উত্তরা, ঢাকা",
+      "bloodGroup": "AB+",
+      "phone": "01788990011",
+      "email": "tariqul@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "সিনিয়র ডেটা অ্যানালিস্ট",
+      "company": "গ্রামীণফোন লিমিটেড",
+      "tshirtSize": "L",
+      "familyMembersCount": 1,
+      "status": "approved"
+    },
+    {
+      "id": "std-14",
+      "name": "মোছা. নাজমুন নাহার",
+      "nameEn": "Nazmun Nahar",
+      "image": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১৬",
+      "batchType": "new",
+      "location": "ধানমন্ডি, ঢাকা",
+      "bloodGroup": "A+",
+      "phone": "01999001122",
+      "email": "nazmun@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "স্থপতি (Architect)",
+      "company": "স্টুডিও মেট্রোপলিস",
+      "tshirtSize": "M",
+      "familyMembersCount": 0,
+      "status": "approved"
+    },
+    {
+      "id": "std-15",
+      "name": "মো. নাজমুল হাসান বাবু",
+      "nameEn": "Md. Nazmul Hasan Babu",
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০০৩",
+      "batchType": "old",
+      "location": "ময়মনসিংহ",
+      "bloodGroup": "B+",
+      "phone": "01712345678",
+      "email": "babu@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "সহকারী কমিশনার (বিসিএস প্রশাসন)",
+      "company": "জনপ্রশাসন মন্ত্রণালয়",
+      "tshirtSize": "L",
+      "familyMembersCount": 2,
+      "status": "approved"
+    },
+    {
+      "id": "std-16",
+      "name": "মো. শামসুল হুদা",
+      "nameEn": "Md. Shamsul Huda",
+      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৭৮",
+      "batchType": "old",
+      "location": "ত্রিশাল",
+      "bloodGroup": "O+",
+      "phone": "01799887766",
+      "email": "huda78@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "অবসরপ্রাপ্ত যুগ্ম সচিব",
+      "company": "বাংলাদেশ সরকার",
+      "tshirtSize": "XL",
+      "familyMembersCount": 1,
+      "status": "approved"
+    },
+    {
+      "id": "std-17",
+      "name": "মো. তানভীর আহমেদ",
+      "nameEn": "Tanvir Ahmed",
+      "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০২১",
+      "batchType": "new",
+      "location": "ঢাকা",
+      "bloodGroup": "B+",
+      "phone": "01511223344",
+      "email": "tanvir@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "কম্পিউটার সায়েন্স শিক্ষার্থী",
+      "company": "বুয়েট (BUET)",
+      "tshirtSize": "M",
+      "familyMembersCount": 0,
+      "status": "approved"
+    },
+    {
+      "id": "std-18",
+      "name": "তাহমিনা সুলতানা রিমি",
+      "nameEn": "Tahmina Sultana Rimi",
+      "image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০১৯",
+      "batchType": "new",
+      "location": "ত্রিশাল, ময়মনসিংহ",
+      "bloodGroup": "O+",
+      "phone": "01755443322",
+      "email": "rimi@gmail.com",
+      "school": "ত্রিশাল সরকারি নজরুল একাডেমি",
+      "currentJob": "শিক্ষানবিশ আইনজীবী",
+      "company": "ময়মনসিংহ জজ কোর্ট",
+      "tshirtSize": "M",
+      "familyMembersCount": 1,
+      "status": "approved"
+    }
+  ],
+  "financeSummary": {
+    "totalIncome": 1196674,
+    "totalExpense": 1151414,
+    "balance": 45260,
+    "lastUpdated": "২০২৬-০৮-৩১",
+    "breakdown": {
+      "incomeCategories": [
+        {
+          "category": "নিবন্ধন ফি সংগ্রহ",
+          "amount": 844800
+        },
+        {
+          "category": "সম্মানিত দাতাগণ ও স্পন্সর",
+          "amount": 280000
+        },
+        {
+          "category": "স্মরণিকা বিজ্ঞাপন অনুদান",
+          "amount": 71874
+        }
+      ],
+      "expenseCategories": [
+        {
+          "category": "মঞ্চ, প্যান্ডেল ও সাউন্ড সিস্টেম",
+          "amount": 320000
+        },
+        {
+          "category": "খাবার ও ক্যাটারিং (প্রাতরাশ ও দুপুরের ভোজ)",
+          "amount": 480000
+        },
+        {
+          "category": "স্মারক টি-শার্ট, ব্যাগ ও উপহার সামগ্রী",
+          "amount": 185414
+        },
+        {
+          "category": "সাংস্কৃতিক শিল্পী ও বিনোদন পর্ব",
+          "amount": 85000
+        },
+        {
+          "category": "স্মরণিকা ও ম্যাগাজিন মুদ্রণ",
+          "amount": 65000
+        },
+        {
+          "category": "অফিস ও জরুরি ব্যবস্থাপনা ব্যয়",
+          "amount": 16000
+        }
+      ]
+    }
+  },
+  "notices": [
+    {
+      "id": "notice-1",
+      "category": "পুনর্মিলনী",
+      "title": "ব্যাচ ২০১৪ – বিশেষ উপহারের জন্য ধন্যবাদ",
+      "shortDescription": "ব্যাচ ২০১৪-এর পক্ষ থেকে পুনর্মিলনী তহবিলে বিশেষ অনুদান এবং শিক্ষকদের উপহার দেওয়ার জন্য ধন্যবাদ।",
+      "description": "ত্রিশাল সরকারি নজরুল একাডেমির ২০১৪ ব্যাচের সকল শিক্ষার্থীবৃন্দ পুনর্মিলনী উৎসবের সার্বিক সাফল্যে এককালীন ৫০,০০০/- টাকা এবং শ্রদ্ধেয় অবসরপ্রাপ্ত শিক্ষকদের বিশেষ সম্মাননা স্মারক প্রদানের উদ্যোগ গ্রহণ করেছেন। পুনর্মিলনী আয়োজক কমিটির পক্ষ থেকে তাঁদের প্রতি আন্তরিক কৃতজ্ঞতা ও রক্তিম শুভেচ্ছা জ্ঞাপন করা হলো।",
+      "date": "২০২৬-০৮-২০",
+      "priority": "উচ্চ",
+      "author": "আহ্বায়ক কমিটি"
+    },
+    {
+      "id": "notice-2",
+      "category": "পুনর্মিলনী",
+      "title": "ব্যাচ ২০১৭ – বিশেষ উপহারের জন্য ধন্যবাদ",
+      "shortDescription": "পুনর্মিলনী উৎসবে ব্যাচ ২০১৭-এর অংশগ্রহণ ও সাংস্কৃতিক পরিবেশনায় বিশেষ সহযোগিতার জন্য ধন্যবাদ।",
+      "description": "২০১৭ ব্যাচের প্রাক্তন ছাত্র-ছাত্রীরা সাংস্কৃতিক পর্বের সঞ্চালনা এবং অডিটোরিয়াম সজ্জায় স্বেচ্ছাসেবক হিসেবে দায়িত্ব পালন করার সম্মতি জানিয়েছেন। তাঁদের এই উদ্যমী ও দায়িত্বশীল ভূমিকা পুনর্মিলনীকে প্রাণবন্ত করবে।",
+      "date": "২০২৬-০৮-১৮",
+      "priority": "সাধারণ",
+      "author": "সাংস্কৃতিক উপকমিটি"
+    },
+    {
+      "id": "notice-3",
+      "category": "উপহার",
+      "title": "টি-শার্ট ও স্মরণিকা সংগ্রহ সংক্রান্ত নির্দেশিকা",
+      "shortDescription": "পুনর্মিলনীতে অংশগ্রহণকারী সকল নিবন্ধিত শিক্ষার্থীদের আইডি কার্ড ও টি-শার্ট বিতরণের স্থান ও সময়।",
+      "description": "সকল নিবন্ধিত সদস্যকে আগামী ২৫ মার্চ সকাল ১০টা থেকে বিকাল ৫টা পর্যন্ত নজরুল একাডেমি ক্যাম্পাস বুথ থেকে কিট (টি-শার্ট, ক্যাপ, আইডি কার্ড, স্মরণিকা ও ফুড কুপন) সংগ্রহ করার জন্য বিশেষভাবে অনুরোধ করা যাচ্ছে। দূরবর্তী সদস্যদের জন্য ২৬ মার্চ সকাল ৮:০০ টায় স্পেশাল বুথ চালু থাকবে।",
+      "date": "২০২৬-০৮-১৫",
+      "priority": "জরুরি",
+      "author": "রেজিস্ট্রেশন উপকমিটি"
+    },
+    {
+      "id": "notice-4",
+      "category": "স্পন্সর",
+      "title": "ওয়েব ও আইটি স্পন্সর – ইউনাইটেড সফটওয়্যার সল্যুশনস",
+      "shortDescription": "ডিজিটাল রেজিস্ট্রেশন ও ওয়েবসাইট ম্যানেজমেন্টে কারিগরি সহায়তা প্রদান করায় আন্তরিক কৃতজ্ঞতা।",
+      "description": "ত্রিশাল সরকারি নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশনের অফিসিয়াল ওয়েব পোর্টাল, অনলাইন রেজিস্ট্রেশন সিস্টেম ও ডেটাবেজ বাস্তবায়নে আইটি পার্টনার হিসেবে ইউনাইটেড সফটওয়্যার সল্যুশনসকে ধন্যবাদ জানানো যাচ্ছে।",
+      "date": "২০২৬-০৮-১০",
+      "priority": "সাধারণ",
+      "author": "আইটি উপকমিটি"
+    },
+    {
+      "id": "notice-5",
+      "category": "স্মরণিকা",
+      "title": "স্মৃতির পাতা – লেখা ও ছবি আহ্বানের শেষ সময়",
+      "shortDescription": "স্মরণিকা ও ম্যাগাজিনে প্রাক্তন ছাত্র-ছাত্রীদের স্মৃতিচারণমূলক লেখা, কবিতা ও ঐতিহাসিক ছবি পাঠানোর আহ্বান।",
+      "description": "নজরুল একাডেমি পুনর্মিলনী স্মারক প্রকাশনার কাজ দ্রুত এগিয়ে চলছে। আপনার স্কুল জীবনের গল্প, শিক্ষকদের স্মৃতি, কবিতা বা দুষ্প্রাপ্য ছবি আগামী ১০ সেপ্টেম্বরের মধ্যে আপলোড বা ইমেইলে জমা দিন।",
+      "date": "২০২৬-০৮-০৫",
+      "priority": "উচ্চ",
+      "author": "প্রকাশনা উপকমিটি"
+    }
+  ],
+  "schedule": [
+    {
+      "id": "sch-1",
+      "startTime": "০৮:০০ AM",
+      "endTime": "০৯:০০ AM",
+      "category": "অভ্যর্থনা",
+      "title": "রেজিস্ট্রেশন, আইডি কার্ড ও সম্মেলন কিট সংগ্রহ",
+      "shortDescription": "নির্দিষ্ট বুথ থেকে ব্যাচভিত্তিক উপহার কিট, টোকেন ও ব্যাজ গ্রহণ",
+      "order": 1
+    },
+    {
+      "id": "sch-2",
+      "startTime": "০৯:০০ AM",
+      "endTime": "১০:০০ AM",
+      "category": "প্রাতরাশ",
+      "title": "সম্মিলিত মিষ্টিমুখ ও সকালের নাস্তা",
+      "shortDescription": "ঐতিহ্যবাহী ত্রিশালের মিষ্টান্ন ও চা-নাস্তার আয়োজন",
+      "order": 2
+    },
+    {
+      "id": "sch-3",
+      "startTime": "১০:০০ AM",
+      "endTime": "১০:৩০ AM",
+      "category": "উদ্বোধন",
+      "title": "পবিত্র কুরআন তিলাওয়াত, জাতীয় সঙ্গীত ও বেলুন উত্তোলন",
+      "shortDescription": "জাতীয় পতাকা উত্তোলন, কবুতর অবমুক্তকরণ ও বর্ণাঢ্য উদ্বোধন",
+      "order": 3
+    },
+    {
+      "id": "sch-4",
+      "startTime": "১০:৩০ AM",
+      "endTime": "১১:০০ AM",
+      "category": "শোভাযাত্রা",
+      "title": "স্মারক আনন্দ র্যালী ও ক্যাম্পাসে পদচারণা",
+      "shortDescription": "সকল ব্যাচের শিক্ষার্থীদের অংশগ্রণে ত্রিশাল পৌরশহরে উৎসবমুখর র‍্যালি",
+      "order": 4
+    },
+    {
+      "id": "sch-5",
+      "startTime": "১১:০০ AM",
+      "endTime": "১২:০০ PM",
+      "category": "সম্মাননা",
+      "title": "শ্রদ্ধেয় শিক্ষকদের সংবর্ধনা ও স্মারক পদক প্রদান",
+      "shortDescription": "বর্তমান ও প্রাক্তন প্রবীণ শিক্ষকদের উত্তরীয় পরিয়ে আজীবন সম্মাননা প্রদান",
+      "order": 5
+    },
+    {
+      "id": "sch-6",
+      "startTime": "১২:০০ PM",
+      "endTime": "০১:০০ PM",
+      "category": "স্মৃতিচারণ",
+      "title": "ব্যাচভিত্তিক স্মৃতিচারণ ও উন্মুক্ত সাক্ষাৎকার পর্ব",
+      "shortDescription": "নজরুল একাডেমি প্রাঙ্গণে ফেলে আসা সোনালী দিনের মধুর গল্প",
+      "order": 6
+    },
+    {
+      "id": "sch-7",
+      "startTime": "০১:০০ PM",
+      "endTime": "০২:০০ PM",
+      "category": "মধ্যাহ্নভোজ",
+      "title": "যোহরের নামাজ বিরতি ও ঐতিহ্যবাহী মধ্যাহ্নভোজ",
+      "shortDescription": "ঐতিহ্যবাহী মোরগ পোলাও, খাসির রেজালা ও ফিরনি পরিবেশনা",
+      "order": 7
+    },
+    {
+      "id": "sch-8",
+      "startTime": "০২:০০ PM",
+      "endTime": "০৩:১৫ PM",
+      "category": "ছবি ও আড্ডা",
+      "title": "ব্যাচভিত্তিক ফটোসেশন ও বন্ধুদের প্রাণখোলা আড্ডা",
+      "shortDescription": "ঐতিহাসিক বটতলা ও খেলার মাঠে ব্যাচভিত্তিক ফটোশুট",
+      "order": 8
+    }
+  ],
+  "culturalSchedule": [
+    {
+      "id": "cult-1",
+      "timeSlot": "০৩:১৫ PM - ০৩:৪৫ PM",
+      "category": "সাংস্কৃতিক সূচনা",
+      "title": "উদ্বোধনী কোরাস ও নজরুল সঙ্গীত পরিবেশন",
+      "performers": "নজরুল একাডেমি বর্তমান ও প্রাক্তন শিক্ষার্থী দল",
+      "description": "জাতীয় কবি কাজী নজরুল ইসলামের গান \"চল চল চল\" ও \"কারার ঐ লৌহকপাট\" সমবেত কণ্ঠে"
+    },
+    {
+      "id": "cult-2",
+      "timeSlot": "০৩:৪৫ PM - ০৪:৩০ PM",
+      "category": "আবৃত্তি ও নাটিকা",
+      "title": "বিদ্রোহী কবিতা আবৃত্তি ও হাসির একাঙ্কিকা",
+      "performers": "ব্যাচ ২০০২ ও ২০০৮-এর সাংস্কৃতিক কর্মীবৃন্দ",
+      "description": "নজরুল একাডেমির ছাত্র জীবনের ঘটনা অবলম্বনে রচিত কৌতুক নাটিকা"
+    },
+    {
+      "id": "cult-3",
+      "timeSlot": "০৪:৩০ PM - ০৫:১৫ PM",
+      "category": "স্মরণিকা উন্মোচন",
+      "title": "স্মৃতি অ্যালবাম ও পুনর্মিলনী ম্যাগাজিনের মোড়ক উন্মোচন",
+      "performers": "প্রধান অতিথি ও সভাপতিমণ্ডলী",
+      "description": "ঐতিহাসিক ১৯১৩ সালের নথি ও সাবেক শিক্ষার্থীদের লেখাসমৃদ্ধ সংকলন প্রকাশ"
+    },
+    {
+      "id": "cult-4",
+      "timeSlot": "০৫:১৫ PM - ০৬:৪৫ PM",
+      "category": "লাইভ ব্যান্ড কনসার্ট",
+      "title": "আমন্ত্রিত প্রখ্যাত ব্যান্ড ও কণ্ঠশিল্পীদের সঙ্গীতানুষ্ঠান",
+      "performers": "লালন ব্যান্ড ও অতিথি লোকসঙ্গীত শিল্পী",
+      "description": "বাউল গান, ক্লাসিক্যাল ফিউশন ও আধুনিক ব্যান্ড সঙ্গীত"
+    },
+    {
+      "id": "cult-5",
+      "timeSlot": "০৬:৪৫ PM - ০৭:৩০ PM",
+      "category": "র‌্যাফেল ড্র ও পুরস্কার",
+      "title": "আকর্ষণীয় মেগা র‍্যাফেল ড্র ও পুরষ্কার বিতরণী",
+      "performers": "আহ্বায়ক কমিটি",
+      "description": "প্রথম পুরস্কার মোটরসাইকেল, দ্বিতীয় পুরস্কার ল্যাপটপ, এলইডি টিভিসহ ৫০টি পুরস্কার"
+    },
+    {
+      "id": "cult-6",
+      "timeSlot": "০৭:৩০ PM - ০৮:০০ PM",
+      "category": "সমাপনী",
+      "title": "লেজার শো, আতশবাজি ও ধন্যবাদ জ্ঞাপন",
+      "performers": "অ্যালামনাই সভাপতি ও সাধারণ সম্পাদক",
+      "description": "আলো ঝলমলে আতশবাজির উৎসবের মাধ্যমে অনুষ্ঠানের সফল সমাপ্তি"
+    }
+  ],
+  "donors": [
+    {
+      "id": "dn-1",
+      "name": "প্রকৌশলী মো. জাহাঙ্গীর আলম",
+      "nameEn": "Engr. Md. Jahangir Alam",
+      "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৯৫",
+      "amount": 50000,
+      "category": "প্লাটিনাম ডোনার",
+      "quote": "প্রিয় বিদ্যালয়ের পুনর্মিলনীতে পাশে থাকতে পেরে আনন্দিত।"
+    },
+    {
+      "id": "dn-2",
+      "name": "মনজুরুল হক (এমএসএফটি)",
+      "nameEn": "Monjurul Haque",
+      "image": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৮৯",
+      "amount": 30000,
+      "category": "গোল্ড ডোনার",
+      "quote": "নজরুল একাডেমি আমাদের গর্ব।"
+    },
+    {
+      "id": "dn-3",
+      "name": "জিকরা আমিন",
+      "nameEn": "Zikra Amin",
+      "image": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ২০০২",
+      "amount": 25000,
+      "category": "গোল্ড ডোনার",
+      "quote": "পুনর্মিলনী সফল হোক।"
+    },
+    {
+      "id": "dn-4",
+      "name": "মো. তাজম্মুল হক",
+      "nameEn": "Md. Tajammul Haque",
+      "image": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৯০",
+      "amount": 20000,
+      "category": "সিলভার ডোনার",
+      "quote": "সকল বন্ধুদের শুভকামনা।"
+    },
+    {
+      "id": "dn-5",
+      "name": "শামসুল হক সরকার",
+      "nameEn": "Shamsul Haque Sarkar",
+      "image": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "batch": "ব্যাচ ১৯৯২",
+      "amount": 20000,
+      "category": "সিলভার ডোনার",
+      "quote": "বিদ্যালয়ের অবকাঠামো উন্নয়নে আমাদের সবার হাত বাড়ানো উচিত।"
+    }
+  ],
+  "gallery": [
+    {
+      "id": "gal-1",
+      "type": "image",
+      "title": "ঐতিহাসিক নজরুল একাডেমি মূল ভবন ও খেলার মাঠ",
+      "category": "ক্যাম্পাস",
+      "url": "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬"
+    },
+    {
+      "id": "gal-2",
+      "type": "image",
+      "title": "প্রাক্তন শিক্ষার্থীদের পদচারণায় মুখরিত সবুজ প্রাঙ্গণ",
+      "category": "পুনর্মিলনী",
+      "url": "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬"
+    },
+    {
+      "id": "gal-3",
+      "type": "image",
+      "title": "সাংস্কৃতিক সন্ধ্যায় নজরুল গীতি ও সমবেত সঙ্গীত",
+      "category": "সাংস্কৃতিক",
+      "url": "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬"
+    },
+    {
+      "id": "gal-4",
+      "type": "image",
+      "title": "শ্রদ্ধেয় প্রবীণ শিক্ষকদের স্মৃতি স্মারক সম্মাননা",
+      "category": "সম্মাননা",
+      "url": "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬"
+    },
+    {
+      "id": "gal-5",
+      "type": "video",
+      "title": "নজরুল একাডেমি অ্যালামনাই পুনর্মিলনী থিম সং ও ভিডিও",
+      "category": "ভিডিও",
+      "url": "https://www.w3schools.com/html/mov_bbb.mp4",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬"
+    },
+    {
+      "id": "gal-6",
+      "type": "image",
+      "title": "ব্যাচভিত্তিক ফটোসেশন ও বন্ধুদের সেলফি কর্নার",
+      "category": "স্মৃতি অ্যালবাম",
+      "url": "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬"
+    }
+  ],
+  "magazineArticles": [
+    {
+      "id": "mag-1",
+      "title": "ত্রিশাল সরকারি নজরুল একাডেমি ও জাতীয় কবি নজরুলের বাল্যস্মৃতি",
+      "author": "অধ্যাপক মো. সিরাজুল ইসলাম",
+      "authorBatch": "ব্যাচ ১৯৭৮",
+      "category": "ইতিহাস ও ঐতিহ্য",
+      "shortDescription": "১৯১৪ সালে কবি কাজী নজরুল ইসলাম এই ঐতিহ্যবাহী বিদ্যালয়ে সপ্তম শ্রেণিতে পড়াশোনা করেছিলেন।",
+      "content": "ত্রিশাল সরকারি নজরুল একাডেমি শুধু একটি সাধারণ শিক্ষাপ্রতিষ্ঠান নয়, এটি বাংলা সাহিত্যের অমর দিকপাল জাতীয় কবি কাজী নজরুল ইসলামের শৈশব-কৈশোরের পুণ্যভূমি। ১৯১৩ সালে প্রতিষ্ঠিত এই বিদ্যালয়ে ১৯১৪ সালে আসানসোল থেকে দারোগা রফিজউল্লাহ্ কবিকে এনে সপ্তম শ্রেণিতে ভর্তি করিয়েছিলেন। \n\nবিদ্যালয়ের নথিপত্রে ও বার্ষিক পরীক্ষায় নজরুলের অসাধারণ স্মৃতিশক্তি এবং সুমধুর কণ্ঠে গান গাওয়ার কাহিনী আজও সংরক্ষিত রয়েছে। বিদ্যালয়ের পাশে ঐতিহাসিক বটতলা ও সুতিয়া নদী কবির সৃষ্টিশীল চিন্তার উন্মেষ ঘটিয়েছিল। এই গৌরবময় ইতিহাস প্রতিটি প্রাক্তন ছাত্র-ছাত্রীর গর্ব।",
+      "imageUrl": "https://images.unsplash.com/photo-1455390582262-044cdead277a?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬-০৮-০১"
+    },
+    {
+      "id": "mag-2",
+      "title": "ফেলে আসা সোনালী স্কুলের দিনগুলো",
+      "author": "নাজমুল হুদা তারেক",
+      "authorBatch": "ব্যাচ ২০০৪",
+      "category": "স্মৃতিচারণ",
+      "shortDescription": "ঘণ্টাধ্বনি, ক্লাসের দুষ্টুমি আর টিফিনের ফুটবল ম্যাচের গল্প।",
+      "content": "ক্লাস শুরুর আগে অ্যাসেম্বলিতে দাঁড়িয়ে শপথ পাঠ, পিটি স্যারের সেই কড়া অনুশাসন, আর বন্ধুদের সাথে টিফিন পিরিয়ডে এক রুটি তিনজনে ভাগ করে খাওয়ার সুখ—আজ কোটি টাকা দিয়েও সেই দিনগুলো ফিরিয়ে পাওয়া যাবে না। সেই বারান্দা, সেই কৃষ্ণচূড়ার ছায়া আজও মনকে অতীতে টেনে নিয়ে যায়।",
+      "imageUrl": "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬-০৭-২৫"
+    },
+    {
+      "id": "mag-3",
+      "title": "কবিতা: শেকড়ের টানে নজরুল প্রাঙ্গণে",
+      "author": "ফারহানা ইয়াসমিন",
+      "authorBatch": "ব্যাচ ২০১৬",
+      "category": "সাহিত্য ও কবিতা",
+      "shortDescription": "ক্যাম্পাসের প্রতিটি ধূলিকণায় বয়ে চলা সুরের মূর্ছনা নিয়ে একটি আবেগঘন কবিতা।",
+      "content": "কত পথ হেঁটে এলাম দূর পরবাসে,\nতবু মন ফিরে যায় সেই সবুজ ঘাসে।\nনজরুল একাডেমির সেই প্রিয় ক্লাসরুম,\nভেঙে দেয় জীবনের শত ক্লান্তি ও ঘুম।\nএসো আজ এক হয়ে হাতে রাখি হাত,\nভুলে গিয়ে দূরত্ব আর কালবৈশাখীর রাত।",
+      "imageUrl": "https://images.unsplash.com/photo-1476820865390-c52aeebb9891?auto=format&fit=crop&w=800&q=80",
+      "date": "২০২৬-০৭-১০"
+    }
+  ],
+  "adminInfo": {
+    "name": "Jasmin (প্রধান প্রশাসক)",
+    "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
+    "designation": "প্রধান প্রশাসক ও সিস্টেম অ্যাডমিন",
+    "location": "ত্রিশাল, ময়মনসিংহ",
+    "phoneNumber": "+880 1797-585073",
+    "bloodGroup": "B+",
+    "email": "jasmin@nazrulacademy.edu.bd"
+  },
+  "mongoUri": "mongodb+srv://Trishal:Ele%2FSq9%3FuA.d3Z%236%21yR@cluster0.ssmpl.mongodb.net/trishal_nazrul_academy?retryWrites=true&w=majority&appName=Cluster0"
+}

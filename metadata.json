@@ -1,0 +1,8 @@
+{
+  "name": "ত্রিশাল সরকারি নজরুল একাডেমি",
+  "description": "ত্রিশাল সরকারি নজরুল একাডেমির প্রাক্তন ছাত্র-ছাত্রী পুনর্মিলনী ও অফিসিয়াল ওয়েবসাইট ও অ্যাডমিন ড্যাশবোর্ড।",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
