@@ -9,8 +9,12 @@ import {
   getHeroSlides, createHeroSlide, updateHeroSlide, deleteHeroSlide,
   getTeachers, createTeacher, updateTeacher, deleteTeacher
 } from '../controller/contentController';
+import { uploadImage } from '../controller/uploadController';
 
 const router = Router();
+
+// Upload Route
+router.post('/upload', authenticateToken, requireAdmin, uploadImage);
 
 // Media Routes
 router.get('/donations', getDonors);

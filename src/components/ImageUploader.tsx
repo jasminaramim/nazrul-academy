@@ -1,5 +1,6 @@
 import React, { useState, useRef, DragEvent } from 'react';
 import { UploadCloud, Image as ImageIcon, X, Check, Loader2, Link, RefreshCw } from 'lucide-react';
+import { apiService } from '../services/api';
 
 interface ImageUploaderProps {
   value: string;
@@ -54,48 +55,23 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     setUploading(true);
 
     try {
-      // 1. Try Cloudinary direct unsigned upload if preset exists or via upload endpoint
-      const metaEnv = (import.meta as any).env || {};
-      const cloudName = metaEnv.VITE_CLOUDINARY_CLOUD_NAME || 'dzb1q2z6m';
-      const uploadPreset = metaEnv.VITE_CLOUDINARY_UPLOAD_PRESET || 'ml_default';
+      const base64Str = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+      });
 
-      let uploadedUrl = '';
-
-      // Try Cloudinary API directly
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', uploadPreset);
-
-        const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          if (data.secure_url) {
-            uploadedUrl = data.secure_url;
-          }
-        }
-      } catch (cloudErr) {
-        console.warn('Direct Cloudinary upload fallback to client file reader:', cloudErr);
+      const res = await apiService.uploadImage(base64Str);
+      
+      if (res.success && res.url) {
+        onChange(res.url);
+        setUrlInputVal(res.url);
+      } else {
+        throw new Error(res.message || 'আপলোড ব্যর্থ হয়েছে');
       }
-
-      // If Cloudinary preset was not configured or failed, convert to high-quality compressed Base64 data URL
-      if (!uploadedUrl) {
-        uploadedUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = (err) => reject(err);
-          reader.readAsDataURL(file);
-        });
-      }
-
-      onChange(uploadedUrl);
-      setUrlInputVal(uploadedUrl);
     } catch (err: any) {
-      setError('ছবি আপলোড করতে সমস্যা হয়েছে। দয়া করে পুনরায় চেষ্টা করুন।');
+      setError('ছবি আপলোড করতে সমস্যা হয়েছে: ' + err.message);
     } finally {
       setUploading(false);
     }

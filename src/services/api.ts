@@ -397,6 +397,20 @@ export const apiService = {
       headers: getAuthHeaders(),
     });
   },
+  
+  // File Upload
+  async uploadImage(base64Str: string): Promise<{ success: boolean; url?: string; message?: string }> {
+    try {
+      const res = await fetch(`${BASE_URL}/upload`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ image: base64Str }),
+      });
+      return await res.json();
+    } catch (err: any) {
+      return { success: false, message: err.message };
+    }
+  },
 
   // Auth & Verification
   async sendVerificationCode(email: string): Promise<{ success: boolean; message: string; code?: string }> {
