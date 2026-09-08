@@ -6,7 +6,7 @@
       "nameEn": "Jasmin",
       "username": "jasmin",
       "email": "jasmin@nazrulacademy.edu.bd",
-      "passwordHash": "$2b$10$lrGprHWCMFneba4LvUSZ5ugMcjn745jAewAQSb.IT9fha1frVrYWu",
+      "passwordHash": "$2b$10$a2RpjJSrl8MEf1M6QrzitOtA0Av7b2aOQGfTtQlSfpdMGeq35DZv6",
       "role": "admin",
       "phone": "+880 1797-585073",
       "bloodGroup": "B+",
@@ -98,8 +98,8 @@
     }
   ],
   "statsData": {
-    "registeredStudents": 703,
-    "familyMembersCount": 80,
+    "registeredStudents": 17,
+    "familyMembersCount": 21,
     "festivalDate": "২০২৬-০৩-২৬",
     "festivalTime": "সকাল ০৯:০০ টা",
     "festivalTitle": "পুনর্মিলনী ও বসন্ত উৎসব ২০২৬"
