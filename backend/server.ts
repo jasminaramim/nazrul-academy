@@ -1,34 +1,32 @@
 import dotenv from 'dotenv';
 import path from 'path';
-import fs from 'fs';
-
-// Load environment variables first
-const backendEnv = path.resolve(process.cwd(), 'backend', '.env');
-const rootEnv = path.resolve(process.cwd(), '.env');
-
-if (fs.existsSync(backendEnv)) {
-  dotenv.config({ path: backendEnv });
-} else {
-  dotenv.config({ path: rootEnv });
-}
-
+import { fileURLToPath } from 'url';
 import express from 'express';
 import cors from 'cors';
-import routes from './routes';
-import { connectDB } from './config/dbConfig';
+import routes from './routes/index.js';
+import { connectDB } from './config/dbConfig.js';
+
+// __dirname equivalent in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Load .env from backend folder
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3005;
 
 const app = express();
 
-// CORS: লোকালে সব অনুমতি, production এ frontend URL থেকে অনুমতি
-const allowedOrigins = process.env.FRONTEND_URL
-  ? [process.env.FRONTEND_URL, 'http://localhost:5173', 'http://localhost:3000']
-  : ['http://localhost:5173', 'http://localhost:3000', 'http://localhost:3005'];
+// CORS: Allow frontend URLs
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:4173',
+  process.env.FRONTEND_URL,
+].filter(Boolean) as string[];
 
 app.use(cors({
   origin: function (origin, callback) {
-    // Vercel preview URLs বা অন্য কোনো origin allow করতে
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
@@ -45,7 +43,7 @@ app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 app.use('/api', routes);
 
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
   res.json({ success: true, message: 'Backend is running!', timestamp: new Date().toISOString() });
 });
 
