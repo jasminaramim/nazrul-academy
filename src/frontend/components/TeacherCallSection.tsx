@@ -1,5 +1,5 @@
 import React from 'react';
-import { TeacherMessage } from '../types';
+import { TeacherMessage } from '../../shared/types';
 
 interface TeacherCallSectionProps {
   messages: TeacherMessage[];

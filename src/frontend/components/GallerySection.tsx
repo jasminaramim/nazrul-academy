@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Image as ImageIcon, Video, Play, X, Eye } from 'lucide-react';
-import { GalleryItem } from '../types';
+import { GalleryItem } from '../../shared/types';
 
 interface GallerySectionProps {
   gallery: GalleryItem[];

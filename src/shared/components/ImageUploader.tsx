@@ -1,6 +1,6 @@
 import React, { useState, useRef, DragEvent } from 'react';
 import { UploadCloud, Image as ImageIcon, X, Check, Loader2, Link, RefreshCw } from 'lucide-react';
-import { apiService } from '../services/api';
+import { apiService } from '../../shared/services/api';
 
 interface ImageUploaderProps {
   value: string;

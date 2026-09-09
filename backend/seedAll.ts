@@ -28,7 +28,7 @@ import {
   initialGallery,
   initialMagazineArticles,
   initialAdminInfo,
-} from '../src/data/initialData';
+} from '../src/shared/data/initialData';
 
 async function seedAll() {
   await connectDB();

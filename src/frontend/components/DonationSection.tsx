@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { HeartHandshake, Award, Wallet, ArrowRight, QrCode } from 'lucide-react';
-import { Donor } from '../types';
-import { formatTaka } from '../utils/formatters';
+import { Donor } from '../../shared/types';
+import { formatTaka } from '../../shared/utils/formatters';
 import { PaymentModal } from './PaymentModal';
 
 interface DonationSectionProps {

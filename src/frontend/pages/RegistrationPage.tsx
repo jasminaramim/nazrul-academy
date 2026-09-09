@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { ImageUploader } from './ImageUploader';
+import { useAuth } from '../../shared/context/AuthContext';
+import { ImageUploader } from '../../shared/components/ImageUploader';
 
 interface RegistrationPageProps {
   onSuccessNavigate: (page: string) => void;

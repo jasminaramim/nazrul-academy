@@ -15,8 +15,8 @@ import {
   ArrowLeft,
   Lock,
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { apiService } from '../services/api';
+import { useAuth } from '../../shared/context/AuthContext';
+import { apiService } from '../../shared/services/api';
 
 interface LoginPageProps {
   onSuccessNavigate: (page: string) => void;

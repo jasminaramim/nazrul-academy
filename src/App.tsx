@@ -1,22 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { AuthProvider, useAuth } from './context/AuthContext';
-import { apiService } from './services/api';
-import { Navbar } from './components/Navbar';
-import { Footer } from './components/Footer';
-import { HeroSlider } from './components/HeroSlider';
-import { TeacherCallSection } from './components/TeacherCallSection';
-import { StatsSection } from './components/StatsSection';
-import { StudentListSection } from './components/StudentListSection';
-import { FinanceSection } from './components/FinanceSection';
-import { NoticeSection } from './components/NoticeSection';
-import { ScheduleSection } from './components/ScheduleSection';
-import { DonationSection } from './components/DonationSection';
-import { GallerySection } from './components/GallerySection';
-import { MagazineSection } from './components/MagazineSection';
-import { RegistrationPage } from './components/RegistrationPage';
-import { LoginPage } from './components/LoginPage';
-import { AdminDashboard } from './components/AdminDashboard';
-import { NoticeDetailPage } from './components/NoticeDetailPage';
+import { AuthProvider, useAuth } from './shared/context/AuthContext';
+import { apiService } from './shared/services/api';
+import { Navbar } from './frontend/components/Navbar';
+import { Footer } from './frontend/components/Footer';
+import { HomePage } from './frontend/pages/HomePage';
+import { RegistrationPage } from './frontend/pages/RegistrationPage';
+import { LoginPage } from './frontend/pages/LoginPage';
+import { AdminDashboard } from './admin/pages/AdminDashboard';
+import { NoticeDetailPage } from './frontend/pages/NoticeDetailPage';
+import { StudentListSection } from './frontend/components/StudentListSection';
+import { GallerySection } from './frontend/components/GallerySection';
+import { ScheduleSection } from './frontend/components/ScheduleSection';
+import { MagazineSection } from './frontend/components/MagazineSection';
+
 import {
   GlobalConfig,
   HeroSlide,
@@ -30,7 +26,7 @@ import {
   Donor,
   GalleryItem,
   MagazineArticle,
-} from './types';
+} from './shared/types';
 import {
   initialGlobalConfig,
   initialHeroSlides,
@@ -44,7 +40,7 @@ import {
   initialDonors,
   initialGallery,
   initialMagazineArticles,
-} from './data/initialData';
+} from './shared/data/initialData';
 
 function MainAppContent() {
   const { user, isAdmin } = useAuth();
@@ -182,63 +178,24 @@ function MainAppContent() {
       <main className="flex-1">
         {/* 1. HOME PAGE */}
         {currentPage === 'home' && (
-          <div>
-            {/* Dynamic Hero Slider */}
-            <HeroSlider
-              slides={heroSlides}
-              onNavigate={handleNavigate}
-              festivalDate={statsData.festivalDate}
-              festivalTime={statsData.festivalTime}
-            />
-
-            {/* প্রাক্তনদের প্রতি আহবান */}
-            <TeacherCallSection messages={teacherMessages} />
-
-            {/* পরিসংখ্যান */}
-            <StatsSection
-              stats={statsData}
-              studentsCount={students.length}
-              familyMembersCount={
-                students.reduce((sum, s) => sum + (s.familyMembersCount || 0), 0) ||
-                statsData.familyMembersCount
-              }
-            />
-
-            {/* প্রাক্তন ছাত্র/ছাত্রী তালিকা (All ex-student lists) */}
-            <StudentListSection
-              students={students}
-              onNavigate={handleNavigate}
-              showAll={false}
-            />
-
-            {/* আর্থিক চিত্র (Financial Condition) */}
-            <FinanceSection finance={finance} />
-
-            {/* সর্বশেষ নোটিশ (Notice) */}
-            <NoticeSection
-              notices={notices}
-              showAll={false}
-              onSelectNotice={(notice) => {
-                setSelectedNotice(notice);
-                handleNavigate('notice-detail');
-              }}
-            />
-
-            {/* কার্যক্রমের সময়সূচি ও সাংস্কৃতিক পর্ব (Schedule & Cultural) */}
-            <ScheduleSection
-              schedule={schedule}
-              culturalSchedule={culturalSchedule}
-            />
-
-            {/* সম্মানিত দাতা ও অনুদান (Donation) */}
-            <DonationSection donors={donors} />
-
-            {/* স্মৃতির পাতা ম্যাগাজিন (Magazine) */}
-            <MagazineSection articles={magazineArticles} />
-
-            {/* গ্যালারি (Gallery) */}
-            <GallerySection gallery={gallery} showAll={false} />
-          </div>
+          <HomePage
+            heroSlides={heroSlides}
+            teacherMessages={teacherMessages}
+            statsData={statsData}
+            students={students}
+            finance={finance}
+            notices={notices}
+            schedule={schedule}
+            culturalSchedule={culturalSchedule}
+            donors={donors}
+            gallery={gallery}
+            magazineArticles={magazineArticles}
+            onNavigate={handleNavigate}
+            onSelectNotice={(notice) => {
+              setSelectedNotice(notice);
+              handleNavigate('notice-detail');
+            }}
+          />
         )}
 
         {/* 2. REGISTRATION PAGE (নিবন্ধন) */}

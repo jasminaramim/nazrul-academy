@@ -19,7 +19,7 @@ import { connectDB } from './config/dbConfig';
 
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3005;
 
-async function startServer() {
+
   const app = express();
 
   app.use(cors());
@@ -47,9 +47,14 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`ত্রিশাল সরকারি নজরুল একাডেমি সার্ভার চলছে: http://localhost:${PORT}`);
-  });
-}
+  
+  if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`সার্ভার চলছে: http://localhost:${PORT}`);
+    });
+  }
 
-startServer();
+  export default app;
+
+
+

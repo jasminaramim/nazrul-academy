@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, UserPlus, Bell, LogIn, Calendar, MapPin } from 'lucide-react';
-import { HeroSlide } from '../types';
+import { HeroSlide } from '../../shared/types';
 
 interface HeroSliderProps {
   slides: HeroSlide[];

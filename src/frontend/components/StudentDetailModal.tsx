@@ -1,6 +1,6 @@
 import React from 'react';
 import { X, Droplet, MapPin, Briefcase, Building, GraduationCap, Phone, Mail, Users, Shirt } from 'lucide-react';
-import { Student } from '../types';
+import { Student } from '../../shared/types';
 
 interface StudentDetailModalProps {
   student: Student | null;

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Search, Droplet, MapPin, ArrowRight, UserCheck } from 'lucide-react';
-import { Student } from '../types';
+import { Student } from '../../shared/types';
 import { StudentDetailModal } from './StudentDetailModal';
 
 interface StudentListSectionProps {

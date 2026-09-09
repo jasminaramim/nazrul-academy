@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Clock, Calendar, Music, Sparkles, Tag, Award, Users } from 'lucide-react';
-import { ScheduleItem, CulturalItem } from '../types';
-import { toBengaliNumber } from '../utils/formatters';
+import { ScheduleItem, CulturalItem } from '../../shared/types';
+import { toBengaliNumber } from '../../shared/utils/formatters';
 
 interface ScheduleSectionProps {
   schedule: ScheduleItem[];

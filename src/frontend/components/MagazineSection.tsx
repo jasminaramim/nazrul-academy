@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BookOpen, Download, User, Calendar, FileText, X, Sparkles, Send } from 'lucide-react';
-import { MagazineArticle } from '../types';
-import { formatDateBengali } from '../utils/formatters';
+import { MagazineArticle } from '../../shared/types';
+import { formatDateBengali } from '../../shared/utils/formatters';
 
 interface MagazineSectionProps {
   articles: MagazineArticle[];

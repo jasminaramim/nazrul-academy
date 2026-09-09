@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Menu, X, User as UserIcon, LogOut, ShieldCheck, HeartHandshake, Sparkles, BookOpen } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
-import { GlobalConfig } from '../types';
+import { useAuth } from '../../shared/context/AuthContext';
+import { GlobalConfig } from '../../shared/types';
 
 interface NavbarProps {
   currentPage: string;

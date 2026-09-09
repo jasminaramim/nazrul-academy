@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, UserCheck, Calendar, Clock, Sparkles } from 'lucide-react';
-import { StatsData } from '../types';
-import { toBengaliNumber } from '../utils/formatters';
+import { StatsData } from '../../shared/types';
+import { toBengaliNumber } from '../../shared/utils/formatters';
 
 interface StatsSectionProps {
   stats: StatsData;

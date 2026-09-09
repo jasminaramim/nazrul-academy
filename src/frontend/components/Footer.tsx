@@ -1,6 +1,6 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Facebook, Youtube, Heart, ExternalLink } from 'lucide-react';
-import { GlobalConfig } from '../types';
+import { GlobalConfig } from '../../shared/types';
 
 interface FooterProps {
   globalConfig: GlobalConfig;

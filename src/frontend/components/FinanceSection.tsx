@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { TrendingUp, TrendingDown, Wallet, Info, X } from 'lucide-react';
-import { FinanceSummary } from '../types';
-import { formatTaka } from '../utils/formatters';
+import { FinanceSummary } from '../../shared/types';
+import { formatTaka } from '../../shared/utils/formatters';
 
 interface FinanceSectionProps {
   finance: FinanceSummary;

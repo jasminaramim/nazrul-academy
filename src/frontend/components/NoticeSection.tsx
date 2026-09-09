@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Bell, Calendar, Tag, AlertCircle, ArrowRight, X, User } from 'lucide-react';
-import { Notice } from '../types';
-import { formatDateBengali } from '../utils/formatters';
+import { Notice } from '../../shared/types';
+import { formatDateBengali } from '../../shared/utils/formatters';
 
 interface NoticeSectionProps {
   notices: Notice[];

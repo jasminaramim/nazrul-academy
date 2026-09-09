@@ -13,8 +13,8 @@ import {
   Sparkles,
   ExternalLink,
 } from 'lucide-react';
-import { Notice } from '../types';
-import { formatDateBengali } from '../utils/formatters';
+import { Notice } from '../../shared/types';
+import { formatDateBengali } from '../../shared/utils/formatters';
 
 interface NoticeDetailPageProps {
   notice: Notice;
