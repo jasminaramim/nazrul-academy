@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TrendingUp, TrendingDown, Wallet, Info, X } from 'lucide-react';
+import { TrendingUp, TrendingDown, Wallet, BarChart3, X, ChevronRight, Banknote } from 'lucide-react';
 import { FinanceSummary } from '../../shared/types';
 import { formatTaka } from '../../shared/utils/formatters';
 
@@ -10,168 +10,265 @@ interface FinanceSectionProps {
 export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
   const [showDetails, setShowDetails] = useState(false);
 
+  const totalIncome = finance.totalIncome || 0;
+  const totalExpense = finance.totalExpense || 0;
+  const balance = finance.balance || 0;
+
+  const incomePercent = totalIncome > 0 ? 100 : 0;
+  const expensePercent = totalIncome > 0 ? Math.round((totalExpense / totalIncome) * 100) : 0;
+  const balancePercent = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
+
   return (
-    <section className="py-16 bg-white border-b border-slate-200/70">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 bg-slate-50 border-b border-slate-100">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+
         {/* Section Header */}
-        <div className="text-center mb-10">
-          <span className="text-xs sm:text-sm font-bold tracking-widest text-[#00732A] uppercase bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+        <div className="text-center mb-14">
+          <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-[#00732A] text-xs font-bold px-4 py-1.5 rounded-full mb-5">
+            <Banknote className="w-3.5 h-3.5" />
             আর্থিক তথ্য
-          </span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-            পুনর্মিলনীর আর্থিক চিত্র
+          </div>
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-3">
+            পুনর্মিলনীর <span className="text-[#00732A]">আর্থিক চিত্র</span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500 mt-1">
-            পুনর্মিলনী আয়োজনের সর্বমোট আর্থিক হিসাব ও তহবিল
+          <p className="text-slate-500 text-sm md:text-base">
+            পুনর্মিলনী আয়োজনের সর্বমোট আর্থিক হিসাব ও তহবিল
           </p>
-        </div>
-
-        {/* 3 Metric Summary Banner */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-50 p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-2xs">
-          {/* Total Income */}
-          <div className="flex flex-col items-center text-center p-4">
-            <span className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-              <span>মোট আয়</span>
-            </span>
-            <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {formatTaka(finance.totalIncome)}
-            </span>
-            <span className="text-[11px] text-slate-400 mt-1">নিবন্ধন ও অনুদান হতে</span>
-          </div>
-
-          {/* Total Expense */}
-          <div className="flex flex-col items-center text-center p-4 border-y md:border-y-0 md:border-x border-slate-200">
-            <span className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-              <TrendingDown className="w-3.5 h-3.5 text-rose-600" />
-              <span>মোট ব্যয়</span>
-            </span>
-            <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {formatTaka(finance.totalExpense)}
-            </span>
-            <span className="text-[11px] text-slate-400 mt-1">মঞ্চ, ভোজ ও ব্যবস্থাপনা</span>
-          </div>
-
-          {/* Balance (Surplus) */}
-          <div className="flex flex-col items-center text-center p-4">
-            <span className="text-xs font-bold text-slate-500 mb-1 flex items-center gap-1">
-              <Wallet className="w-3.5 h-3.5 text-amber-600" />
-              <span>উদ্বৃত্ত</span>
-            </span>
-            <span className="text-2xl sm:text-3xl font-black text-amber-600 tracking-tight">
-              {formatTaka(finance.balance)}
-            </span>
-            <span className="text-[11px] text-slate-400 mt-1">বিদ্যালয় উন্নয়ন তহবিলে</span>
+          <div className="flex justify-center mt-4 gap-1">
+            <div className="h-1 w-8 rounded-full bg-[#00732A]"></div>
+            <div className="h-1 w-3 rounded-full bg-[#FBBF24]"></div>
+            <div className="h-1 w-8 rounded-full bg-[#CA0000]"></div>
           </div>
         </div>
 
-        {/* Detailed Modal Trigger */}
-        <div className="mt-6 text-center">
+        {/* Main Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+          {/* Income Card */}
+          <div className="relative bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/60 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl bg-gradient-to-r from-[#00732A] to-emerald-400"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-[#00732A]" />
+                </div>
+                <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+                  {incomePercent}%
+                </span>
+              </div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">মোট আয়</div>
+              <div className="text-3xl font-black text-[#00732A] tracking-tight mb-1">
+                {formatTaka(totalIncome)}
+              </div>
+              <div className="text-xs text-slate-400 mb-4">নিবন্ধন ও অনুদান হতে</div>
+              {/* Progress Bar */}
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-[#00732A] to-emerald-400" style={{ width: `${incomePercent}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Expense Card */}
+          <div className="relative bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-red-50/60 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl bg-gradient-to-r from-[#CA0000] to-rose-400"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                  <TrendingDown className="w-6 h-6 text-[#CA0000]" />
+                </div>
+                <span className="text-xs font-bold text-red-700 bg-red-100 px-2.5 py-1 rounded-full">
+                  {expensePercent}%
+                </span>
+              </div>
+              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">মোট ব্যয়</div>
+              <div className="text-3xl font-black text-[#CA0000] tracking-tight mb-1">
+                {formatTaka(totalExpense)}
+              </div>
+              <div className="text-xs text-slate-400 mb-4">মঞ্চ, ভোজ ও ব্যবস্থাপনা</div>
+              {/* Progress Bar */}
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-[#CA0000] to-rose-400" style={{ width: `${expensePercent}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Surplus Card */}
+          <div className="relative bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-8 shadow-lg shadow-amber-200 hover:shadow-xl hover:shadow-amber-300 hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-white/10 translate-y-1/2 -translate-x-1/2"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-6">
+                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                  <Wallet className="w-6 h-6 text-white" />
+                </div>
+                <span className="text-xs font-bold text-amber-100 bg-white/20 px-2.5 py-1 rounded-full">
+                  {balancePercent}% উদ্বৃত্ত
+                </span>
+              </div>
+              <div className="text-xs font-bold text-amber-100 uppercase tracking-wider mb-2">উদ্বৃত্ত</div>
+              <div className="text-3xl font-black text-white tracking-tight mb-1">
+                {formatTaka(balance)}
+              </div>
+              <div className="text-xs text-amber-100 mb-4">বিদ্যালয় উন্নয়ন তহবিলে</div>
+              {/* Progress Bar */}
+              <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
+                <div className="h-full rounded-full bg-white" style={{ width: `${balancePercent}%` }}></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Income vs Expense Visual Bar */}
+        {totalIncome > 0 && (
+          <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                <BarChart3 className="w-4 h-4 text-[#00732A]" />
+                আয় ও ব্যয়ের অনুপাত
+              </h3>
+              <span className="text-xs text-slate-500">মোট: {formatTaka(totalIncome)}</span>
+            </div>
+            <div className="flex h-6 rounded-full overflow-hidden gap-0.5">
+              <div
+                className="h-full bg-gradient-to-r from-[#00732A] to-emerald-400 flex items-center justify-center transition-all duration-700"
+                style={{ width: `${expensePercent}%` }}
+              >
+                <span className="text-[10px] font-bold text-white px-1 truncate">ব্যয় {expensePercent}%</span>
+              </div>
+              <div
+                className="h-full bg-gradient-to-r from-amber-400 to-amber-500 flex items-center justify-center transition-all duration-700"
+                style={{ width: `${balancePercent}%` }}
+              >
+                <span className="text-[10px] font-bold text-white px-1 truncate">উদ্বৃত্ত {balancePercent}%</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-6 mt-3">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-[#00732A]"></div>
+                <span className="text-xs text-slate-500">মোট ব্যয়</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                <span className="text-xs text-slate-500">উদ্বৃত্ত স্থিতি</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Detailed Button */}
+        <div className="text-center">
           <button
             onClick={() => setShowDetails(true)}
-            className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-[#00732A] hover:text-[#005c21] hover:underline cursor-pointer"
+            className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#00732A] to-[#005a20] hover:from-[#005a20] hover:to-[#00732A] shadow-md shadow-emerald-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300 cursor-pointer"
           >
-            <Info className="w-4 h-4" />
-            <span>বিস্তারিত দেখুন</span>
+            <BarChart3 className="w-4 h-4" />
+            <span>বিস্তারিত আর্থিক বিবরণী</span>
+            <ChevronRight className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Details Modal */}
       {showDetails && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
-            <button
-              onClick={() => setShowDetails(false)}
-              className="absolute top-4 right-4 p-1 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <h3 className="text-xl font-bold text-slate-900 border-b border-slate-200 pb-3 mb-5">
-              পুনর্মিলনী তহবিলের বিস্তারিত বিবরণী
-            </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
+              <div>
+                <h3 className="text-xl font-extrabold text-slate-900">পুনর্মিলনী তহবিলের বিবরণী</h3>
+                <p className="text-xs text-slate-500 mt-0.5">সর্বশেষ হালনাগাদ: {finance.lastUpdated}</p>
+              </div>
+              <button
+                onClick={() => setShowDetails(false)}
+                className="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
             {/* Income and Expense categories */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               {/* Income Categories */}
-              <div className="bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
-                <h4 className="text-sm font-bold text-[#00732A] mb-3 flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4" />
-                  <span>আয়ের খাতসমূহ</span>
+              <div className="bg-emerald-50 p-5 rounded-2xl border border-emerald-100">
+                <h4 className="text-sm font-bold text-[#00732A] mb-4 flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#00732A] flex items-center justify-center">
+                    <TrendingUp className="w-4 h-4 text-white" />
+                  </div>
+                  আয়ের খাতসমূহ
                 </h4>
-                <ul className="space-y-2 text-xs sm:text-sm">
+                <ul className="space-y-2.5 text-xs sm:text-sm">
                   {finance.breakdown?.incomeCategories?.map((item, idx) => (
-                    <li key={idx} className="flex justify-between border-b border-emerald-100/60 pb-1.5">
+                    <li key={idx} className="flex justify-between items-center bg-white/70 px-3 py-2 rounded-xl">
                       <span className="text-slate-700">{item.category}</span>
-                      <span className="font-bold text-slate-900">{formatTaka(item.amount)}</span>
+                      <span className="font-bold text-[#00732A]">{formatTaka(item.amount)}</span>
                     </li>
                   ))}
-                  <li className="flex justify-between pt-2 text-sm font-black text-[#00732A]">
-                    <span>সর্বমোট আয়:</span>
-                    <span>{formatTaka(finance.totalIncome)}</span>
+                  <li className="flex justify-between pt-2 text-sm font-black text-[#00732A] border-t border-emerald-200 mt-2">
+                    <span>সর্বমোট আয়:</span>
+                    <span>{formatTaka(totalIncome)}</span>
                   </li>
                 </ul>
               </div>
 
               {/* Expense Categories */}
-              <div className="bg-rose-50/50 p-4 rounded-xl border border-rose-100">
-                <h4 className="text-sm font-bold text-[#CA0000] mb-3 flex items-center gap-1.5">
-                  <TrendingDown className="w-4 h-4" />
-                  <span>ব্যয়ের খাতসমূহ</span>
+              <div className="bg-red-50 p-5 rounded-2xl border border-red-100">
+                <h4 className="text-sm font-bold text-[#CA0000] mb-4 flex items-center gap-2">
+                  <div className="w-7 h-7 rounded-lg bg-[#CA0000] flex items-center justify-center">
+                    <TrendingDown className="w-4 h-4 text-white" />
+                  </div>
+                  ব্যয়ের খাতসমূহ
                 </h4>
-                <ul className="space-y-2 text-xs sm:text-sm">
+                <ul className="space-y-2.5 text-xs sm:text-sm">
                   {finance.breakdown?.expenseCategories?.map((item, idx) => (
-                    <li key={idx} className="flex justify-between border-b border-rose-100/60 pb-1.5">
+                    <li key={idx} className="flex justify-between items-center bg-white/70 px-3 py-2 rounded-xl">
                       <span className="text-slate-700">{item.category}</span>
-                      <span className="font-bold text-slate-900">{formatTaka(item.amount)}</span>
+                      <span className="font-bold text-[#CA0000]">{formatTaka(item.amount)}</span>
                     </li>
                   ))}
-                  <li className="flex justify-between pt-2 text-sm font-black text-[#CA0000]">
-                    <span>সর্বমোট ব্যয়:</span>
-                    <span>{formatTaka(finance.totalExpense)}</span>
+                  <li className="flex justify-between pt-2 text-sm font-black text-[#CA0000] border-t border-red-200 mt-2">
+                    <span>সর্বমোট ব্যয়:</span>
+                    <span>{formatTaka(totalExpense)}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
-            {/* Transactions Ledger Table if available */}
+            {/* Transactions Table */}
             {finance.transactions && finance.transactions.length > 0 && (
               <div className="mt-6">
-                <h4 className="text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">
-                  সাম্প্রতিক আর্থিক ভাউচার ও ট্রানজেকশন তালিকা
+                <h4 className="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4 text-slate-500" />
+                  সাম্প্রতিক আর্থিক ভাউচার ও ট্রানজেকশন
                 </h4>
-                <div className="max-h-52 overflow-y-auto rounded-xl border border-slate-200">
+                <div className="max-h-52 overflow-y-auto rounded-2xl border border-slate-200">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-100 text-slate-600 font-bold sticky top-0">
+                    <thead className="bg-slate-900 text-white font-bold sticky top-0">
                       <tr>
-                        <th className="p-2.5">তারিখ</th>
-                        <th className="p-2.5">খাত / বিবরণ</th>
-                        <th className="p-2.5">ধরন</th>
-                        <th className="p-2.5 text-right">পরিমাণ</th>
+                        <th className="p-3 rounded-tl-2xl">তারিখ</th>
+                        <th className="p-3">বিবরণ</th>
+                        <th className="p-3">ধরন</th>
+                        <th className="p-3 text-right rounded-tr-2xl">পরিমাণ</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                       {finance.transactions.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-slate-50">
-                          <td className="p-2.5 text-slate-500 whitespace-nowrap">{tx.date}</td>
-                          <td className="p-2.5 text-slate-800 font-medium">{tx.title}</td>
-                          <td className="p-2.5">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                tx.type === 'income'
-                                  ? 'bg-emerald-100 text-emerald-800'
-                                  : 'bg-rose-100 text-rose-800'
-                              }`}
-                            >
-                              {tx.type === 'income' ? 'আয়' : 'ব্যয়'}
+                        <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="p-3 text-slate-500 whitespace-nowrap">{tx.date}</td>
+                          <td className="p-3 text-slate-800 font-medium">{tx.title}</td>
+                          <td className="p-3">
+                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                              tx.type === 'income'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : 'bg-red-100 text-red-800'
+                            }`}>
+                              {tx.type === 'income' ? '↑ আয়' : '↓ ব্যয়'}
                             </span>
                           </td>
-                          <td
-                            className={`p-2.5 text-right font-bold whitespace-nowrap ${
-                              tx.type === 'income' ? 'text-emerald-700' : 'text-rose-700'
-                            }`}
-                          >
+                          <td className={`p-3 text-right font-bold whitespace-nowrap ${
+                            tx.type === 'income' ? 'text-[#00732A]' : 'text-[#CA0000]'
+                          }`}>
                             {formatTaka(tx.amount)}
                           </td>
                         </tr>
@@ -182,13 +279,11 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
               </div>
             )}
 
-            {/* Surplus note */}
-            <div className="mt-6 p-4 rounded-xl bg-amber-50 border border-amber-200 text-center">
-              <span className="text-xs text-slate-600">উদ্বৃত্ত নগদ স্থিতি: </span>
-              <strong className="text-base text-amber-800 font-bold ml-1">
-                {formatTaka(finance.balance)}
-              </strong>
-              <p className="text-[11px] text-slate-500 mt-1">
+            {/* Surplus Banner */}
+            <div className="mt-5 p-4 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 text-white text-center shadow-md">
+              <div className="text-xs font-semibold text-amber-100 mb-1">উদ্বৃত্ত নগদ স্থিতি</div>
+              <div className="text-2xl font-black">{formatTaka(balance)}</div>
+              <p className="text-[11px] text-amber-100 mt-1.5">
                 উদ্বৃত্ত অর্থ ত্রিশাল সরকারি নজরুল একাডেমির লাইব্রেরি ও বিজ্ঞানাগার সংস্কারে ব্যবহৃত হবে।
               </p>
             </div>

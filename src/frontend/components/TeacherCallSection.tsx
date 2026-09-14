@@ -1,87 +1,164 @@
 import React from 'react';
 import { TeacherMessage } from '../../shared/types';
+import { User, GraduationCap, ScrollText, Award, Heart, Star, Quote } from 'lucide-react';
 
 interface TeacherCallSectionProps {
   messages: TeacherMessage[];
 }
 
 export const TeacherCallSection: React.FC<TeacherCallSectionProps> = ({ messages }) => {
+  const getTheme = (index: number) => {
+    const themes = [
+      {
+        borderTop: 'border-t-[#00732A]',
+        iconBorder: 'border-[#00732A]',
+        iconColor: 'text-[#00732A]',
+        iconBg: 'bg-emerald-50',
+        roleColor: 'text-red-400',
+        quoteColor: 'text-emerald-400',
+        Icon: User,
+        bottomIcon: <Award className="w-5 h-5 text-amber-500" />,
+        badge: null
+      },
+      {
+        borderTop: 'border-t-[#CA0000]',
+        iconBorder: 'border-[#CA0000]',
+        iconColor: 'text-[#CA0000]',
+        iconBg: 'bg-red-50',
+        roleColor: 'text-[#00732A]',
+        quoteColor: 'text-slate-600',
+        Icon: GraduationCap,
+        bottomIcon: <Heart className="w-5 h-5 text-[#CA0000] fill-[#CA0000]" />,
+        badge: 'বিশেষ বার্তা'
+      },
+      {
+        borderTop: 'border-t-amber-500',
+        iconBorder: 'border-amber-500',
+        iconColor: 'text-amber-500',
+        iconBg: 'bg-amber-50',
+        roleColor: 'text-amber-500',
+        quoteColor: 'text-amber-400',
+        Icon: ScrollText,
+        bottomIcon: <Star className="w-5 h-5 text-amber-500 fill-amber-500" />,
+        badge: null
+      }
+    ];
+    return themes[index % themes.length];
+  };
+
+  // Duplicate messages for seamless marquee effect
+  const marqueeItems = [...messages, ...messages, ...messages];
+
   return (
-    <section className="py-16 bg-gradient-to-b from-white to-slate-50 border-b border-slate-200/70">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-20 bg-[#F4F7F8] overflow-hidden">
+      <style>
+        {`
+          @keyframes marquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+          }
+          .animate-marquee {
+            animation: marquee 40s linear infinite;
+          }
+          .animate-marquee:hover {
+            animation-play-state: paused;
+          }
+          .mask-edges {
+            -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+            mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+          }
+        `}
+      </style>
+
+      <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
+        
         {/* Section Header */}
-        <div className="text-center mb-12">
-          <span className="text-xs sm:text-sm font-bold tracking-widest text-[#00732A] uppercase bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-            বাণী ও আশীর্বাদ
+        <div className="text-center mb-16">
+          <span className="inline-block text-xs font-bold text-red-500 bg-red-100 px-4 py-1 rounded-full mb-4">
+            বাণী ও আশীর্বচন
           </span>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-slate-900 mt-2">
-            প্রাক্তনদের প্রতি আহবান
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-800 mb-4">
+            প্রাক্তনদের প্রতি আহ্বান ও শুভেচ্ছা বার্তা
           </h2>
-          <div className="w-16 h-1 bg-[#CA0000] mx-auto mt-3 rounded-full" />
+          <div className="flex justify-center h-1 w-24 mx-auto rounded-full overflow-hidden">
+            <div className="w-1/2 bg-[#00732A]"></div>
+            <div className="w-1/2 bg-[#CA0000]"></div>
+          </div>
         </div>
 
-        {/* Message Cards Grid */}
-        <div className="space-y-10">
-          {messages.map((item) => (
-            <div
-              key={item.id}
-              className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 border border-slate-200/90 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
-            >
-              {/* Subtle green top bar accent */}
-              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-[#00732A] via-emerald-500 to-[#CA0000]" />
+        {/* Conditional rendering based on messages */}
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 text-slate-500 bg-white rounded-2xl border border-slate-100 shadow-sm mx-auto max-w-2xl">
+            <ScrollText className="w-12 h-12 text-slate-300 mb-4" />
+            <p className="text-lg font-medium">কোনো শুভেচ্ছা বার্তা পাওয়া যায়নি</p>
+            <p className="text-sm mt-1">শিগগিরই বার্তা যুক্ত করা হবে</p>
+          </div>
+        ) : (
+          <div className="mask-edges overflow-hidden py-4">
+            {/* Marquee Wrapper with edge blur */}
+            <div className="flex w-max gap-6 animate-marquee">
+              {marqueeItems.map((item, index) => {
+                const theme = getTheme(index);
+                const IconComponent = theme.Icon;
+                
+                return (
+                  <div 
+                    key={`${item.id}-${index}`}
+                    className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden border-t-4 ${theme.borderTop} w-[350px] md:w-[400px] shrink-0`}
+                  >
+                    {/* Badge if exists */}
+                    {theme.badge && (
+                      <div className="absolute top-0 right-8 bg-[#CA0000] text-white text-[10px] font-bold px-3 py-1 rounded-b-lg">
+                        {theme.badge}
+                      </div>
+                    )}
 
-              <div className="flex flex-col md:flex-row gap-6 md:gap-10 items-start">
-                {/* Teacher Avatar & Identity */}
-                <div className="flex flex-col items-center text-center w-full md:w-64 shrink-0 bg-slate-50/80 p-5 rounded-xl border border-slate-100">
-                  <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-white shadow-md mb-3 ring-2 ring-[#00732A]/30">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      className="w-full h-full object-cover object-top"
-                    />
+                    <div className="p-8 h-full flex flex-col">
+                      {/* Header: Icon + Info */}
+                      <div className="flex items-center gap-4 mb-6">
+                        <div className={`w-14 h-14 rounded-full border-2 ${theme.iconBorder} ${theme.iconBg} ${theme.iconColor} flex items-center justify-center shrink-0`}>
+                          <IconComponent className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <h4 className={`text-xs font-bold ${theme.roleColor} mb-1`}>
+                            {item.heading}
+                          </h4>
+                          <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
+                            {item.name}
+                          </h3>
+                          <p className="text-[11px] text-slate-500 mt-0.5">
+                            {item.designation}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Quote */}
+                      <div className="flex gap-3 mb-8 flex-1">
+                        <span className={`text-4xl font-serif leading-none ${theme.quoteColor}`}>
+                          “
+                        </span>
+                        <p className="text-sm text-slate-500 italic leading-relaxed pt-2">
+                          {item.description}
+                        </p>
+                      </div>
+
+                      {/* Footer */}
+                      <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
+                        <span className={`text-[11px] font-medium ${index % 3 === 1 ? 'text-[#CA0000]' : 'text-slate-600'}`}>
+                          {item.schoolName}
+                        </span>
+                        <div>
+                          {theme.bottomIcon}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="text-lg font-bold text-slate-900 leading-tight">
-                    {item.name}
-                  </h3>
-                  <span className="text-xs font-semibold text-[#CA0000] mt-1">
-                    {item.designation}
-                  </span>
-                  <span className="text-xs text-slate-500 mt-1 leading-snug">
-                    {item.schoolName}
-                  </span>
-                </div>
-
-                {/* Message Body */}
-                <div className="flex-1 space-y-4 text-left">
-                  {/* Bismillah Text */}
-                  <div className="text-center md:text-left">
-                    <p className="text-sm font-semibold text-slate-500 tracking-wider font-serif">
-                      {item.bismillahText || 'বিসমিল্লাহির রাহমানির রাহিম'}
-                    </p>
-                    <p className="text-xs text-slate-400">পরম করুণাময় আল্লাহর নামে</p>
-                  </div>
-
-                  {/* Heading */}
-                  <h4 className="text-lg sm:text-xl font-bold text-slate-900 border-b border-slate-100 pb-2">
-                    {item.heading}
-                  </h4>
-
-                  {/* Greeting */}
-                  {item.greeting && (
-                    <p className="text-sm font-bold text-[#00732A]">
-                      {item.greeting}
-                    </p>
-                  )}
-
-                  {/* Description */}
-                  <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-normal text-justify">
-                    {item.description}
-                  </p>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+
       </div>
     </section>
   );

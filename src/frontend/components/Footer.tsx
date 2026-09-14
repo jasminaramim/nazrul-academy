@@ -1,5 +1,5 @@
 import React from 'react';
-import { Phone, Mail, MapPin, Facebook, Youtube, Heart, ExternalLink } from 'lucide-react';
+import { Phone, Mail, MapPin, Facebook, Youtube, Heart, UserPlus, HelpCircle, ChevronRight, MessageCircle } from 'lucide-react';
 import { GlobalConfig } from '../../shared/types';
 
 interface FooterProps {
@@ -9,192 +9,174 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
   return (
-    <footer className="bg-slate-900 text-white border-t border-slate-800">
-      {/* Top Banner */}
-      <div className="bg-[#00732A] py-6 px-4">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
-          <div>
-            <h3 className="text-lg font-bold text-white">ত্রিশাল সরকারি নজরুল একাডেমি পুনর্মিলনী উৎসব ২০২৬</h3>
-            <p className="text-xs text-emerald-100 mt-0.5">
-              ঐতিহ্যের শতবর্ষ পেরিয়ে প্রাণের প্রাঙ্গণে মিলনমেলা
-            </p>
-          </div>
+    <footer className="bg-[#052317] text-white">
+      {/* Top Banner Section */}
+      <div className="max-w-5xl mx-auto px-4 py-16 text-center">
+        <div className="inline-block bg-[#FBBF24] text-[#052317] text-xs font-bold px-4 py-1.5 rounded-full mb-6">
+          সময় দ্রুত ফুরিয়ে আসছে!
+        </div>
+        
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
+          আপনি কি পুনর্মিলনী ২০২৬-এ আপনার আসন নিশ্চিত করেছেন?
+        </h2>
+        
+        <p className="text-emerald-100 text-sm md:text-base mb-10 max-w-2xl mx-auto">
+          অনলাইন রেজিস্ট্রেশনের মাধ্যমে আপনার আইডি কার্ড, কিট ব্যাগ, খাবার টোকেন ও স্মারক সংকলন সংগ্রহ নিশ্চিত করুন।
+        </p>
+        
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
           <button
             onClick={() => onNavigate('register')}
-            className="px-6 py-2.5 rounded-xl bg-[#CA0000] hover:bg-[#a80000] text-white text-xs sm:text-sm font-bold shadow-md transition-all cursor-pointer"
+            className="flex items-center gap-2 px-6 py-3 rounded-md bg-[#FBBF24] hover:bg-yellow-500 text-[#052317] font-bold transition-all w-full sm:w-auto justify-center"
           >
+            <UserPlus className="w-5 h-5" />
             এখনই নিবন্ধন করুন
+          </button>
+          
+          <button
+            onClick={() => onNavigate('help')}
+            className="flex items-center gap-2 px-6 py-3 rounded-md bg-transparent border border-emerald-600/50 hover:bg-[#0a3826] text-white font-bold transition-all w-full sm:w-auto justify-center"
+          >
+            <HelpCircle className="w-5 h-5" />
+            কীভাবে নিবন্ধন করবেন?
           </button>
         </div>
       </div>
 
-      {/* Main Footer Links & Contact */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Col 1: About School */}
-          <div className="space-y-4">
+      {/* Red Divider Line */}
+      <div className="h-0.5 bg-gradient-to-r from-red-600 via-red-600 to-transparent"></div>
+      
+      {/* Main Footer Content */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+          
+          {/* Column 1: About */}
+          <div className="space-y-6">
             <div className="flex items-center gap-3">
-              {globalConfig.logoUrl ? (
-                <img src={globalConfig.logoUrl} alt="Logo" className="w-10 h-10 object-contain bg-white rounded-full p-0.5" />
-              ) : (
-                <div className="w-10 h-10 rounded-full bg-[#00732A] flex items-center justify-center font-bold text-white border border-[#CA0000]">
-                  না
-                </div>
-              )}
-              <div>
-                <h4 className="text-base font-bold text-white">{globalConfig.siteTitle}</h4>
-                <p className="text-[11px] text-slate-400">স্থাপিত: ১৯১৩ খ্রিষ্টাব্দ</p>
+              <div className="w-10 h-10 rounded-full bg-[#FBBF24] flex items-center justify-center text-[#052317]">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-6 h-6">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" opacity="0" />
+                  <path d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" opacity="0"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 12c0 4.418 3.582 8 8 8s8-3.582 8-8s-3.582-8-8-8s-8 3.582-8 8Z" opacity="0"/>
+                  <path d="M11 6C11 6 7 11 7 15C7 17.7614 9.23858 20 12 20C14.7614 20 17 17.7614 17 15C17 11 13 6 13 6" fill="currentColor"/>
+                </svg>
               </div>
+              <h3 className="text-xl font-bold text-white">নজরুল একাডেমি পুনর্মিলনী</h3>
             </div>
-
-            <p className="text-xs text-slate-300 leading-relaxed text-justify">
-              জাতীয় কবি কাজী নজরুল ইসলামের স্মৃতিবিজড়িত ময়মনসিংহের ত্রিশালের ঐতিহাসিক বিদ্যাপীঠ। শতবর্ষী ঐতিহ্য ও গৌরবে ভাস্বর আমাদের প্রাণের নজরুল একাডেমি।
+            
+            <p className="text-sm text-emerald-100/70 leading-relaxed text-justify">
+              জাতীয় কবি কাজী নজরুল ইসলামের অমূল্য স্মৃতিধন্য শতবর্ষী বিদ্যাপীঠ ত্রিশাল সরকারি নজরুল একাডেমির সর্বস্তরের প্রাক্তন শিক্ষার্থীদের মহামিলন মেলা ২০২৬।
             </p>
+            
+            <div className="flex items-center gap-3">
+              <a href={globalConfig.facebookUrl || '#'} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-[#0a3826] flex items-center justify-center text-emerald-100 hover:bg-[#0f4d35] transition-colors">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href={globalConfig.youtubeUrl || '#'} target="_blank" rel="noreferrer" className="w-8 h-8 rounded-full bg-[#0a3826] flex items-center justify-center text-emerald-100 hover:bg-[#0f4d35] transition-colors">
+                <Youtube className="w-4 h-4" />
+              </a>
+              <a href="#" className="w-8 h-8 rounded-full bg-[#0a3826] flex items-center justify-center text-emerald-100 hover:bg-[#0f4d35] transition-colors">
+                <MessageCircle className="w-4 h-4" />
+              </a>
+            </div>
           </div>
 
-          {/* Col 2: Quick links */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white border-l-2 border-[#00732A] pl-2">
-              প্রয়োজনীয় লিংকসমূহ
-            </h4>
-            <ul className="space-y-2 text-xs text-slate-300">
+          {/* Column 2: Useful Links */}
+          <div className="space-y-6">
+            <h4 className="text-lg font-bold text-[#FBBF24]">প্রয়োজনীয় লিংক</h4>
+            <ul className="space-y-3">
               <li>
-                <button
-                  onClick={() => onNavigate('home')}
-                  className="hover:text-emerald-400 transition-colors"
-                >
-                  হোম পেজ
+                <button onClick={() => onNavigate('home')} className="flex items-center gap-2 text-sm text-emerald-100/80 hover:text-white transition-colors group">
+                  <ChevronRight className="w-4 h-4 text-red-500 group-hover:text-red-400" />
+                  শুভেচ্ছা বাণী
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate('register')}
-                  className="hover:text-emerald-400 transition-colors"
-                >
-                  অনলাইন রেজিস্ট্রেশন
+                <button onClick={() => onNavigate('alumni')} className="flex items-center gap-2 text-sm text-emerald-100/80 hover:text-white transition-colors group">
+                  <ChevronRight className="w-4 h-4 text-red-500 group-hover:text-red-400" />
+                  প্রাক্তন শিক্ষার্থী তালিকা
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate('alumni')}
-                  className="hover:text-emerald-400 transition-colors"
-                >
-                  প্রাক্তন ছাত্র/ছাত্রীদের তালিকা
+                <button onClick={() => onNavigate('activities')} className="flex items-center gap-2 text-sm text-emerald-100/80 hover:text-white transition-colors group">
+                  <ChevronRight className="w-4 h-4 text-red-500 group-hover:text-red-400" />
+                  উৎসবের কর্মসূচি
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate('activities')}
-                  className="hover:text-emerald-400 transition-colors"
-                >
-                  অনুষ্ঠানসূচি ও কার্যক্রম
+                <button onClick={() => onNavigate('home')} className="flex items-center gap-2 text-sm text-emerald-100/80 hover:text-white transition-colors group">
+                  <ChevronRight className="w-4 h-4 text-red-500 group-hover:text-red-400" />
+                  সর্বশেষ নোটিশ
                 </button>
               </li>
               <li>
-                <button
-                  onClick={() => onNavigate('magazine')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  স্মৃতির পাতা ম্যাগাজিন
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => onNavigate('gallery')}
-                  className="hover:text-emerald-400 transition-colors cursor-pointer"
-                >
-                  ছবি ও ভিডিও গ্যালারি
+                <button onClick={() => onNavigate('magazine')} className="flex items-center gap-2 text-sm text-emerald-100/80 hover:text-white transition-colors group">
+                  <ChevronRight className="w-4 h-4 text-red-500 group-hover:text-red-400" />
+                  শতবর্ষ স্মারক সংকলন
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Contact info (User request) */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white border-l-2 border-[#CA0000] pl-2">
-              যোগাযোগের তথ্য
-            </h4>
-            <div className="space-y-2.5 text-xs text-slate-300">
-              <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#CA0000] shrink-0 mt-0.5" />
-                <span>{globalConfig.address}</span>
+          {/* Column 3: Contact Info */}
+          <div className="space-y-6">
+            <h4 className="text-lg font-bold text-[#FBBF24]">যোগাযোগের ঠিকানা</h4>
+            <div className="space-y-4 text-sm text-emerald-100/80">
+              <div className="flex items-start gap-3">
+                <MapPin className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <span>ত্রিশাল সরকারি নজরুল একাডেমি প্রাঙ্গণ, ত্রিশাল,<br/>ময়মনসিংহ-২২২০, বাংলাদেশ</span>
               </div>
-
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#00732A] shrink-0" />
-                <span>{globalConfig.contactPhone1}</span>
+              <div className="flex items-start gap-3">
+                <Phone className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-1">
+                  <span>{globalConfig.contactPhone1 || '+৮৮০ ১৭০০-০০০০০০'}</span>
+                  <span>{globalConfig.contactPhone2 || '+৮৮০ ১৮০০-০০০০০০'}</span>
+                </div>
               </div>
-
-              <div className="flex items-center gap-2">
-                <Phone className="w-4 h-4 text-[#00732A] shrink-0" />
-                <span>{globalConfig.contactPhone2}</span>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>{globalConfig.contactEmail}</span>
+              <div className="flex items-center gap-3">
+                <Mail className="w-5 h-5 text-red-500 shrink-0" />
+                <span>{globalConfig.contactEmail || 'info@nazrulacademy-reunion.org'}</span>
               </div>
             </div>
           </div>
 
-          {/* Col 4: Social links & Wikipedia info */}
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white border-l-2 border-amber-400 pl-2">
-              সোশ্যাল মিডিয়া ও তথ্য
-            </h4>
-            <p className="text-xs text-slate-300">
-              আমাদের ফেসবুক পেজ ও ইউটিউব চ্যানেলে যুক্ত থাকুন সর্বশেষ আপডেটের জন্য।
-            </p>
-
-            <div className="flex items-center gap-3 pt-1">
-              <a
-                href={globalConfig.facebookUrl || 'https://facebook.com'}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-blue-600/30 hover:bg-blue-600 border border-blue-500/50 flex items-center justify-center text-white transition-all"
-              >
-                <Facebook className="w-4 h-4" />
-              </a>
-
-              <a
-                href={globalConfig.youtubeUrl || 'https://youtube.com'}
-                target="_blank"
-                rel="noreferrer"
-                className="w-9 h-9 rounded-lg bg-red-600/30 hover:bg-red-600 border border-red-500/50 flex items-center justify-center text-white transition-all"
-              >
-                <Youtube className="w-4 h-4" />
-              </a>
-            </div>
-
-            <div className="pt-2">
-              <a
-                href="https://bn.wikipedia.org/wiki/%E0%A6%A4%E0%A7%8D%E0%A6%B0%E0%A6%BF%E0%A6%B6%E0%A6%BE%E0%A6%B2_%E0%A6%B8%E0%A6%B0%E0%A6%95%E0%A6%BE%E0%A6%B0%E0%A6%BF_%E0%A6%A8%E0%A6%9C%E0%A6%B0%E0%A7%81%E0%A6%B2_%E0%A6%8F%E0%A6%95%E0%A6%BE%E0%A6%A1%E0%A7%87%E0%A6%AE%E0%A6%BF"
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-[11px] text-amber-300 hover:underline"
-              >
-                <span>উইকিপিডিয়াতে স্কুলের ইতিহাস পড়ুন</span>
-                <ExternalLink className="w-3 h-3" />
-              </a>
+          {/* Column 4: Bank Details */}
+          <div className="space-y-6">
+            <h4 className="text-lg font-bold text-[#FBBF24]">ব্যাংক হিসাব বিবরণী</h4>
+            <div className="bg-[#0a3826] rounded-xl p-5 border border-emerald-800/30">
+              <div className="space-y-2 text-[13px] text-emerald-50/90 mb-4">
+                <p><span className="font-semibold text-white">হিসাবের নাম:</span> নজরুল একাডেমি পুনর্মিলনী ২০২৬</p>
+                <p><span className="font-semibold text-white">হিসাব নং:</span> ২০২৬-০১২৩-৪৫৬৭৮</p>
+                <p><span className="font-semibold text-white">ব্যাংক:</span> রূপালী ব্যাংক লিমিটেড</p>
+                <p><span className="font-semibold text-white">শাখা:</span> ত্রিশাল শাখা, ময়মনসিংহ</p>
+              </div>
+              
+              <div className="flex items-center gap-2 text-xs font-medium text-[#FBBF24] pt-3 border-t border-emerald-800/50">
+                <div className="w-4 h-4 rounded bg-[#FBBF24] flex items-center justify-center text-[#052317]">
+                  <span className="text-[10px] font-bold">৳</span>
+                </div>
+                বিকাশ ও নগদ মার্চেন্ট: ০১৭০০-০০০০০০
+              </div>
             </div>
           </div>
+          
         </div>
+      </div>
 
-        {/* Bottom copyright row */}
-        <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>© ২০২৬ {globalConfig.siteTitle}। সর্বস্বত্ব সংরক্ষিত।</p>
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-6">
-            <p className="flex items-center gap-1">
-              <span>ভালোবাসা ও শ্রদ্ধায় নির্মিত</span>
+      {/* Bottom Copyright Bar */}
+      <div className="border-t border-emerald-900/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-emerald-100/60">
+            <p>© ২০২৬ ত্রিশাল সরকারি নজরুল একাডেমি পুনর্মিলনী উদ্‌যাপন কমিটি। সর্বস্বত্ব সংরক্ষিত।</p>
+            <div className="flex items-center gap-1.5">
+              <span>উদ্যোগে ও বাস্তবায়নে:</span>
               <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
-              <span>ত্রিশাল নজরুল একাডেমি অ্যালামনাই</span>
-            </p>
-            <p className="font-semibold text-emerald-400">
-              ডিজাইন এবং ডেভেলপমেন্টে জেসমিন+রানা
-            </p>
+              <span>পুনর্মিলনী আইটি উপ-কমিটি</span>
+            </div>
           </div>
         </div>
       </div>
     </footer>
   );
 };
+

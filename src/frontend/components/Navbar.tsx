@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
-import { Menu, X, User as UserIcon, LogOut, ShieldCheck, HeartHandshake, Sparkles, BookOpen } from 'lucide-react';
-import { useAuth } from '../../shared/context/AuthContext';
+import React, { useState, useEffect } from 'react';
+import { Menu, X, Sparkles, BookOpen, ChevronDown } from 'lucide-react';
 import { GlobalConfig } from '../../shared/types';
 
 interface NavbarProps {
@@ -10,8 +9,14 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalConfig }) => {
-  const { user, logout, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   const navItems = [
     { id: 'home', label: 'হোম' },
@@ -28,187 +33,153 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-xs">
+    <header className={`sticky top-0 z-50 transition-all duration-300 border-b ${scrolled ? 'bg-white/60 backdrop-blur-2xl shadow-lg border-white/30' : 'bg-white/95 backdrop-blur-sm shadow-sm border-slate-200/60'}`}>
       {/* Top micro-bar */}
-      <div className="bg-gradient-to-r from-[#00732A] via-[#005c21] to-[#CA0000] text-white text-xs py-1 px-4 text-center font-medium">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <span className="hidden sm:inline">ঐতিহ্যের শতবর্ষ: ১৯১৩ সালে স্থাপিত জাতীয় কবির পদধন্য বিদ্যাপীঠ</span>
-          <span className="mx-auto sm:mx-0">ত্রিশাল সরকারি নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন</span>
-          <span className="hidden sm:inline font-mono">হেল্পলাইন: {globalConfig.contactPhone1}</span>
+      <div className="bg-gradient-to-r from-[#00732A] via-[#005c21] to-[#CA0000] text-white py-1.5 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] font-medium">
+          <span className="hidden sm:flex items-center gap-2">
+            <span className="w-1 h-1 rounded-full bg-amber-300 animate-pulse"></span>
+            ঐতিহ্যের শতবর্ষ: ১৯১৩ সালে স্থাপিত জাতীয় কবির পদধন্য বিদ্যাপীঠ
+          </span>
+          <span className="flex-1 text-center sm:text-right font-semibold tracking-wide">
+            ত্রিশাল সরকারি নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন
+          </span>
+          <span className="hidden md:flex items-center gap-1.5 font-mono ml-4 shrink-0">
+            <span className="text-amber-300">📞</span>
+            {globalConfig.contactPhone1}
+          </span>
         </div>
       </div>
 
+      {/* Main Nav */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-20 gap-6">
+
           {/* Logo & School Name */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer"
+            className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer shrink-0"
           >
-            <div className="relative w-12 h-14 shrink-0 flex items-center justify-center">
+            <div className="relative shrink-0">
               {globalConfig.logoUrl ? (
                 <img
                   src={globalConfig.logoUrl}
                   alt="ত্রিশাল সরকারি নজরুল একাডেমি"
-                  className="w-12 h-14 object-contain transition-transform group-hover:scale-105"
+                  className="w-12 h-14 object-contain transition-transform group-hover:scale-105 duration-300"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#00732A] text-white flex items-center justify-center font-bold text-lg border-2 border-[#CA0000] shadow-sm">
+                <div className="w-12 h-12 rounded-full bg-[#00732A] text-white flex items-center justify-center font-bold text-lg border-2 border-[#CA0000]">
                   না
                 </div>
               )}
             </div>
 
             <div>
-              <h1 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight leading-tight group-hover:text-[#CA0000] transition-colors">
+              <h1 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight group-hover:text-[#00732A] transition-colors duration-200">
                 {globalConfig.siteTitle}
               </h1>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-tight">
                 {globalConfig.siteSubtitle}
               </p>
             </div>
           </button>
 
           {/* Desktop Nav Items */}
-          <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <nav className="hidden lg:flex items-center gap-0.5 xl:gap-1 flex-1 justify-center">
             {navItems.map((item) => {
               const isActive = currentPage === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleNavClick(item.id)}
-                  className={`px-3.5 py-2 rounded-lg text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                     isActive
-                      ? 'bg-[#00732A]/10 text-[#00732A] font-bold shadow-xs'
-                      : 'text-slate-700 hover:text-[#CA0000] hover:bg-slate-50'
+                      ? 'text-[#00732A] bg-emerald-50'
+                      : 'text-slate-700 hover:text-[#00732A] hover:bg-emerald-50/60'
                   }`}
                 >
                   {item.label}
+                  {/* Active underline */}
+                  <span className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 rounded-full bg-[#00732A] transition-all duration-300 ${isActive ? 'w-4' : 'w-0'}`}></span>
                 </button>
               );
             })}
           </nav>
 
-          {/* Right Action buttons */}
-          <div className="hidden md:flex items-center gap-2.5">
-            {/* Special Smritir Pata CTA */}
+          {/* Right Action buttons — desktop */}
+          <div className="hidden md:flex items-center gap-2 shrink-0">
+            {/* স্মৃতির পাতা */}
             <button
               onClick={() => handleNavClick('magazine')}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold text-slate-800 bg-slate-100 hover:bg-slate-200 border border-slate-300 shadow-2xs transition-all cursor-pointer"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-200 cursor-pointer ${
+                currentPage === 'magazine'
+                  ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-200'
+                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+              }`}
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-600" />
-              <span>স্মৃতির পাতা</span>
+              <Sparkles className="w-3.5 h-3.5" />
+              স্মৃতির পাতা
             </button>
 
-            {user ? (
-              <div className="flex items-center gap-2">
-                {isAdmin && (
-                  <button
-                    onClick={() => handleNavClick('admin')}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21] shadow-2xs transition-all cursor-pointer"
-                  >
-                    <ShieldCheck className="w-4 h-4" />
-                    <span>অ্যাডমিন ড্যাশবোর্ড</span>
-                  </button>
-                )}
-
-                <div className="flex items-center gap-2 pl-2 border-l border-slate-200">
-                  <div className="w-9 h-9 rounded-full bg-slate-100 border border-slate-300 overflow-hidden flex items-center justify-center">
-                    {user.image ? (
-                      <img src={user.image} alt={user.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <UserIcon className="w-5 h-5 text-slate-600" />
-                    )}
-                  </div>
-                  <button
-                    onClick={logout}
-                    title="লগআউট"
-                    className="p-2 text-slate-500 hover:text-[#CA0000] hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => handleNavClick('login')}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold text-white bg-[#CA0000] hover:bg-[#a80000] shadow-xs hover:shadow-sm transition-all cursor-pointer"
-              >
-                <UserIcon className="w-4 h-4" />
-                <span>লগইন করুন</span>
-              </button>
-            )}
+            {/* নিবন্ধন CTA */}
+            <button
+              onClick={() => handleNavClick('register')}
+              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#CA0000] to-rose-700 hover:from-rose-700 hover:to-[#CA0000] shadow-md shadow-red-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+            >
+              নিবন্ধন করুন
+            </button>
           </div>
 
-          {/* Mobile menu hamburger */}
-          <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={() => handleNavClick('login')}
-              className="px-3 py-1.5 rounded-md text-xs font-bold text-white bg-[#CA0000]"
-            >
-              {user ? 'প্রোফাইল' : 'লগইন'}
-            </button>
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 focus:outline-none"
-            >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
+          {/* Mobile hamburger */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="flex md:hidden p-2 rounded-xl text-slate-700 hover:bg-slate-100 border border-slate-200 transition-colors focus:outline-none"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </div>
 
+      {/* Bottom colored border accent */}
+      <div className="h-0.5 bg-gradient-to-r from-[#00732A] via-amber-400 to-[#CA0000]"></div>
+
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-2 shadow-lg">
+        <div className="md:hidden border-t border-slate-100 bg-white/98 backdrop-blur-md px-4 pt-4 pb-6 space-y-1.5 shadow-xl">
           {navItems.map((item) => {
             const isActive = currentPage === item.id;
             return (
               <button
                 key={item.id}
                 onClick={() => handleNavClick(item.id)}
-                className={`w-full text-left px-4 py-2.5 rounded-lg text-base font-semibold transition-colors ${
+                className={`w-full text-left flex items-center justify-between px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 ${
                   isActive
-                    ? 'bg-[#00732A] text-white font-bold'
-                    : 'text-slate-800 hover:bg-slate-100'
+                    ? 'bg-emerald-50 text-[#00732A] font-bold border border-emerald-200'
+                    : 'text-slate-700 hover:bg-slate-50'
                 }`}
               >
-                {item.label}
+                <span>{item.label}</span>
+                {isActive && <span className="w-2 h-2 rounded-full bg-[#00732A]"></span>}
               </button>
             );
           })}
 
-          <div className="pt-3 border-t border-slate-100 space-y-2">
+          <div className="pt-3 border-t border-slate-100 space-y-1.5">
             <button
               onClick={() => handleNavClick('magazine')}
-              className="w-full text-left flex items-center gap-2 px-4 py-2.5 rounded-lg text-base font-semibold text-slate-800 bg-amber-50 text-amber-900"
+              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-amber-800 bg-amber-50 border border-amber-100 transition-colors"
             >
-              <BookOpen className="w-4 h-4 text-amber-700" />
-              <span>স্মৃতির পাতা ম্যাগাজিন</span>
+              <BookOpen className="w-4 h-4 text-amber-600" />
+              স্মৃতির পাতা ম্যাগাজিন
             </button>
 
-            {isAdmin && (
-              <button
-                onClick={() => handleNavClick('admin')}
-                className="w-full text-left flex items-center gap-2 px-4 py-2.5 rounded-lg text-base font-semibold text-white bg-[#00732A]"
-              >
-                <ShieldCheck className="w-4 h-4" />
-                <span>অ্যাডমিন প্যানেল</span>
-              </button>
-            )}
-
-            {user && (
-              <button
-                onClick={() => {
-                  logout();
-                  setMobileMenuOpen(false);
-                }}
-                className="w-full text-left flex items-center gap-2 px-4 py-2.5 rounded-lg text-base font-semibold text-red-600 hover:bg-red-50"
-              >
-                <LogOut className="w-4 h-4" />
-                <span>লগআউট</span>
-              </button>
-            )}
+            <button
+              onClick={() => handleNavClick('register')}
+              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#CA0000] to-rose-600 shadow-sm"
+            >
+              নিবন্ধন করুন
+            </button>
           </div>
         </div>
       )}
