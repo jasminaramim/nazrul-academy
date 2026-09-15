@@ -91,15 +91,8 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                     <input
                       type="number"
                       value={finance.totalIncome}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setFinance({
-                          ...finance,
-                          totalIncome: val,
-                          balance: val - finance.totalExpense,
-                        });
-                      }}
-                      className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-white"
+                      readOnly
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
                     />
                   </div>
 
@@ -110,15 +103,8 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                     <input
                       type="number"
                       value={finance.totalExpense}
-                      onChange={(e) => {
-                        const val = Number(e.target.value);
-                        setFinance({
-                          ...finance,
-                          totalExpense: val,
-                          balance: finance.totalIncome - val,
-                        });
-                      }}
-                      className="w-full px-3 py-2 text-sm rounded-xl border border-rose-300 font-black text-rose-800 bg-white"
+                      readOnly
+                      className="w-full px-3 py-2 text-sm rounded-xl border border-rose-300 font-black text-rose-800 bg-rose-50 cursor-not-allowed"
                     />
                   </div>
 

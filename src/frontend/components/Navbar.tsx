@@ -36,18 +36,32 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
     <header className={`sticky top-0 z-50 transition-all duration-300 border-b ${scrolled ? 'bg-white/60 backdrop-blur-2xl shadow-lg border-white/30' : 'bg-white/95 backdrop-blur-sm shadow-sm border-slate-200/60'}`}>
       {/* Top micro-bar */}
       <div className="bg-gradient-to-r from-[#00732A] via-[#005c21] to-[#CA0000] text-white py-1.5 px-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] font-medium">
-          <span className="hidden sm:flex items-center gap-2 shrink-0">
+        {/* Desktop View */}
+        <div className="hidden sm:flex max-w-7xl mx-auto items-center justify-between text-[11px] font-medium">
+          <span className="flex items-center gap-2 shrink-0">
             <span className="w-1 h-1 rounded-full bg-amber-300 animate-pulse"></span>
             ঐতিহ্যের শতবর্ষ: ১৯১৩ সালে স্থাপিত জাতীয় কবির পদধন্য বিদ্যাপীঠ
           </span>
-          <span className="flex-1 min-w-0 text-center sm:text-right font-semibold tracking-wide truncate">
+          <span className="flex-1 min-w-0 text-right font-semibold tracking-wide truncate px-4">
             ত্রিশাল সরকারি নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন
           </span>
-          <span className="hidden md:flex items-center gap-1.5 font-mono ml-4 shrink-0">
+          <span className="flex items-center gap-1.5 font-mono shrink-0">
             <span className="text-amber-300">📞</span>
             {globalConfig.contactPhone1}
           </span>
+        </div>
+
+        {/* Mobile View (Marquee) */}
+        <div className="sm:hidden text-[11px] font-medium flex items-center overflow-hidden">
+          {/* @ts-ignore */}
+          <marquee scrollamount="4" className="w-full flex items-center">
+            <div className="flex items-center gap-6">
+              <span>ঐতিহ্যের শতবর্ষ: ১৯১৩ সালে স্থাপিত জাতীয় কবির পদধন্য বিদ্যাপীঠ</span>
+              <span className="font-semibold text-amber-200">ত্রিশাল সরকারি নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন</span>
+              <span className="font-mono">📞 {globalConfig.contactPhone1}</span>
+            </div>
+          {/* @ts-ignore */}
+          </marquee>
         </div>
       </div>
 
