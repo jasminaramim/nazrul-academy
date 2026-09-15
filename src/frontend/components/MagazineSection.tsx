@@ -13,7 +13,7 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   return (
-    <section className="py-16 bg-slate-50 border-b border-slate-200/70" id="magazine-section">
+    <section className="py-10 sm:py-12 lg:py-16 bg-slate-50 border-b border-slate-200/70" id="magazine-section">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-10">

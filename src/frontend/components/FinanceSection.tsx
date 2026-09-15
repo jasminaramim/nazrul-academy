@@ -19,7 +19,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
   const balancePercent = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
 
   return (
-    <section className="py-20 bg-slate-50 border-b border-slate-100">
+    <section className="py-10 sm:py-16 lg:py-20 bg-slate-50 border-b border-slate-100">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
 
         {/* Section Header */}
@@ -42,26 +42,26 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
         </div>
 
         {/* Main Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-8">
 
           {/* Income Card */}
-          <div className="relative bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+          <div className="relative bg-white rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/60 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl bg-gradient-to-r from-[#00732A] to-emerald-400"></div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-emerald-100 flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-[#00732A]" />
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-emerald-100 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-[#00732A]" />
                 </div>
-                <span className="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] sm:text-xs font-bold text-emerald-700 bg-emerald-100 px-2 py-1 rounded-full">
                   {incomePercent}%
                 </span>
               </div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">মোট আয়</div>
-              <div className="text-3xl font-black text-[#00732A] tracking-tight mb-1">
+              <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 sm:mb-2">মোট আয়</div>
+              <div className="text-lg sm:text-2xl lg:text-3xl font-black text-[#00732A] tracking-tight mb-1">
                 {formatTaka(totalIncome)}
               </div>
-              <div className="text-xs text-slate-400 mb-4">নিবন্ধন ও অনুদান হতে</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 mb-3 sm:mb-4">নিবন্ধন ও অনুদান হতে</div>
               {/* Progress Bar */}
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full rounded-full bg-gradient-to-r from-[#00732A] to-emerald-400" style={{ width: `${incomePercent}%` }}></div>
@@ -70,23 +70,23 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
           </div>
 
           {/* Expense Card */}
-          <div className="relative bg-white rounded-3xl p-8 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+          <div className="relative bg-white rounded-3xl p-4 sm:p-6 lg:p-8 border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-red-50/60 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="absolute top-0 left-0 right-0 h-1 rounded-t-3xl bg-gradient-to-r from-[#CA0000] to-rose-400"></div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-red-100 flex items-center justify-center">
-                  <TrendingDown className="w-6 h-6 text-[#CA0000]" />
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-red-100 flex items-center justify-center">
+                  <TrendingDown className="w-5 h-5 sm:w-6 sm:h-6 text-[#CA0000]" />
                 </div>
-                <span className="text-xs font-bold text-red-700 bg-red-100 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] sm:text-xs font-bold text-red-700 bg-red-100 px-2 py-1 rounded-full">
                   {expensePercent}%
                 </span>
               </div>
-              <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">মোট ব্যয়</div>
-              <div className="text-3xl font-black text-[#CA0000] tracking-tight mb-1">
+              <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider mb-1.5 sm:mb-2">মোট ব্যয়</div>
+              <div className="text-lg sm:text-2xl lg:text-3xl font-black text-[#CA0000] tracking-tight mb-1">
                 {formatTaka(totalExpense)}
               </div>
-              <div className="text-xs text-slate-400 mb-4">মঞ্চ, ভোজ ও ব্যবস্থাপনা</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 mb-3 sm:mb-4">মঞ্চ, ভোজ ও ব্যবস্থাপনা</div>
               {/* Progress Bar */}
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full rounded-full bg-gradient-to-r from-[#CA0000] to-rose-400" style={{ width: `${expensePercent}%` }}></div>
@@ -94,24 +94,24 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
             </div>
           </div>
 
-          {/* Surplus Card */}
-          <div className="relative bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-8 shadow-lg shadow-amber-200 hover:shadow-xl hover:shadow-amber-300 hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
+          {/* Surplus Card - Full width on mobile, 1 col on desktop */}
+          <div className="col-span-2 md:col-span-1 relative bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-6 sm:p-8 shadow-lg shadow-amber-200 hover:shadow-xl hover:shadow-amber-300 hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-20 h-20 rounded-full bg-white/10 translate-y-1/2 -translate-x-1/2"></div>
             <div className="relative">
-              <div className="flex items-center justify-between mb-6">
-                <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center">
-                  <Wallet className="w-6 h-6 text-white" />
+              <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-white/20 flex items-center justify-center">
+                  <Wallet className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <span className="text-xs font-bold text-amber-100 bg-white/20 px-2.5 py-1 rounded-full">
+                <span className="text-[10px] sm:text-xs font-bold text-amber-100 bg-white/20 px-2.5 py-1 rounded-full">
                   {balancePercent}% উদ্বৃত্ত
                 </span>
               </div>
-              <div className="text-xs font-bold text-amber-100 uppercase tracking-wider mb-2">উদ্বৃত্ত</div>
-              <div className="text-3xl font-black text-white tracking-tight mb-1">
+              <div className="text-[10px] sm:text-xs font-bold text-amber-100 uppercase tracking-wider mb-1.5 sm:mb-2">উদ্বৃত্ত</div>
+              <div className="text-2xl sm:text-3xl font-black text-white tracking-tight mb-1">
                 {formatTaka(balance)}
               </div>
-              <div className="text-xs text-amber-100 mb-4">বিদ্যালয় উন্নয়ন তহবিলে</div>
+              <div className="text-[10px] sm:text-xs text-amber-100 mb-3 sm:mb-4">বিদ্যালয় উন্নয়ন তহবিলে</div>
               {/* Progress Bar */}
               <div className="h-1.5 w-full bg-white/20 rounded-full overflow-hidden">
                 <div className="h-full rounded-full bg-white" style={{ width: `${balancePercent}%` }}></div>
@@ -173,7 +173,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
       {/* Details Modal */}
       {showDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl border border-slate-200 p-4 sm:p-6 lg:p-8 relative max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
               <div>
@@ -235,46 +235,40 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
               </div>
             </div>
 
-            {/* Transactions Table */}
+            {/* Transactions List (Mobile Friendly) */}
             {finance.transactions && finance.transactions.length > 0 && (
               <div className="mt-6">
                 <h4 className="text-xs font-bold text-slate-700 mb-3 uppercase tracking-wider flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-slate-500" />
                   সাম্প্রতিক আর্থিক ভাউচার ও ট্রানজেকশন
                 </h4>
-                <div className="max-h-52 overflow-y-auto rounded-2xl border border-slate-200">
-                  <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-900 text-white font-bold sticky top-0">
-                      <tr>
-                        <th className="p-3 rounded-tl-2xl">তারিখ</th>
-                        <th className="p-3">বিবরণ</th>
-                        <th className="p-3">ধরন</th>
-                        <th className="p-3 text-right rounded-tr-2xl">পরিমাণ</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {finance.transactions.map((tx) => (
-                        <tr key={tx.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="p-3 text-slate-500 whitespace-nowrap">{tx.date}</td>
-                          <td className="p-3 text-slate-800 font-medium">{tx.title}</td>
-                          <td className="p-3">
-                            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                              tx.type === 'income'
-                                ? 'bg-emerald-100 text-emerald-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}>
-                              {tx.type === 'income' ? '↑ আয়' : '↓ ব্যয়'}
-                            </span>
-                          </td>
-                          <td className={`p-3 text-right font-bold whitespace-nowrap ${
-                            tx.type === 'income' ? 'text-[#00732A]' : 'text-[#CA0000]'
+                <div className="max-h-52 overflow-y-auto rounded-2xl border border-slate-200 bg-slate-50 divide-y divide-slate-200 shadow-inner">
+                  {finance.transactions.map((tx) => (
+                    <div key={tx.id} className="flex items-center justify-between p-3.5 sm:p-4 hover:bg-white transition-colors">
+                      <div className="flex-1 min-w-0 pr-4">
+                        <p className="text-xs sm:text-sm font-bold text-slate-800 truncate mb-1">
+                          {tx.title}
+                        </p>
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <span className="text-[10px] sm:text-xs text-slate-500 font-medium">
+                            {tx.date}
+                          </span>
+                          <span className={`px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold ${
+                            tx.type === 'income'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-red-100 text-red-800'
                           }`}>
-                            {formatTaka(tx.amount)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                            {tx.type === 'income' ? '↑ আয়' : '↓ ব্যয়'}
+                          </span>
+                        </div>
+                      </div>
+                      <div className={`text-sm sm:text-base font-black whitespace-nowrap shrink-0 ${
+                        tx.type === 'income' ? 'text-[#00732A]' : 'text-[#CA0000]'
+                      }`}>
+                        {formatTaka(tx.amount)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}

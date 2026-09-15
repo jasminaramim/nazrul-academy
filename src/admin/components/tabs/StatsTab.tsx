@@ -98,20 +98,6 @@ export const StatsTab: React.FC<StatsTabProps> = ({ statsData, setStatsData, set
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold text-emerald-700"
                     />
                   </div>
-
-                  <div>
-                    <label className="text-xs font-bold text-slate-700 block mb-1">
-                      নিবন্ধিত পরিবারের সদস্য সংখ্যা
-                    </label>
-                    <input
-                      type="number"
-                      value={statsData.familyMembersCount}
-                      onChange={(e) =>
-                        setStatsData({ ...statsData, familyMembersCount: Number(e.target.value) })
-                      }
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold text-emerald-700"
-                    />
-                  </div>
                 </div>
               </div>
 

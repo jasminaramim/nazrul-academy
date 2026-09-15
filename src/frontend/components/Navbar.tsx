@@ -37,11 +37,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
       {/* Top micro-bar */}
       <div className="bg-gradient-to-r from-[#00732A] via-[#005c21] to-[#CA0000] text-white py-1.5 px-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-[11px] font-medium">
-          <span className="hidden sm:flex items-center gap-2">
+          <span className="hidden sm:flex items-center gap-2 shrink-0">
             <span className="w-1 h-1 rounded-full bg-amber-300 animate-pulse"></span>
             ঐতিহ্যের শতবর্ষ: ১৯১৩ সালে স্থাপিত জাতীয় কবির পদধন্য বিদ্যাপীঠ
           </span>
-          <span className="flex-1 text-center sm:text-right font-semibold tracking-wide">
+          <span className="flex-1 min-w-0 text-center sm:text-right font-semibold tracking-wide truncate">
             ত্রিশাল সরকারি নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন
           </span>
           <span className="hidden md:flex items-center gap-1.5 font-mono ml-4 shrink-0">
@@ -58,27 +58,27 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
           {/* Logo & School Name */}
           <button
             onClick={() => handleNavClick('home')}
-            className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer shrink-0"
+            className="flex items-center gap-3 text-left focus:outline-none group cursor-pointer min-w-0 shrink flex-1 md:flex-none"
           >
             <div className="relative shrink-0">
               {globalConfig.logoUrl ? (
                 <img
                   src={globalConfig.logoUrl}
                   alt="ত্রিশাল সরকারি নজরুল একাডেমি"
-                  className="w-12 h-14 object-contain transition-transform group-hover:scale-105 duration-300"
+                  className="w-10 h-10 sm:w-12 sm:h-14 object-contain transition-transform group-hover:scale-105 duration-300"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#00732A] text-white flex items-center justify-center font-bold text-lg border-2 border-[#CA0000]">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#00732A] text-white flex items-center justify-center font-bold text-lg border-2 border-[#CA0000]">
                   না
                 </div>
               )}
             </div>
 
-            <div>
-              <h1 className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight group-hover:text-[#00732A] transition-colors duration-200">
+            <div className="min-w-0">
+              <h1 className="text-sm sm:text-lg font-extrabold text-slate-900 tracking-tight leading-tight group-hover:text-[#00732A] transition-colors duration-200 truncate sm:whitespace-normal">
                 {globalConfig.siteTitle}
               </h1>
-              <p className="text-[11px] text-slate-500 font-medium mt-0.5 leading-tight">
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium mt-0.5 leading-tight truncate sm:whitespace-normal">
                 {globalConfig.siteSubtitle}
               </p>
             </div>

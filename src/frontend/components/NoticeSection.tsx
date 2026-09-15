@@ -60,7 +60,7 @@ export const NoticeSection: React.FC<NoticeSectionProps> = ({
   };
 
   return (
-    <section className="py-20 bg-white border-b border-slate-100" id="notices-section">
+    <section className="py-10 sm:py-16 lg:py-20 bg-white border-b border-slate-100" id="notices-section">
       <style>{`
         @keyframes pulse-dot {
           0%, 100% { opacity: 1; transform: scale(1); }

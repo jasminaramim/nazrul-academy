@@ -17,11 +17,21 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
   const [filterType, setFilterType] = useState<'all' | 'new' | 'old'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedBloodGroup, setSelectedBloodGroup] = useState('all');
+  const [selectedYear, setSelectedYear] = useState('all');
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const uniqueYears = Array.from(new Set(students.map(s => s.batch))).sort((a, b) => {
+    const numA = parseInt(a.replace(/\D/g, '')) || 0;
+    const numB = parseInt(b.replace(/\D/g, '')) || 0;
+    return numB - numA;
+  });
 
   const filteredStudents = students.filter((s) => {
+    if (s.status === 'pending') return false;
     if (filterType !== 'all' && s.batchType !== filterType) return false;
     if (selectedBloodGroup !== 'all' && s.bloodGroup !== selectedBloodGroup) return false;
+    if (selectedYear !== 'all' && s.batch !== selectedYear) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       const matchName = s.name.toLowerCase().includes(q) || (s.nameEn && s.nameEn.toLowerCase().includes(q));
@@ -41,7 +51,7 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
   ];
 
   return (
-    <section className="py-20 bg-white border-b border-slate-100" id="students-section">
+    <section className="py-10 sm:py-16 lg:py-20 bg-white border-b border-slate-100" id="students-section">
       <style>{`
         .student-card::before {
           content: '';
@@ -101,24 +111,26 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
           </div>
 
           {/* Search & Blood Group Select */}
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative flex-1 md:w-72">
+          <div className="flex items-center gap-2 w-full md:w-auto overflow-hidden">
+            <div className="relative flex-1 md:w-72 transition-all duration-300 ease-out">
               <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="নাম, ব্যাচ বা জেলা খুঁজুন..."
+                placeholder={isSearchFocused ? "নাম, ব্যাচ বা জেলা দিয়ে খুঁজুন..." : "অনুসন্ধান..."}
                 value={searchQuery}
+                onFocus={() => setIsSearchFocused(true)}
+                onBlur={() => setIsSearchFocused(false)}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#00732A]/30 focus:border-[#00732A] shadow-sm transition-all"
               />
             </div>
 
-            <div className="relative">
+            <div className={`relative transition-all duration-300 ease-out flex-shrink-0 ${isSearchFocused ? 'max-w-0 opacity-0 overflow-hidden md:max-w-[150px] md:opacity-100 md:overflow-visible' : 'max-w-[130px] sm:max-w-[150px] opacity-100'}`}>
               <SlidersHorizontal className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
               <select
                 value={selectedBloodGroup}
                 onChange={(e) => setSelectedBloodGroup(e.target.value)}
-                className="pl-9 pr-4 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#00732A]/30 focus:border-[#00732A] shadow-sm font-medium appearance-none cursor-pointer transition-all"
+                className="w-full pl-8 pr-3 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#00732A]/30 focus:border-[#00732A] shadow-sm font-medium appearance-none cursor-pointer transition-all truncate"
               >
                 <option value="all">সকল রক্তের গ্রুপ</option>
                 <option value="A+">A+</option>
@@ -129,6 +141,20 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
                 <option value="O-">O-</option>
                 <option value="AB+">AB+</option>
                 <option value="AB-">AB-</option>
+              </select>
+            </div>
+
+            <div className={`relative transition-all duration-300 ease-out flex-shrink-0 ${isSearchFocused ? 'max-w-0 opacity-0 overflow-hidden md:max-w-[150px] md:opacity-100 md:overflow-visible' : 'max-w-[130px] sm:max-w-[150px] opacity-100'}`}>
+              <SlidersHorizontal className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <select
+                value={selectedYear}
+                onChange={(e) => setSelectedYear(e.target.value)}
+                className="w-full pl-8 pr-3 py-2.5 text-xs sm:text-sm rounded-2xl border border-slate-200 bg-white focus:outline-none focus:ring-2 focus:ring-[#00732A]/30 focus:border-[#00732A] shadow-sm font-medium appearance-none cursor-pointer transition-all truncate"
+              >
+                <option value="all">সকল সাল/ব্যাচ</option>
+                {uniqueYears.map(year => (
+                  <option key={year} value={year}>{year}</option>
+                ))}
               </select>
             </div>
           </div>
@@ -151,7 +177,7 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
             <p className="text-slate-400 text-sm mt-1">অন্য কোনো শব্দ দিয়ে অনুসন্ধান করুন</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {displayList.map((student, idx) => {
               // Alternate accent colors for visual variety
               const accents = [
@@ -165,15 +191,15 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
                 <div
                   key={student.id}
                   onClick={() => setSelectedStudent(student)}
-                  className={`student-card bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-xl ${accent.glow} ${accent.border} transition-all duration-300 flex flex-col items-center text-center cursor-pointer group relative overflow-hidden`}
+                  className={`student-card bg-white rounded-2xl p-3 sm:p-5 border border-slate-200 shadow-sm hover:shadow-xl ${accent.glow} ${accent.border} transition-all duration-300 flex flex-col items-center text-center cursor-pointer group relative overflow-hidden`}
                 >
                   {/* Top accent line */}
                   <div className={`absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl transition-all duration-300 ${idx % 4 === 0 ? 'bg-[#00732A]' : idx % 4 === 1 ? 'bg-[#CA0000]' : idx % 4 === 2 ? 'bg-amber-400' : 'bg-sky-400'}`}></div>
 
                   {/* Avatar */}
-                  <div className="relative mb-4 mt-2">
+                  <div className="relative mb-3 sm:mb-4 mt-2">
                     <div className="avatar-ring">
-                      <div className="w-[72px] h-[72px] rounded-full overflow-hidden bg-white p-[2px]">
+                      <div className="w-[60px] h-[60px] sm:w-[72px] sm:h-[72px] rounded-full overflow-hidden bg-white p-[2px]">
                         <img
                           src={student.image}
                           alt={student.name}

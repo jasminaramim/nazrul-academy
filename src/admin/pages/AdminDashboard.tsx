@@ -1106,7 +1106,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         } else {
                           updatedTxs = [editingTransaction, ...currentList];
                         }
-                        const newFinance = { ...finance, transactions: updatedTxs };
+                        const calcIncome = updatedTxs
+                          .filter((t) => t.type === 'income')
+                          .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+                        const calcExpense = updatedTxs
+                          .filter((t) => t.type === 'expense')
+                          .reduce((sum, t) => sum + Number(t.amount || 0), 0);
+                        const newFinance = { 
+                          ...finance, 
+                          transactions: updatedTxs,
+                          totalIncome: calcIncome,
+                          totalExpense: calcExpense,
+                          balance: calcIncome - calcExpense
+                        };
                         setFinance(newFinance);
                         await apiService.updateFinance(newFinance);
                         flashMessage('আর্থিক লেনদেন ভাউচার সংরক্ষিত হয়েছে');

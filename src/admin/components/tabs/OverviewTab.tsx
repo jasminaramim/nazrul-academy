@@ -26,21 +26,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
                   <span className="text-xs text-slate-500 font-medium">নিবন্ধিত শিক্ষার্থী</span>
                   <div className="flex items-baseline justify-between mt-2">
                     <span className="text-3xl font-extrabold text-[#00732A]">
-                      {toBengaliNumber(statsData?.registeredStudents || students.length)}
+                      {toBengaliNumber(students.length)}
                     </span>
                     <Users className="w-5 h-5 text-emerald-600" />
                   </div>
                 </div>
 
-                <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-                  <span className="text-xs text-slate-500 font-medium">পরিবারের সদস্য সংখ্যা</span>
-                  <div className="flex items-baseline justify-between mt-2">
-                    <span className="text-3xl font-extrabold text-amber-600">
-                      {toBengaliNumber(statsData?.familyMembersCount || 80)}
-                    </span>
-                    <UserCheck className="w-5 h-5 text-amber-600" />
-                  </div>
-                </div>
+
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
                   <span className="text-xs text-slate-500 font-medium">মোট সংগৃহীত আয়</span>

@@ -151,6 +151,20 @@ export const apiService = {
     return await handleResponse<StatsData>(res, initialStatsData);
   },
 
+  // Check Availability
+  async checkAvailability(data: { email?: string; phone?: string; transactionId?: string }): Promise<{ success: boolean; errors?: Record<string, string> }> {
+    try {
+      const res = await fetch(`${BASE_URL}/auth/check-availability`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      return await res.json();
+    } catch {
+      return { success: false };
+    }
+  },
+
   // Students
   async getStudents(params?: { batchType?: string; batch?: string; bloodGroup?: string; search?: string }): Promise<Student[]> {
     try {
@@ -187,6 +201,13 @@ export const apiService = {
       method: 'DELETE',
       headers: getAuthHeaders(),
     });
+  },
+  async approveRegistration(id: string): Promise<any> {
+    const res = await fetch(`${BASE_URL}/registrations/${id}/approve`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+    });
+    return await res.json();
   },
 
   // Financial Condition

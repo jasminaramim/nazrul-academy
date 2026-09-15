@@ -71,10 +71,6 @@ export const HomePage: React.FC<HomePageProps> = ({
       <StatsSection
         stats={statsData}
         studentsCount={students.length}
-        familyMembersCount={
-          students.reduce((sum, s) => sum + (s.familyMembersCount || 0), 0) ||
-          statsData?.familyMembersCount || 0
-        }
       />
 
       {/* প্রাক্তন ছাত্র/ছাত্রী তালিকা (All ex-student lists) */}

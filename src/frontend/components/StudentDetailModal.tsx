@@ -97,12 +97,7 @@ export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student,
               </div>
             )}
 
-            {(student.familyMembersCount !== undefined && student.familyMembersCount > 0) && (
-              <div className="flex items-center gap-3 text-slate-700">
-                <Users className="w-4 h-4 text-purple-600 shrink-0" />
-                <span><strong>পরিবারের সদস্য:</strong> {student.familyMembersCount} জন</span>
-              </div>
-            )}
+
 
             {student.tshirtSize && (
               <div className="flex items-center gap-3 text-slate-700">

@@ -29,7 +29,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
   const getAspectClass = () => {
     switch (aspectRatio) {
       case 'square':
-        return 'aspect-square max-w-[200px]';
+        return 'aspect-square w-full sm:max-w-xs mx-auto';
       case 'video':
         return 'aspect-video max-w-[400px]';
       case 'banner':

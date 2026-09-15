@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, UserPlus, Bell, LogIn, Calendar, MapPin } from 'lucide-react';
+import { ChevronLeft, ChevronRight, UserPlus, Bell, LogIn, Calendar, MapPin, Heart } from 'lucide-react';
 import { HeroSlide } from '../../shared/types';
 
 interface HeroSliderProps {
@@ -103,11 +103,15 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({
             </button>
 
             <button
-              onClick={() => onNavigate('login')}
+              onClick={() => {
+                const el = document.getElementById('donations-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+                else onNavigate('home');
+              }}
               className="flex items-center gap-2 px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#CA0000] hover:bg-[#a80000] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer border border-red-400/30"
             >
-              <LogIn className="w-5 h-5" />
-              <span>লগইন করুন</span>
+              <Heart className="w-5 h-5" />
+              <span>অনুদান</span>
             </button>
           </div>
         </div>

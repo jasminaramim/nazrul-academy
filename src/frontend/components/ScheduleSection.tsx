@@ -26,7 +26,7 @@ export const ScheduleSection: React.FC<ScheduleSectionProps> = ({ schedule, cult
   const [activeTab, setActiveTab] = useState<'main' | 'cultural'>('main');
 
   return (
-    <section className="py-20 bg-[#F9FBF9] border-b border-slate-100" id="schedule-section">
+    <section className="py-10 sm:py-16 lg:py-20 bg-[#F9FBF9] border-b border-slate-100" id="schedule-section">
       <style>{`
         /* Tree trunk line */
         .tree-trunk::before {

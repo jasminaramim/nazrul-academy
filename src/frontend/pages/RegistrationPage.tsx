@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight, CreditCard } from 'lucide-react';
 import { useAuth } from '../../shared/context/AuthContext';
 import { ImageUploader } from '../../shared/components/ImageUploader';
+import { apiService } from '../../shared/services/api';
+import { BatchDropdown } from '../../shared/components/BatchDropdown';
 
 interface RegistrationPageProps {
   onSuccessNavigate: (page: string) => void;
@@ -9,6 +11,13 @@ interface RegistrationPageProps {
 
 export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNavigate }) => {
   const { register } = useAuth();
+  
+  const [config, setConfig] = useState<any>(null);
+  
+  useEffect(() => {
+    apiService.getGlobalConfig().then(res => setConfig(res));
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     nameEn: '',
@@ -21,23 +30,47 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
     currentJob: '',
     company: '',
-    image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    familyMembersCount: 0,
+    image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi',
     tshirtSize: 'L',
+    registrationFee: 1500,
+    transactionId: '',
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [registeredData, setRegisteredData] = useState<any>(null);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      const data: any = {};
+      if (formData.email && formData.email.includes('@')) data.email = formData.email;
+      if (formData.phone && formData.phone.length >= 11) data.phone = formData.phone;
+      if (formData.transactionId && formData.transactionId.length >= 6) data.transactionId = formData.transactionId;
+      
+      if (Object.keys(data).length > 0) {
+        const res = await apiService.checkAvailability(data);
+        if (res.success && res.errors) {
+          setValidationErrors(res.errors);
+        } else {
+          setValidationErrors({});
+        }
+      } else {
+        setValidationErrors({});
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [formData.email, formData.phone, formData.transactionId]);
 
   const sampleAvatars = [
-    'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-    'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
-    'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
-    'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
-    'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=400&q=80',
-    'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn',
+    'https://api.dicebear.com/7.x/avataaars/svg?seed=Scooter',
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -60,6 +93,33 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     }
   };
 
+  const bnToEnNumber = (bnStr: string) => {
+    const bnToEnMap: Record<string, string> = {
+      '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4',
+      '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9'
+    };
+    return bnStr.replace(/[০-৯]/g, (match) => bnToEnMap[match]);
+  };
+
+  const handleBatchChange = (val: string) => {
+    const enVal = bnToEnNumber(val);
+    const yearMatch = enVal.match(/\d{4}/);
+    let fee = formData.registrationFee;
+    
+    if (yearMatch && config) {
+      const year = parseInt(yearMatch[0], 10);
+      if (year <= 2015) {
+        fee = config.feeOldBatch || 1500;
+      } else {
+        fee = config.feeNewBatch || 1000;
+      }
+    } else if (!yearMatch) {
+      fee = config?.feeOldBatch || 1500;
+    }
+    
+    setFormData({ ...formData, batch: val, registrationFee: fee });
+  };
+
   if (success && registeredData) {
     return (
       <div className="py-16 bg-slate-50 min-h-[80vh] flex items-center justify-center px-4">
@@ -70,13 +130,13 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
 
           <div>
             <span className="text-xs font-bold text-[#00732A] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              নিবন্ধন সফল হয়েছে
+              নিবন্ধন সাবমিট হয়েছে
             </span>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2">
-              অভিনন্দন, {registeredData.name}!
+              ধন্যবাদ, {registeredData.name}!
             </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-1">
-              আপনার পুনর্মিলনী নিবন্ধন সম্পন্ন হয়েছে এবং আপনার প্রোফাইল অ্যালামনাই ডিরেক্টরিতে যুক্ত করা হয়েছে।
+            <p className="text-xs sm:text-sm text-slate-600 mt-2 font-medium">
+              আপনার নিবন্ধনটি সফলভাবে সাবমিট হয়েছে। আমরা আপনার পেমেন্ট ভেরিফাই করে আপনাকে ম্যাসেজের মাধ্যমে জানাবো। ভেরিফিকেশনের পর আপনার প্রোফাইলটি অ্যালামনাই ডিরেক্টরিতে যুক্ত করা হবে।
             </p>
           </div>
 
@@ -87,20 +147,16 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
               <span className="font-bold text-slate-900">{registeredData.batch}</span>
             </div>
             <div className="flex justify-between border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500">রক্তের গ্রুপ:</span>
-              <span className="font-bold text-[#CA0000]">{registeredData.bloodGroup}</span>
+              <span className="text-slate-500">পরিশোধিত ফি:</span>
+              <span className="font-bold text-[#00732A]">৳{registeredData.registrationFee}</span>
             </div>
             <div className="flex justify-between border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500">টি-শার্ট সাইজ:</span>
-              <span className="font-bold text-[#00732A]">{registeredData.tshirtSize}</span>
-            </div>
-            <div className="flex justify-between border-b border-slate-200/60 pb-2">
-              <span className="text-slate-500">পরিবারের সদস্য:</span>
-              <span className="font-bold text-slate-900">{registeredData.familyMembersCount} জন</span>
+              <span className="text-slate-500">TrxID:</span>
+              <span className="font-mono text-slate-800">{registeredData.transactionId}</span>
             </div>
             <div className="flex justify-between pt-1">
-              <span className="text-slate-500">ইমেইল:</span>
-              <span className="font-mono text-slate-800">{registeredData.email}</span>
+              <span className="text-slate-500">রক্তের গ্রুপ:</span>
+              <span className="font-bold text-[#CA0000]">{registeredData.bloodGroup}</span>
             </div>
           </div>
 
@@ -161,29 +217,16 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
+              <div className="sm:col-span-2">
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  বাংলায় পূর্ণ নাম *
+                  পূর্ণ নাম (বাংলা বা ইংরেজি) *
                 </label>
                 <input
                   required
                   type="text"
-                  placeholder="যেমন: মো. কামরুল হাসান"
+                  placeholder="যেমন: মো. কামরুল হাসান / Md. Kamrul Hasan"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  ইংরেজিতে নাম (Name in English)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Md. Kamrul Hasan"
-                  value={formData.nameEn}
-                  onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
                   className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                 />
               </div>
@@ -200,6 +243,15 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                 />
+                {validationErrors.email ? (
+                  <p className="text-[10px] sm:text-xs text-red-600 mt-1.5 ml-1 font-bold">
+                    * {validationErrors.email}
+                  </p>
+                ) : (
+                  <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5 ml-1">
+                    * অনুগ্রহ করে আপনার সঠিক ও সচল ইমেইল দিন, যাতে আমরা আপনার সাথে যোগাযোগ করতে পারি।
+                  </p>
+                )}
               </div>
 
               <div>
@@ -228,6 +280,15 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                 />
+                {validationErrors.phone ? (
+                  <p className="text-[10px] sm:text-xs text-red-600 mt-1.5 ml-1 font-bold">
+                    * {validationErrors.phone}
+                  </p>
+                ) : (
+                  <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5 ml-1">
+                    * অনুগ্রহ করে সঠিক মোবাইল নম্বর দিন, যাতে ভেরিফিকেশন মেসেজ ও অন্যান্য তথ্য পাঠাতে পারি।
+                  </p>
+                )}
               </div>
 
               <div>
@@ -264,13 +325,9 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                 <label className="text-xs font-bold text-slate-700 block mb-1">
                   এসএসসি পাশের ব্যাচ (সাল) *
                 </label>
-                <input
-                  required
-                  type="text"
-                  placeholder="যেমন: ব্যাচ ২০১১ বা ১৯৯৫"
+                <BatchDropdown
                   value={formData.batch}
-                  onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-bold"
+                  onChange={handleBatchChange}
                 />
               </div>
 
@@ -289,20 +346,6 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                   <option value="XL">XL (Extra Large - ৪৪)</option>
                   <option value="XXL">XXL (Double Extra Large - ৪৬)</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  পরিবারের সদস্য সংখ্যা (যদি সাথে আনেন)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  max="10"
-                  value={formData.familyMembersCount}
-                  onChange={(e) => setFormData({ ...formData, familyMembersCount: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
-                />
               </div>
             </div>
           </div>
@@ -357,7 +400,59 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
             </div>
           </div>
 
-          {/* Group 4: Profile Image Selection */}
+          {/* Group 4: Payment Details */}
+          <div>
+            <h3 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-200 flex items-center gap-2 mb-4">
+              <CreditCard className="w-4 h-4 text-purple-600" />
+              <span>পেমেন্ট তথ্য (বিকাশ/নগদ/রকেট)</span>
+            </h3>
+
+            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-4 text-xs sm:text-sm text-purple-900 leading-relaxed">
+              অনুগ্রহ করে নিচে উল্লেখিত ফি নির্দিষ্ট নম্বরে Send Money করে Transaction ID প্রদান করুন।
+              <div className="font-bold mt-2">
+                বিকাশ/নগদ/রকেট: <span className="font-mono bg-purple-200 px-2 py-0.5 rounded">{config?.bkashNumber || '০১৭XX-XXXXXX'}</span> (Personal)
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  রেজিস্ট্রেশন ফি (টাকা) *
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">৳</span>
+                  <input
+                    type="number"
+                    readOnly
+                    value={formData.registrationFee}
+                    className="w-full pl-8 pr-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 bg-slate-50 font-bold text-slate-700 focus:outline-none cursor-not-allowed"
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-1">ব্যাচ অনুযায়ী স্বয়ংক্রিয়ভাবে নির্ধারিত</p>
+              </div>
+
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">
+                  Transaction ID (TrxID) *
+                </label>
+                <input
+                  required
+                  type="text"
+                  placeholder="যেমন: 9A7B3X8Z"
+                  value={formData.transactionId}
+                  onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-mono uppercase"
+                />
+                {validationErrors.transactionId && (
+                  <p className="text-[10px] sm:text-xs text-red-600 mt-1.5 ml-1 font-bold">
+                    * {validationErrors.transactionId}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Group 5: Profile Image Selection */}
           <div className="space-y-3">
             <ImageUploader
               label="প্রোফাইল ছবি (Drag & Drop / Cloudinary আপলোড)"
@@ -388,8 +483,8 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           <div className="pt-4 border-t border-slate-200 flex justify-end">
             <button
               type="submit"
-              disabled={loading}
-              className="px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#00732A] hover:bg-[#005c21] shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-60 flex items-center gap-2"
+              disabled={loading || Object.keys(validationErrors).length > 0}
+              className="px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#00732A] hover:bg-[#005c21] shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {loading ? (
                 <span>প্রসেসিং হচ্ছে...</span>

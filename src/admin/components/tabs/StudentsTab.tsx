@@ -4,8 +4,9 @@ import { GlobalConfig, HeroSlide, TeacherMessage, StatsData, CustomStatItem, Stu
 import { BdtIcon } from '../../../shared/components/BdtIcon';
 import { ImageUploader } from '../../../shared/components/ImageUploader';
 
-import { Search, Plus, Edit2, Trash2 } from 'lucide-react';
-
+import { Search, Plus, Edit2, Trash2, Check, Eye } from 'lucide-react';
+import { StudentDetailModal } from '../../../frontend/components/StudentDetailModal';
+import { BatchDropdown } from '../../../shared/components/BatchDropdown';
 interface StudentsTabProps {
   students: any;
   editingStudent: any;
@@ -18,7 +19,24 @@ interface StudentsTabProps {
   loadAllData: any;
 }
 
+const enToBnNumber = (en: number | string) => {
+  const bnDigits = ['০','১','২','৩','৪','৫','৬','৭','৮','৯'];
+  return String(en).split('').map(d => /\d/.test(d) ? bnDigits[Number(d)] : d).join('');
+};
+
+const generateBatchOptions = () => {
+  const options = [];
+  for (let year = 2026; year >= 1913; year--) {
+    options.push(year);
+  }
+  return options;
+};
+
 export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStudent, setEditingStudent, studentSearch, setStudentSearch, studentBatchFilter, setStudentBatchFilter, flashMessage, loadAllData }) => {
+  const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
+  const [approvingStudent, setApprovingStudent] = useState<Student | null>(null);
+  const [isApproving, setIsApproving] = useState(false);
+
   return (
     <>
       
@@ -64,8 +82,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                       school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
                       currentJob: '',
                       company: '',
-                      tshirtSize: 'L',
-                      familyMembersCount: 0,
+                      tshirtSize: 'L'
                     })
                   }
                   className="flex items-center gap-1.5 px-4 py-2 bg-[#00732A] text-white rounded-xl text-xs font-bold hover:bg-[#005c21] shrink-0"
@@ -83,9 +100,9 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                       <tr>
                         <th className="px-4 py-3.5">ছবি ও নাম</th>
                         <th className="px-4 py-3.5">ব্যাচ ও টাইপ</th>
-                        <th className="px-4 py-3.5">রক্তের গ্রুপ</th>
-                        <th className="px-4 py-3.5">বর্তমান ঠিকানা</th>
-                        <th className="px-4 py-3.5">পেশা ও প্রতিষ্ঠান</th>
+                        <th className="px-4 py-3.5">রক্তের গ্রুপ ও ঠিকানা</th>
+                        <th className="px-4 py-3.5">ফি ও TrxID</th>
+                        <th className="px-4 py-3.5">স্ট্যাটাস</th>
                         <th className="px-4 py-3.5 text-right">অ্যাকশন</th>
                       </tr>
                     </thead>
@@ -120,16 +137,41 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                               </span>
                             </td>
                             <td className="px-4 py-3 font-bold text-slate-800">
-                              <span className="bg-red-50 text-[#CA0000] px-2 py-0.5 rounded border border-red-200">
+                              <span className="bg-red-50 text-[#CA0000] px-2 py-0.5 rounded border border-red-200 block w-fit mb-1">
                                 {s.bloodGroup}
                               </span>
+                              <span className="text-[10px] text-slate-500 font-normal">{s.location}</span>
                             </td>
-                            <td className="px-4 py-3 text-slate-600">{s.location}</td>
                             <td className="px-4 py-3">
-                              <span className="text-slate-800 block font-medium">{s.currentJob || '-'}</span>
-                              <span className="text-[10px] text-slate-400">{s.company || '-'}</span>
+                              <span className="text-slate-800 font-bold block">{s.registrationFee ? `৳${s.registrationFee}` : '-'}</span>
+                              <span className="text-[10px] text-slate-500 font-mono">{s.transactionId || '-'}</span>
                             </td>
-                            <td className="px-4 py-3 text-right space-x-1">
+                            <td className="px-4 py-3">
+                              {s.status === 'pending' ? (
+                                <span className="bg-yellow-50 text-yellow-700 px-2 py-0.5 rounded border border-yellow-200 text-[10px] font-bold whitespace-nowrap">অপেক্ষমান</span>
+                              ) : (
+                                <span className="bg-emerald-50 text-[#00732A] px-2 py-0.5 rounded border border-emerald-200 text-[10px] font-bold whitespace-nowrap">অনুমোদিত</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-right space-x-1 flex items-center justify-end h-full mt-1.5">
+                              <button
+                                onClick={() => setViewingStudent(s)}
+                                className="p-1.5 text-slate-600 hover:bg-slate-100 rounded"
+                                title="বিস্তারিত দেখুন"
+                              >
+                                <Eye className="w-3.5 h-3.5" />
+                              </button>
+                              {s.status === 'pending' && (
+                                <button
+                                  onClick={() => {
+                                    setApprovingStudent(s);
+                                  }}
+                                  className="p-1.5 text-white bg-[#00732A] hover:bg-[#005c21] rounded"
+                                  title="অনুমোদন করুন"
+                                >
+                                  <Check className="w-3.5 h-3.5" />
+                                </button>
+                              )}
                               <button
                                 onClick={() => setEditingStudent(s)}
                                 className="p-1.5 text-blue-600 hover:bg-blue-50 rounded"
@@ -167,8 +209,8 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                     </h3>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">বাংলা নাম *</label>
+                      <div className="sm:col-span-2">
+                        <label className="text-xs font-bold text-slate-700 block mb-1">পূর্ণ নাম (বাংলা বা ইংরেজি) *</label>
                         <input
                           type="text"
                           value={editingStudent.name}
@@ -177,21 +219,20 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                         />
                       </div>
                       <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">ইংরেজি নাম</label>
-                        <input
-                          type="text"
-                          value={editingStudent.nameEn}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, nameEn: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
-                        />
-                      </div>
-                      <div>
                         <label className="text-xs font-bold text-slate-700 block mb-1">ব্যাচ *</label>
-                        <input
-                          type="text"
+                        <BatchDropdown
                           value={editingStudent.batch}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, batch: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold text-[#CA0000]"
+                          onChange={(val) => {
+                            const bnToEnMap: Record<string, string> = { '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9' };
+                            const enVal = val.replace(/[০-৯]/g, (m) => bnToEnMap[m]);
+                            const yearMatch = enVal.match(/\d{4}/);
+                            let batchType = editingStudent.batchType;
+                            if (yearMatch) {
+                              const year = parseInt(yearMatch[0], 10);
+                              batchType = year <= 2015 ? 'old' : 'new';
+                            }
+                            setEditingStudent({ ...editingStudent, batch: val, batchType });
+                          }}
                         />
                       </div>
                       <div>
@@ -288,6 +329,66 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
               )}
             </div>
           
+            {/* View Student Modal */}
+            <StudentDetailModal
+              student={viewingStudent}
+              onClose={() => setViewingStudent(null)}
+            />
+
+            {/* Approval Dialog */}
+            {approvingStudent && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full shadow-2xl text-center transform transition-all scale-100 opacity-100">
+                  <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-emerald-50">
+                    <Check className="w-8 h-8 text-[#00732A]" />
+                  </div>
+                  
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">অনুমোদন নিশ্চিত করুন</h3>
+                  
+                  <div className="bg-slate-50 p-4 rounded-2xl mb-6 text-left border border-slate-100">
+                    <p className="text-sm text-slate-600 mb-1">শিক্ষার্থীর নাম: <span className="font-bold text-slate-900">{approvingStudent.name}</span></p>
+                    <p className="text-sm text-slate-600 mb-1">ব্যাচ: <span className="font-bold text-[#CA0000]">{approvingStudent.batch}</span></p>
+                    <p className="text-sm text-slate-600 mb-1">ফি: <span className="font-bold text-slate-900">{approvingStudent.registrationFee ? `৳${approvingStudent.registrationFee}` : '-'}</span></p>
+                    <p className="text-sm text-slate-600">TrxID: <span className="font-mono font-bold text-slate-700">{approvingStudent.transactionId || '-'}</span></p>
+                  </div>
+                  
+                  <p className="text-sm text-slate-500 mb-6 font-medium">আপনি কি এই রেজিস্ট্রেশনটি অনুমোদন করতে চান?</p>
+                  
+                  <div className="flex gap-3 w-full">
+                    <button
+                      onClick={() => setApprovingStudent(null)}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                      disabled={isApproving}
+                    >
+                      বাতিল
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setIsApproving(true);
+                        try {
+                          const res = await apiService.approveRegistration(approvingStudent.id);
+                          if (res.success) {
+                            flashMessage('রেজিস্ট্রেশন সফলভাবে অনুমোদন করা হয়েছে');
+                            loadAllData();
+                            setApprovingStudent(null);
+                          } else {
+                            alert(res.message || 'সমস্যা হয়েছে');
+                          }
+                        } catch (err: any) {
+                          alert('সমস্যা হয়েছে: ' + err.message);
+                        } finally {
+                          setIsApproving(false);
+                        }
+                      }}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#00732A] hover:bg-[#005c21] transition-colors flex justify-center items-center gap-2 shadow-lg shadow-emerald-200"
+                      disabled={isApproving}
+                    >
+                      {isApproving ? 'অপেক্ষা করুন...' : 'হ্যাঁ, অনুমোদন করুন'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
     </>
   );
 };

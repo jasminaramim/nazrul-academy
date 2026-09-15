@@ -29,7 +29,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, showAll
   const displayList = showAll ? filtered : filtered.slice(0, 8);
 
   return (
-    <section className="py-16 bg-white border-b border-slate-200/70" id="gallery-section">
+    <section className="py-10 sm:py-12 lg:py-16 bg-white border-b border-slate-200/70" id="gallery-section">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
         <div className="text-center mb-8">

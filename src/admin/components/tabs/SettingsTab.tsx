@@ -111,6 +111,55 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ globalConfig, setGloba
                 </div>
               </div>
 
+              {/* Registration & Fee Config */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                  রেজিস্ট্রেশন ফি ও কোটা সেটিংস
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">ফি (২০১৫ পর্যন্ত)</label>
+                    <input
+                      type="number"
+                      value={globalConfig.feeOldBatch || 1500}
+                      onChange={(e) => setGlobalConfig({ ...globalConfig, feeOldBatch: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">ফি (২০১৬ - ২০২৬)</label>
+                    <input
+                      type="number"
+                      value={globalConfig.feeNewBatch || 1000}
+                      onChange={(e) => setGlobalConfig({ ...globalConfig, feeNewBatch: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">সর্বোচ্চ কোটা (Limit)</label>
+                    <input
+                      type="number"
+                      value={globalConfig.maxRegistrations || 8000}
+                      onChange={(e) => setGlobalConfig({ ...globalConfig, maxRegistrations: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-3 border-t border-slate-100">
+                  <button
+                    onClick={async () => {
+                      await apiService.updateGlobalConfig(globalConfig);
+                      flashMessage('রেজিস্ট্রেশন ফি সেটিংস সংরক্ষিত হয়েছে');
+                      loadAllData();
+                    }}
+                    className="flex items-center gap-1.5 px-6 py-2.5 bg-[#00732A] text-white rounded-xl text-xs font-bold"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>সেটিংস সংরক্ষণ করুন</span>
+                  </button>
+                </div>
+              </div>
+
               {/* MongoDB Backend Connection Management */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2 flex items-center gap-2">

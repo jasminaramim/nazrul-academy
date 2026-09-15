@@ -297,7 +297,20 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                                         const updatedTxs = (finance.transactions || []).filter(
                                           (t) => t.id !== tx.id
                                         );
-                                        const updatedFinance = { ...finance, transactions: updatedTxs };
+                                        
+                                        let incomeDiff = tx.type === 'income' ? -Number(tx.amount || 0) : 0;
+                                        let expenseDiff = tx.type === 'expense' ? -Number(tx.amount || 0) : 0;
+                                        
+                                        const newTotalIncome = (Number(finance.totalIncome) || 0) + incomeDiff;
+                                        const newTotalExpense = (Number(finance.totalExpense) || 0) + expenseDiff;
+
+                                        const updatedFinance = { 
+                                          ...finance, 
+                                          transactions: updatedTxs,
+                                          totalIncome: newTotalIncome,
+                                          totalExpense: newTotalExpense,
+                                          balance: newTotalIncome - newTotalExpense
+                                        };
                                         setFinance(updatedFinance);
                                         await apiService.updateFinance(updatedFinance);
                                         flashMessage('লেনদেন মুছে ফেলা হয়েছে');

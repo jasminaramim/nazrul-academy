@@ -80,7 +80,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
   );
 
   return (
-    <section className="py-20 bg-[#F9FAF8] border-b border-slate-100 overflow-hidden" id="donations-section">
+    <section className="py-10 sm:py-16 lg:py-20 bg-[#F9FAF8] border-b border-slate-100 overflow-hidden" id="donations-section">
       <style>{`
         @keyframes marquee-ltr {
           0%   { transform: translateX(0); }

@@ -12,7 +12,6 @@ export interface User {
   currentJob?: string;
   company?: string;
   image?: string;
-  familyMembersCount?: number;
   tshirtSize?: string;
   status?: 'approved' | 'pending' | 'rejected';
   createdAt?: string;
@@ -52,7 +51,6 @@ export interface CustomStatItem {
 
 export interface StatsData {
   registeredStudents: number;
-  familyMembersCount: number;
   festivalDate: string; // e.g. "২০২৬-০৩-২৬"
   festivalTime: string; // e.g. "সকাল ০৯:০০ টা"
   festivalTitle?: string;
@@ -74,7 +72,6 @@ export interface Student {
   currentJob?: string;
   company?: string;
   tshirtSize?: string;
-  familyMembersCount?: number;
   bio?: string;
   status: 'approved' | 'pending';
 }

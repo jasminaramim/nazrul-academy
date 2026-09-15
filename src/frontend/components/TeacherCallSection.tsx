@@ -50,7 +50,7 @@ export const TeacherCallSection: React.FC<TeacherCallSectionProps> = ({ messages
   const marqueeItems = [...messages, ...messages, ...messages];
 
   return (
-    <section className="py-20 bg-[#F4F7F8] overflow-hidden">
+    <section className="py-10 sm:py-16 lg:py-20 bg-[#F4F7F8] overflow-hidden">
       <style>
         {`
           @keyframes marquee {
@@ -104,40 +104,40 @@ export const TeacherCallSection: React.FC<TeacherCallSectionProps> = ({ messages
                 return (
                   <div 
                     key={`${item.id}-${index}`}
-                    className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden border-t-4 ${theme.borderTop} w-[350px] md:w-[400px] shrink-0`}
+                    className={`bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-2 relative overflow-hidden border-t-4 ${theme.borderTop} w-[280px] sm:w-[320px] md:w-[400px] shrink-0`}
                   >
                     {/* Badge if exists */}
                     {theme.badge && (
-                      <div className="absolute top-0 right-8 bg-[#CA0000] text-white text-[10px] font-bold px-3 py-1 rounded-b-lg">
+                      <div className="absolute top-0 right-6 md:right-8 bg-[#CA0000] text-white text-[9px] md:text-[10px] font-bold px-2 py-1 md:px-3 rounded-b-lg">
                         {theme.badge}
                       </div>
                     )}
 
-                    <div className="p-8 h-full flex flex-col">
+                    <div className="p-5 md:p-8 h-full flex flex-col">
                       {/* Header: Icon + Info */}
-                      <div className="flex items-center gap-4 mb-6">
-                        <div className={`w-14 h-14 rounded-full border-2 ${theme.iconBorder} ${theme.iconBg} ${theme.iconColor} flex items-center justify-center shrink-0`}>
-                          <IconComponent className="w-6 h-6" />
+                      <div className="flex items-center gap-3 md:gap-4 mb-4 md:mb-6">
+                        <div className={`w-10 h-10 md:w-14 md:h-14 rounded-full border-2 ${theme.iconBorder} ${theme.iconBg} ${theme.iconColor} flex items-center justify-center shrink-0`}>
+                          <IconComponent className="w-4 h-4 md:w-6 md:h-6" />
                         </div>
                         <div>
-                          <h4 className={`text-xs font-bold ${theme.roleColor} mb-1`}>
+                          <h4 className={`text-[10px] md:text-xs font-bold ${theme.roleColor} mb-0.5 md:mb-1`}>
                             {item.heading}
                           </h4>
-                          <h3 className="text-lg font-extrabold text-slate-900 leading-tight">
+                          <h3 className="text-sm md:text-lg font-extrabold text-slate-900 leading-tight">
                             {item.name}
                           </h3>
-                          <p className="text-[11px] text-slate-500 mt-0.5">
+                          <p className="text-[9px] md:text-[11px] text-slate-500 mt-0.5">
                             {item.designation}
                           </p>
                         </div>
                       </div>
 
                       {/* Quote */}
-                      <div className="flex gap-3 mb-8 flex-1">
-                        <span className={`text-4xl font-serif leading-none ${theme.quoteColor}`}>
+                      <div className="flex gap-2 md:gap-3 mb-6 md:mb-8 flex-1">
+                        <span className={`text-3xl md:text-4xl font-serif leading-none ${theme.quoteColor}`}>
                           “
                         </span>
-                        <p className="text-sm text-slate-500 italic leading-relaxed pt-2">
+                        <p className="text-xs md:text-sm text-slate-500 italic leading-relaxed pt-1 md:pt-2">
                           {item.description}
                         </p>
                       </div>
