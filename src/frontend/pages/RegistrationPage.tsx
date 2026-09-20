@@ -849,20 +849,22 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
               placeholder="আপনার প্রোফাইল ছবি ড্রপ করুন অথবা ফাইল সিলেক্ট করুন"
             />
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 pt-1">
+            <div className="flex flex-wrap items-center gap-2 pt-2">
               <span className="text-[11px] text-slate-500 shrink-0">অথবা নমুনা ছবি:</span>
-              {sampleAvatars.map((url, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setFormData({ ...formData, image: url })}
-                  className={`w-8 h-8 rounded-lg overflow-hidden border cursor-pointer shrink-0 transition-transform ${
-                    formData.image === url ? 'ring-2 ring-[#00732A] scale-110' : 'opacity-70 hover:opacity-100'
-                  }`}
-                >
-                  <img src={url} alt="avatar" className="w-full h-full object-cover" />
-                </button>
-              ))}
+              <div className="flex flex-wrap gap-1.5">
+                {sampleAvatars.map((url, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image: url })}
+                    className={`w-8 h-8 rounded-lg overflow-hidden border cursor-pointer shrink-0 transition-transform ${
+                      formData.image === url ? 'ring-2 ring-[#00732A] scale-110' : 'opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img src={url} alt="avatar" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 

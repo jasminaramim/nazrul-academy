@@ -23,12 +23,16 @@ export const StudentCardTemplate = forwardRef<HTMLDivElement, StudentCardTemplat
         className="relative w-[600px] h-[850px] overflow-hidden text-center flex flex-col items-center justify-between font-sans"
         style={{
           backgroundColor: '#ffffff',
-          backgroundImage: `url(${bgUrl})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
           boxShadow: '0 0 20px rgba(0,0,0,0.1)',
         }}
       >
+        {/* Background Image using img tag for CORS compatibility */}
+        <img 
+          src={bgUrl} 
+          alt="Background" 
+          crossOrigin="anonymous"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
         {/* Semi-transparent overlay to ensure text readability */}
         <div className="absolute inset-0" style={{ backgroundColor: 'rgba(255, 255, 255, 0.7)' }}></div>
 
@@ -47,7 +51,7 @@ export const StudentCardTemplate = forwardRef<HTMLDivElement, StudentCardTemplat
             <div className="w-1/3 flex justify-center">
               <div className="w-24 h-24 rounded-full border-4 p-2 flex items-center justify-center shadow-lg -mt-6" style={{ backgroundColor: '#ffffff', borderColor: '#047857' }}>
                  {/* Assuming the school logo or generic icon */}
-                 <img src={globalConfig.logoUrl} alt="Logo" className="w-full h-full object-contain" />
+                 <img src={globalConfig.logoUrl} alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
               </div>
             </div>
 
