@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Sparkles, BookOpen, ChevronDown } from 'lucide-react';
+import { Menu, X, Sparkles, BookOpen, ChevronDown, Heart, UserPlus, Search } from 'lucide-react';
 import { GlobalConfig } from '../../shared/types';
 
 interface NavbarProps {
   currentPage: string;
   onNavigate: (page: string) => void;
   globalConfig: GlobalConfig;
+  onOpenDonationModal?: () => void;
+  onOpenStatusModal?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalConfig }) => {
+export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalConfig, onOpenDonationModal, onOpenStatusModal }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -24,11 +26,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
     { id: 'alumni', label: 'প্রাক্তন ছাত্র/ছাত্রী' },
     { id: 'gallery', label: 'গ্যালারি' },
     { id: 'activities', label: 'কার্যক্রম' },
+    { id: 'magazine', label: 'স্মৃতির পাতা' },
   ];
 
   const handleNavClick = (pageId: string) => {
     onNavigate(pageId);
     setMobileMenuOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleDonationClick = () => {
+    setMobileMenuOpen(false);
+    onNavigate('donate');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -121,18 +130,30 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
           </nav>
 
           {/* Right Action buttons — desktop */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
-            {/* স্মৃতির পাতা */}
+          <div className="hidden md:flex items-center gap-2 shrink-0 ml-2">
+            {/* স্ট্যাটাস চেক CTA */}
             <button
-              onClick={() => handleNavClick('magazine')}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all duration-200 cursor-pointer ${
-                currentPage === 'magazine'
-                  ? 'bg-amber-500 text-white border-amber-500 shadow-md shadow-amber-200'
-                  : 'bg-amber-50 text-amber-800 border-amber-200 hover:bg-amber-100'
+              onClick={onOpenStatusModal}
+              title="অ্যাপ্লিকেশন স্ট্যাটাস চেক করুন"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 cursor-pointer"
+            >
+              <Search className="w-4 h-4" />
+              <span className="hidden lg:inline">স্ট্যাটাস চেক</span>
+            </button>
+
+
+
+            {/* অনুদান CTA */}
+            <button
+              onClick={() => handleNavClick('donate')}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-200 cursor-pointer ${
+                currentPage === 'donate'
+                  ? 'bg-[#CA0000] text-white border-[#CA0000] shadow-md shadow-red-200'
+                  : 'bg-red-50 text-[#CA0000] border-red-200 hover:bg-red-100'
               }`}
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              স্মৃতির পাতা
+              <Heart className="w-3.5 h-3.5" />
+              অনুদান করুন
             </button>
 
             {/* নিবন্ধন CTA */}
@@ -179,7 +200,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
             );
           })}
 
-          <div className="pt-3 border-t border-slate-100 space-y-1.5">
+          <div className="pt-3 border-t border-slate-100 space-y-2">
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (onOpenStatusModal) onOpenStatusModal();
+              }}
+              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-slate-700 bg-slate-50 border border-slate-200 transition-colors"
+            >
+              <Search className="w-4 h-4 text-slate-500" />
+              অ্যাপ্লিকেশন স্ট্যাটাস চেক
+            </button>
+
             <button
               onClick={() => handleNavClick('magazine')}
               className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-amber-800 bg-amber-50 border border-amber-100 transition-colors"
@@ -189,9 +221,18 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
             </button>
 
             <button
-              onClick={() => handleNavClick('register')}
-              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#CA0000] to-rose-600 shadow-sm"
+              onClick={handleDonationClick}
+              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-[#CA0000] hover:bg-[#a80000] shadow-sm transition-colors cursor-pointer"
             >
+              <Heart className="w-4 h-4 text-white" />
+              অনুদান করুন
+            </button>
+
+            <button
+              onClick={() => handleNavClick('register')}
+              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#00732A] to-emerald-700 shadow-sm cursor-pointer"
+            >
+              <UserPlus className="w-4 h-4 text-white" />
               নিবন্ধন করুন
             </button>
           </div>

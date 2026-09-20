@@ -13,6 +13,9 @@ import {
   MagazineArticle,
   AdminInfo,
   User,
+  UpcomingEvent,
+  EmailLog,
+  EmailStats,
 } from '../types';
 import {
   initialGlobalConfig,
@@ -28,6 +31,7 @@ import {
   initialGallery,
   initialMagazineArticles,
   initialAdminInfo,
+  initialUpcomingEvents,
 } from '../data/initialData';
 
 const BASE_URL = (import.meta.env.VITE_API_URL || '') + '/api';
@@ -202,10 +206,11 @@ export const apiService = {
       headers: getAuthHeaders(),
     });
   },
-  async approveRegistration(id: string): Promise<any> {
+  async approveRegistration(id: string, cardImageData?: string): Promise<any> {
     const res = await fetch(`${BASE_URL}/registrations/${id}/approve`, {
       method: 'PUT',
       headers: getAuthHeaders(),
+      body: JSON.stringify({ cardImageData }),
     });
     return await res.json();
   },
@@ -325,13 +330,41 @@ export const apiService = {
   },
 
   // Donations
-  async getDonations(): Promise<Donor[]> {
+  async getDonations(showAll: boolean = false): Promise<Donor[]> {
     try {
-      const res = await fetch(`${BASE_URL}/donations`);
+      const url = showAll ? `${BASE_URL}/donations?all=true` : `${BASE_URL}/donations`;
+      const res = await fetch(url, { headers: getAuthHeaders() });
       return await handleResponse<Donor[]>(res, initialDonors);
     } catch {
       return initialDonors;
     }
+  },
+  async submitDonation(donationData: {
+    name: string;
+    nameEn?: string;
+    batch?: string;
+    amount: number;
+    phone: string;
+    email?: string;
+    image?: string;
+    paymentMethod: string;
+    senderNumber: string;
+    transactionId: string;
+    message?: string;
+  }): Promise<{ success: boolean; message: string; data?: Donor }> {
+    const res = await fetch(`${BASE_URL}/donations/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(donationData),
+    });
+    return await res.json();
+  },
+  async approveDonor(id: string): Promise<{ success: boolean; message: string; data?: Donor; emailStatus?: any }> {
+    const res = await fetch(`${BASE_URL}/donations/${id}/approve`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+    });
+    return await res.json();
   },
   async addDonor(donor: Omit<Donor, 'id'>): Promise<Donor> {
     const res = await fetch(`${BASE_URL}/donations`, {
@@ -451,6 +484,18 @@ export const apiService = {
     });
     return await res.json();
   },
+  async checkStudentStatus(phone: string, password: string): Promise<{ success: boolean; status?: string; name?: string; message: string }> {
+    try {
+      const res = await fetch(`${BASE_URL}/auth/check-status`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, password }),
+      });
+      return await res.json();
+    } catch (err: any) {
+      return { success: false, message: 'সার্ভার সংযোগে ত্রুটি' };
+    }
+  },
 
   // Admin Info
   async getAdminInfo(): Promise<AdminInfo> {
@@ -520,6 +565,80 @@ export const apiService = {
     collectionName: string
   ): Promise<{ success: boolean; collection: string; count: number; documents: any[] }> {
     const res = await fetch(`${BASE_URL}/system/mongo-collections/${collectionName}`, {
+      headers: getAuthHeaders(),
+    });
+    return await res.json();
+  },
+
+  // Upcoming Events / Activity Posters
+  async getUpcomingEvents(): Promise<UpcomingEvent[]> {
+    try {
+      const res = await fetch(`${BASE_URL}/upcoming-events`);
+      return await handleResponse<UpcomingEvent[]>(res, initialUpcomingEvents);
+    } catch {
+      return initialUpcomingEvents;
+    }
+  },
+  async addUpcomingEvent(event: Omit<UpcomingEvent, 'id'>): Promise<UpcomingEvent> {
+    const res = await fetch(`${BASE_URL}/upcoming-events`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(event),
+    });
+    return await handleResponse<UpcomingEvent>(res, {} as any);
+  },
+  async updateUpcomingEvent(id: string, event: Partial<UpcomingEvent>): Promise<UpcomingEvent> {
+    const res = await fetch(`${BASE_URL}/upcoming-events/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(event),
+    });
+    return await handleResponse<UpcomingEvent>(res, {} as any);
+  },
+  async deleteUpcomingEvent(id: string): Promise<void> {
+    await fetch(`${BASE_URL}/upcoming-events/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Email Logs & Resend
+  async getEmailLogs(params?: { status?: string; type?: string; search?: string }): Promise<EmailLog[]> {
+    try {
+      const query = new URLSearchParams();
+      if (params?.status && params.status !== 'all') query.set('status', params.status);
+      if (params?.type && params.type !== 'all') query.set('type', params.type);
+      if (params?.search) query.set('search', params.search);
+
+      const qs = query.toString();
+      const res = await fetch(`${BASE_URL}/emails/logs${qs ? '?' + qs : ''}`, {
+        headers: getAuthHeaders(),
+      });
+      return await handleResponse<EmailLog[]>(res, []);
+    } catch {
+      return [];
+    }
+  },
+  async getEmailStats(): Promise<EmailStats> {
+    try {
+      const res = await fetch(`${BASE_URL}/emails/stats`, {
+        headers: getAuthHeaders(),
+      });
+      return await handleResponse<EmailStats>(res, { total: 0, sent: 0, failed: 0, pending: 0, successRate: 100 });
+    } catch {
+      return { total: 0, sent: 0, failed: 0, pending: 0, successRate: 100 };
+    }
+  },
+  async resendEmail(id: string): Promise<{ success: boolean; message: string; data?: EmailLog }> {
+    const res = await fetch(`${BASE_URL}/emails/logs/${id}/resend`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+    });
+    return await res.json();
+  },
+  async deleteEmailLog(id: string): Promise<{ success: boolean; message: string }> {
+    const res = await fetch(`${BASE_URL}/emails/logs/${id}`, {
+      method: 'DELETE',
       headers: getAuthHeaders(),
     });
     return await res.json();

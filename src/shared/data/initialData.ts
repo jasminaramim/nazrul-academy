@@ -13,6 +13,7 @@ import {
   MagazineArticle,
   AdminInfo,
   PaymentConfig,
+  UpcomingEvent,
 } from '../types';
 
 export const initialGlobalConfig: GlobalConfig = {
@@ -28,6 +29,34 @@ export const initialGlobalConfig: GlobalConfig = {
   facebookUrl: 'https://facebook.com/trishalnazrulacademy',
   youtubeUrl: 'https://youtube.com',
   registrationOpen: true,
+  feeOldBatch: 1500,
+  feeNewBatch: 1000,
+  maxRegistrations: 8000,
+  // Payment methods
+  bkashNumber: '01712345678',
+  bkashType: 'মার্চেন্ট',
+  bkashAction: 'payment',
+  bkashLimitOut: false,
+  nagadNumber: '01797585073',
+  nagadType: 'পার্সোনাল',
+  nagadAction: 'send_money',
+  nagadLimitOut: false,
+  rocketNumber: '01712345678', // 11 digits
+  rocketType: 'পার্সোনাল',
+  rocketAction: 'send_money',
+  rocketLimitOut: false,
+  bankName: 'সোনালী ব্যাংক লিমিটেড',
+  bankAccountName: 'ত্রিশাল নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন',
+  bankAccountNumber: '2050 1234 5678 9012',
+  bankBranch: 'ত্রিশাল শাখা, ময়মনসিংহ',
+  bankRoutingNumber: '200271234',
+  // Card settings
+  cardBackgroundUrl: 'https://images.unsplash.com/photo-1557683316-973673baf926?q=80&w=600&auto=format&fit=crop', // Temporary placeholder
+  cardTitle: '১০০ বর্ষ পূর্তি মিলন উৎসব - ২০২৬',
+  cardSubtitle1: 'সুফি মতের ইতিহাস ও ঐতিহ্য',
+  cardSubtitle2: 'আমরা নজরুলিয়ান, আমরা গর্বিত',
+  cardQuote: 'মানুষের চেয়ে বড় কিছু নাই, নাই কিছু মহীয়ান',
+  cardFooterText: 'আমি থাকছি আপনি থাকছেন তো',
 };
 
 export const initialHeroSlides: HeroSlide[] = [];
@@ -103,3 +132,20 @@ export const initialPaymentConfig: PaymentConfig = {
     },
   ],
 };
+
+export const initialUpcomingEvents: UpcomingEvent[] = [
+  {
+    id: 'event-1',
+    title: 'ঐতিহাসিক শতবর্ষ পূর্তি ও মহা পুনর্মিলনী উৎসব ২০২৬',
+    eventDate: '2026-11-25',
+    eventTime: 'সকাল ০৯:০০ টা',
+    dateTime: '2026-11-25T09:00:00.000Z',
+    location: 'ত্রিশাল সরকারি নজরুল একাডেমি কেন্দ্রীয় প্রাঙ্গণ, ত্রিশাল, ময়মনসিংহ',
+    details: 'জাতীয় কবি কাজী নজরুল ইসলামের পদধন্য শতবর্ষী বিদ্যাপীঠের প্রাক্তন সকল ব্যাচের শিক্ষার্থীদের মিলনমেলা, স্মৃতিচারণ, সাংস্কৃতিক সন্ধ্যা ও বর্ণাঢ্য র‍্যালি।',
+    image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80',
+    chiefGuest: 'মাননীয় সংস্কৃতি বিষয়ক উপদেষ্টা ও প্রখ্যাত নজরুল গবেষকবৃন্দ',
+    specialAttraction: 'দেশের স্বনামধন্য সঙ্গীত শিল্পীদের নিয়ে নজরুল গীতি ও মনোজ্ঞ সাংস্কৃতিক মহোৎসব',
+    isActive: true,
+    showPopup: true,
+  },
+];

@@ -12,6 +12,8 @@ import { GalleryTab } from '../components/tabs/GalleryTab';
 import { MagazineTab } from '../components/tabs/MagazineTab';
 import { MongodbTab } from '../components/tabs/MongodbTab';
 import { SettingsTab } from '../components/tabs/SettingsTab';
+import { UpcomingEventsTab } from '../components/tabs/UpcomingEventsTab';
+import { EmailLogsTab } from '../components/tabs/EmailLogsTab';
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
@@ -24,6 +26,7 @@ import {
   Calendar,
   Music,
   HeartHandshake,
+  Mail,
   Image,
   BookOpen,
   Settings,
@@ -57,6 +60,8 @@ import {
   CreditCard,
   X,
   ChevronRight,
+  Megaphone,
+  Menu,
 } from 'lucide-react';
 import { apiService } from '../../shared/services/api';
 import { useAuth } from '../../shared/context/AuthContext';
@@ -76,6 +81,7 @@ import {
   GalleryItem,
   MagazineArticle,
   AdminInfo,
+  UpcomingEvent,
 } from '../../shared/types';
 import { toBengaliNumber, formatTaka, formatDateBengali } from '../../shared/utils/formatters';
 import { BdtIcon } from '../../shared/components/BdtIcon';
@@ -89,6 +95,7 @@ interface AdminDashboardProps {
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, onRefreshData }) => {
   const { logout, user, login, isAdmin } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -113,6 +120,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   const [donors, setDonors] = useState<Donor[]>([]);
   const [gallery, setGallery] = useState<GalleryItem[]>([]);
   const [magazineArticles, setMagazineArticles] = useState<MagazineArticle[]>([]);
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
   const [adminInfo, setAdminInfo] = useState<AdminInfo | null>(null);
   const [mongoStatus, setMongoStatus] = useState<{
     connected: boolean;
@@ -151,6 +159,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   const [editingSchedule, setEditingSchedule] = useState<ScheduleItem | null>(null);
   const [editingCultural, setEditingCultural] = useState<CulturalItem | null>(null);
   const [editingArticle, setEditingArticle] = useState<MagazineArticle | null>(null);
+  const [editingUpcomingEvent, setEditingUpcomingEvent] = useState<UpcomingEvent | null>(null);
 
   // Students filter
   const [studentSearch, setStudentSearch] = useState('');
@@ -184,6 +193,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         mag,
         adm,
         mStat,
+        upEvents,
       ] = await Promise.all([
         apiService.getGlobalConfig(),
         apiService.getHeroSlides(),
@@ -194,11 +204,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         apiService.getNotices(),
         apiService.getSchedule(),
         apiService.getCulturalSchedule(),
-        apiService.getDonations(),
+        apiService.getDonations(true),
         apiService.getGallery(),
         apiService.getMagazineArticles(),
         apiService.getAdminInfo(),
         apiService.getMongoStatus(),
+        apiService.getUpcomingEvents(),
       ]);
 
       setGlobalConfig(gConf);
@@ -215,6 +226,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       setMagazineArticles(mag);
       setAdminInfo(adm);
       setMongoStatus(mStat);
+      setUpcomingEvents(upEvents);
     } catch (err: any) {
       flashMessage('ডাটা লোড করতে সমস্যা হয়েছে: ' + err.message, true);
     } finally {
@@ -439,6 +451,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     { id: 'students', label: 'প্রাক্তন ছাত্র/ছাত্রী', icon: Users, badge: students.length ? `${students.length}` : undefined },
     { id: 'finance', label: 'আর্থিক হিসাব (Finance)', icon: BdtIcon, badge: finance?.transactions?.length ? `${finance.transactions.length}` : undefined },
     { id: 'notices', label: 'নোটিশ বোর্ড', icon: Bell, badge: notices.length ? `${notices.length}` : undefined },
+    { id: 'upcoming', label: 'আসন্ন অনুষ্ঠান ও পোস্টার', icon: Megaphone, badge: upcomingEvents.length ? `${upcomingEvents.length}` : undefined },
+    { id: 'emails', label: 'ইমেইল লগ ও ডেলিভারি', icon: Mail },
     { id: 'schedule', label: 'কার্যক্রমের সময়সূচি', icon: Calendar, badge: schedule.length ? `${schedule.length}` : undefined },
     { id: 'cultural', label: 'সাংস্কৃতিক পর্ব', icon: Music, badge: culturalSchedule.length ? `${culturalSchedule.length}` : undefined },
     { id: 'donors', label: 'দাতা ও অনুদান', icon: HeartHandshake, badge: donors.length ? `${donors.length}` : undefined },
@@ -448,9 +462,41 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   ];
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-slate-100 flex flex-col md:flex-row font-sans relative">
+
+      {/* Mobile Top Header (Visible only on mobile) */}
+      <div className="md:hidden bg-slate-900 text-white flex items-center justify-between p-4 sticky top-0 z-40 shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000] text-sm">
+            না
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-white leading-tight">অ্যাডমিন প্যানেল</h2>
+            <p className="text-[10px] text-emerald-400">ত্রিশাল সরকারি নজরুল একাডেমি</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="p-2 bg-slate-800 rounded-lg text-slate-300 hover:text-white"
+        >
+          {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 md:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Left Sidebar Control Bar */}
-      <aside className="w-full md:w-72 bg-slate-900 text-white flex flex-col shrink-0 border-r border-slate-800">
+      <aside className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-slate-900 text-white flex flex-col shrink-0 border-r border-slate-800
+        transition-transform duration-300 ease-in-out md:relative md:translate-x-0
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+      `}>
         {/* Admin Brand */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000]">
@@ -483,21 +529,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
             return (
               <button
                 key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                  isActive
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
                     ? 'bg-[#00732A] text-white shadow-xs'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
                   <span>{item.label}</span>
                 </div>
                 {item.badge !== undefined && (
-                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                    isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
-                  }`}>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-white/20 text-white' : 'bg-slate-800 text-slate-400'
+                    }`}>
                     {toBengaliNumber(item.badge)}
                   </span>
                 )}
@@ -560,64 +607,82 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         </header>
 
         {/* Global Toast Messages */}
-        {successMsg && (
-          <div className="m-6 p-4 bg-emerald-100 border border-emerald-300 text-emerald-800 rounded-2xl flex items-center gap-2 text-xs font-bold animate-in fade-in">
-            <CheckCircle className="w-4 h-4" />
-            <span>{successMsg}</span>
-          </div>
-        )}
-        {errorMsg && (
-          <div className="m-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-2xl flex items-center gap-2 text-xs font-bold animate-in fade-in">
-            <AlertCircle className="w-4 h-4" />
-            <span>{errorMsg}</span>
-          </div>
-        )}
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex flex-col gap-3 pointer-events-none w-full max-w-sm px-4">
+          {successMsg && (
+            <div className="p-4 bg-[#00732A] text-white shadow-2xl rounded-2xl flex items-center gap-3 text-xs font-bold animate-in slide-in-from-bottom-8 fade-in pointer-events-auto border border-emerald-800">
+              <CheckCircle className="w-5 h-5 text-emerald-200" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+          {errorMsg && (
+            <div className="p-4 bg-red-600 text-white shadow-2xl rounded-2xl flex items-center gap-3 text-xs font-bold animate-in slide-in-from-bottom-8 fade-in pointer-events-auto border border-red-800">
+              <AlertCircle className="w-5 h-5 text-red-200" />
+              <span>{errorMsg}</span>
+            </div>
+          )}
+        </div>
 
         {/* Main Content Area */}
         <div className="p-6 space-y-6 flex-1">
           {/* ===================== TAB 1: OVERVIEW ===================== */}
           {activeTab === 'overview' && <OverviewTab heroSlides={heroSlides} statsData={statsData} students={students} finance={finance} notices={notices} setActiveTab={setActiveTab} />}
 
-{/* ===================== TAB 2: HERO SLIDER ===================== */}
+          {/* ===================== TAB 2: HERO SLIDER ===================== */}
           {activeTab === 'hero' && <HeroTab heroSlides={heroSlides} editingSlide={editingSlide} setEditingSlide={setEditingSlide} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 3: TEACHER CALL ===================== */}
+          {/* ===================== TAB 3: TEACHER CALL ===================== */}
           {activeTab === 'teachers' && <TeachersTab teacherMessages={teacherMessages} setEditingTeacher={setEditingTeacher} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 4: STATS & DATE ===================== */}
+          {/* ===================== TAB 4: STATS & DATE ===================== */}
           {activeTab === 'stats' && <StatsTab statsData={statsData} setStatsData={setStatsData} setEditingCustomStat={setEditingCustomStat} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 5: STUDENTS DIRECTORY ===================== */}
-          {activeTab === 'students' && <StudentsTab students={students} editingStudent={editingStudent} setEditingStudent={setEditingStudent} studentSearch={studentSearch} setStudentSearch={setStudentSearch} studentBatchFilter={studentBatchFilter} setStudentBatchFilter={setStudentBatchFilter} flashMessage={flashMessage} loadAllData={loadAllData} />}
+          {/* ===================== TAB 5: STUDENTS DIRECTORY ===================== */}
+          {activeTab === 'students' && <StudentsTab students={students} globalConfig={globalConfig} editingStudent={editingStudent} setEditingStudent={setEditingStudent} studentSearch={studentSearch} setStudentSearch={setStudentSearch} studentBatchFilter={studentBatchFilter} setStudentBatchFilter={setStudentBatchFilter} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 6: FINANCIAL CONDITION ===================== */}
+          {/* ===================== TAB 6: FINANCIAL CONDITION ===================== */}
           {activeTab === 'finance' && <FinanceTab finance={finance} setFinance={setFinance} setEditingTransaction={setEditingTransaction} transactionFilter={transactionFilter} setTransactionFilter={setTransactionFilter} transactionSearch={transactionSearch} setTransactionSearch={setTransactionSearch} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 7: NOTICES ===================== */}
+          {/* ===================== TAB 7: NOTICES ===================== */}
           {activeTab === 'notices' && <NoticesTab notices={notices} editingNotice={editingNotice} setEditingNotice={setEditingNotice} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 8: SCHEDULE ===================== */}
+          {/* ===================== TAB UPCOMING EVENTS ===================== */}
+          {activeTab === 'upcoming' && (
+            <UpcomingEventsTab
+              upcomingEvents={upcomingEvents}
+              editingUpcomingEvent={editingUpcomingEvent}
+              setEditingUpcomingEvent={setEditingUpcomingEvent}
+              flashMessage={flashMessage}
+              loadAllData={loadAllData}
+            />
+          )}
+
+          {/* ===================== TAB EMAIL LOGS & DELIVERY ===================== */}
+          {activeTab === 'emails' && (
+            <EmailLogsTab flashMessage={flashMessage} />
+          )}
+
+          {/* ===================== TAB 8: SCHEDULE ===================== */}
           {activeTab === 'schedule' && <ScheduleTab schedule={schedule} editingSchedule={editingSchedule} setEditingSchedule={setEditingSchedule} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 9: CULTURAL ===================== */}
+          {/* ===================== TAB 9: CULTURAL ===================== */}
           {activeTab === 'cultural' && <CulturalTab culturalSchedule={culturalSchedule} editingCultural={editingCultural} setEditingCultural={setEditingCultural} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 10: DONORS ===================== */}
+          {/* ===================== TAB 10: DONORS ===================== */}
           {activeTab === 'donors' && <DonorsTab donors={donors} editingDonor={editingDonor} setEditingDonor={setEditingDonor} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 11: GALLERY ===================== */}
+          {/* ===================== TAB 11: GALLERY ===================== */}
           {activeTab === 'gallery' && <GalleryTab gallery={gallery} editingGallery={editingGallery} setEditingGallery={setEditingGallery} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB 12: MAGAZINE ===================== */}
+          {/* ===================== TAB 12: MAGAZINE ===================== */}
           {activeTab === 'magazine' && <MagazineTab magazineArticles={magazineArticles} editingArticle={editingArticle} setEditingArticle={setEditingArticle} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== TAB MONGODB CLOUD DATABASE ===================== */}
+          {/* ===================== TAB MONGODB CLOUD DATABASE ===================== */}
           {activeTab === 'mongodb' && <MongodbTab heroSlides={heroSlides} teacherMessages={teacherMessages} students={students} finance={finance} notices={notices} schedule={schedule} culturalSchedule={culturalSchedule} donors={donors} gallery={gallery} magazineArticles={magazineArticles} mongoStatus={mongoStatus} selectedMongoCollection={selectedMongoCollection} collectionDocs={collectionDocs} collectionLoading={collectionLoading} syncingMongo={syncingMongo} seedingDemo={seedingDemo} mongoUriInput={mongoUriInput} setMongoUriInput={setMongoUriInput} flashMessage={flashMessage} handleSyncMongo={handleSyncMongo} handleSeedDemoData={handleSeedDemoData} handleSaveMongoUri={handleSaveMongoUri} loadMongoCollectionDocs={loadMongoCollectionDocs} />}
 
-{/* ===================== TAB 13: SETTINGS & MONGODB ===================== */}
+          {/* ===================== TAB 13: SETTINGS & MONGODB ===================== */}
           {activeTab === 'settings' && <SettingsTab globalConfig={globalConfig} setGlobalConfig={setGlobalConfig} mongoStatus={mongoStatus} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
-{/* ===================== MODAL: TEACHER MESSAGE ===================== */}
+          {/* ===================== MODAL: TEACHER MESSAGE ===================== */}
           {editingTeacher && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
               <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
@@ -954,7 +1019,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     <Receipt className="w-4 h-4 text-[#00732A]" />
                     <span>
                       {editingTransaction.id.startsWith('tx-') &&
-                      !(finance.transactions || []).some((t) => t.id === editingTransaction.id)
+                        !(finance.transactions || []).some((t) => t.id === editingTransaction.id)
                         ? 'নতুন আর্থিক লেনদেন / ভাউচার যুক্ত করুন'
                         : 'আর্থিক লেনদেন ভাউচার সম্পাদনা'}
                     </span>
@@ -1112,8 +1177,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         const calcExpense = updatedTxs
                           .filter((t) => t.type === 'expense')
                           .reduce((sum, t) => sum + Number(t.amount || 0), 0);
-                        const newFinance = { 
-                          ...finance, 
+                        const newFinance = {
+                          ...finance,
                           transactions: updatedTxs,
                           totalIncome: calcIncome,
                           totalExpense: calcExpense,

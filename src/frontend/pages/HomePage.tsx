@@ -21,6 +21,8 @@ import {
   Donor,
   GalleryItem,
   MagazineArticle,
+  UpcomingEvent,
+  GlobalConfig,
 } from '../../shared/types';
 
 interface HomePageProps {
@@ -35,7 +37,11 @@ interface HomePageProps {
   donors: Donor[];
   gallery: GalleryItem[];
   magazineArticles: MagazineArticle[];
+  globalConfig?: GlobalConfig;
+  upcomingEvent?: UpcomingEvent | null;
+  onOpenEventPoster?: () => void;
   onNavigate: (page: string) => void;
+  onOpenDonationModal?: () => void;
   onSelectNotice: (notice: Notice) => void;
 }
 
@@ -51,7 +57,11 @@ export const HomePage: React.FC<HomePageProps> = ({
   donors,
   gallery,
   magazineArticles,
+  globalConfig,
+  upcomingEvent,
+  onOpenEventPoster,
   onNavigate,
+  onOpenDonationModal,
   onSelectNotice,
 }) => {
   return (
@@ -60,6 +70,9 @@ export const HomePage: React.FC<HomePageProps> = ({
       <HeroSlider
         slides={heroSlides}
         onNavigate={onNavigate}
+        onOpenDonationModal={onOpenDonationModal}
+        upcomingEvent={upcomingEvent}
+        onOpenEventPoster={onOpenEventPoster}
         festivalDate={statsData?.festivalDate || ''}
         festivalTime={statsData?.festivalTime || ''}
       />
@@ -71,6 +84,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       <StatsSection
         stats={statsData}
         studentsCount={students.length}
+        batchesCount={new Set(students.map(s => s.batch)).size}
       />
 
       {/* প্রাক্তন ছাত্র/ছাত্রী তালিকা (All ex-student lists) */}
@@ -97,7 +111,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       />
 
       {/* সম্মানিত দাতা ও অনুদান (Donation) */}
-      <DonationSection donors={donors} />
+      <DonationSection donors={donors} onOpenDonationModal={onOpenDonationModal} />
 
       {/* স্মৃতির পাতা ম্যাগাজিন (Magazine) */}
       <MagazineSection articles={magazineArticles} />

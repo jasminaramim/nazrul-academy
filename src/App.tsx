@@ -12,6 +12,10 @@ import { StudentListSection } from './frontend/components/StudentListSection';
 import { GallerySection } from './frontend/components/GallerySection';
 import { ScheduleSection } from './frontend/components/ScheduleSection';
 import { MagazineSection } from './frontend/components/MagazineSection';
+import { DonationFormModal } from './frontend/components/DonationFormModal';
+import { DonationPage } from './frontend/pages/DonationPage';
+import { UpcomingEventModal } from './frontend/components/UpcomingEventModal';
+import { CheckStatusModal } from './frontend/components/CheckStatusModal';
 
 import {
   GlobalConfig,
@@ -26,6 +30,7 @@ import {
   Donor,
   GalleryItem,
   MagazineArticle,
+  UpcomingEvent,
 } from './shared/types';
 import {
   initialGlobalConfig,
@@ -40,6 +45,7 @@ import {
   initialDonors,
   initialGallery,
   initialMagazineArticles,
+  initialUpcomingEvents,
 } from './shared/data/initialData';
 
 function MainAppContent() {
@@ -62,6 +68,9 @@ function MainAppContent() {
   const [currentPage, setCurrentPage] = useState<string>(getInitialPage);
   const [selectedNotice, setSelectedNotice] = useState<Notice | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [isDonationModalOpen, setIsDonationModalOpen] = useState<boolean>(false);
+  const [isEventPosterOpen, setIsEventPosterOpen] = useState<boolean>(false);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState<boolean>(false);
 
   // App dynamic data states
   const [globalConfig, setGlobalConfig] = useState<GlobalConfig>(initialGlobalConfig);
@@ -76,6 +85,7 @@ function MainAppContent() {
   const [donors, setDonors] = useState<Donor[]>(initialDonors);
   const [gallery, setGallery] = useState<GalleryItem[]>(initialGallery);
   const [magazineArticles, setMagazineArticles] = useState<MagazineArticle[]>(initialMagazineArticles);
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
 
   const fetchData = async () => {
     try {
@@ -92,6 +102,7 @@ function MainAppContent() {
         dnrs,
         gal,
         mag,
+        upEvents,
       ] = await Promise.all([
         apiService.getGlobalConfig(),
         apiService.getHeroSlides(),
@@ -105,6 +116,7 @@ function MainAppContent() {
         apiService.getDonations(),
         apiService.getGallery(),
         apiService.getMagazineArticles(),
+        apiService.getUpcomingEvents(),
       ]);
 
       setGlobalConfig(gConf);
@@ -119,6 +131,7 @@ function MainAppContent() {
       setDonors(dnrs);
       setGallery(gal);
       setMagazineArticles(mag);
+      setUpcomingEvents(upEvents);
     } catch (err) {
       console.error('Error fetching website data:', err);
     } finally {
@@ -165,6 +178,25 @@ function MainAppContent() {
     );
   }
 
+  // Find active upcoming event for automatic poster popup (event date/time in the future)
+  const activeUpcomingEvent = upcomingEvents.find((evt) => {
+    if (evt.isActive === false || evt.showPopup === false) return false;
+    const targetDate = evt.dateTime ? new Date(evt.dateTime) : new Date(evt.eventDate);
+    return !isNaN(targetDate.getTime()) && targetDate.getTime() > Date.now();
+  }) || null;
+
+  // Auto-open upcoming event poster if available and not dismissed in session
+  useEffect(() => {
+    if (!activeUpcomingEvent) return;
+    const isDismissed = sessionStorage.getItem(`dismissed_event_poster_${activeUpcomingEvent.id}`);
+    if (!isDismissed) {
+      const timer = setTimeout(() => {
+        setIsEventPosterOpen(true);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [activeUpcomingEvent?.id]);
+
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-[#00732A] selection:text-white">
       {/* Universal Header */}
@@ -172,6 +204,8 @@ function MainAppContent() {
         currentPage={currentPage}
         onNavigate={handleNavigate}
         globalConfig={globalConfig}
+        onOpenDonationModal={() => handleNavigate('donate')}
+        onOpenStatusModal={() => setIsStatusModalOpen(true)}
       />
 
       {/* Main Page View Routing */}
@@ -190,7 +224,11 @@ function MainAppContent() {
             donors={donors}
             gallery={gallery}
             magazineArticles={magazineArticles}
+            globalConfig={globalConfig}
+            upcomingEvent={activeUpcomingEvent}
+            onOpenEventPoster={() => setIsEventPosterOpen(true)}
             onNavigate={handleNavigate}
+            onOpenDonationModal={() => handleNavigate('donate')}
             onSelectNotice={(notice) => {
               setSelectedNotice(notice);
               handleNavigate('notice-detail');
@@ -201,6 +239,16 @@ function MainAppContent() {
         {/* 2. REGISTRATION PAGE (নিবন্ধন) */}
         {currentPage === 'register' && (
           <RegistrationPage
+            onSuccessNavigate={(page) => {
+              fetchData();
+              handleNavigate(page);
+            }}
+          />
+        )}
+
+        {/* 2.5 DONATION PAGE (অনলাইন অনুদান) */}
+        {currentPage === 'donate' && (
+          <DonationPage
             onSuccessNavigate={(page) => {
               fetchData();
               handleNavigate(page);
@@ -269,6 +317,28 @@ function MainAppContent() {
       {/* Universal Footer */}
       <Footer
         globalConfig={globalConfig}
+        onNavigate={handleNavigate}
+      />
+
+      {/* Global Donation Modal */}
+      <DonationFormModal
+        isOpen={isDonationModalOpen}
+        onClose={() => setIsDonationModalOpen(false)}
+        globalConfig={globalConfig}
+        onDonationSuccess={() => fetchData()}
+      />
+
+      {/* Check Status Modal */}
+      <CheckStatusModal
+        isOpen={isStatusModalOpen}
+        onClose={() => setIsStatusModalOpen(false)}
+      />
+
+      {/* Global Auto-popup Poster Modal for Upcoming Event */}
+      <UpcomingEventModal
+        event={activeUpcomingEvent}
+        isOpen={isEventPosterOpen}
+        onClose={() => setIsEventPosterOpen(false)}
         onNavigate={handleNavigate}
       />
     </div>

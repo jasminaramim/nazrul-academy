@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, UserPlus, Bell, LogIn, Calendar, MapPin, Heart } from 'lucide-react';
-import { HeroSlide } from '../../shared/types';
+import { ChevronLeft, ChevronRight, UserPlus, Bell, LogIn, Calendar, MapPin, Heart, Megaphone } from 'lucide-react';
+import { HeroSlide, UpcomingEvent } from '../../shared/types';
 
 interface HeroSliderProps {
   slides: HeroSlide[];
   onNavigate: (page: string) => void;
+  onOpenDonationModal?: () => void;
+  upcomingEvent?: UpcomingEvent | null;
+  onOpenEventPoster?: () => void;
   festivalDate?: string;
   festivalTime?: string;
 }
@@ -12,6 +15,9 @@ interface HeroSliderProps {
 export const HeroSlider: React.FC<HeroSliderProps> = ({
   slides,
   onNavigate,
+  onOpenDonationModal,
+  upcomingEvent,
+  onOpenEventPoster,
   festivalDate = '২৬ মার্চ ২০২৬',
   festivalTime = 'সকাল ০৯:০০ টা',
 }) => {
@@ -62,13 +68,28 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({
 
         {/* Content Overlay */}
         <div className="absolute inset-0 z-20 flex flex-col justify-center items-center text-center px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
-          {/* Badge */}
-          {current.badgeText && (
+          {/* Top Badge / Upcoming Event Alert Badge */}
+          {upcomingEvent && onOpenEventPoster ? (
+            <button
+              type="button"
+              onClick={onOpenEventPoster}
+              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-amber-500 via-rose-600 to-red-600 text-white text-xs sm:text-sm font-bold tracking-wide shadow-lg mb-4 border border-white/30 hover:scale-105 transition-all cursor-pointer group"
+            >
+              <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              <Megaphone className="w-4 h-4 text-amber-200" />
+              <span className="max-w-[200px] sm:max-w-md truncate">
+                আসন্ন বিশেষ আয়োজন: {upcomingEvent.title}
+              </span>
+              <span className="bg-white/25 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black tracking-wider uppercase group-hover:bg-white group-hover:text-red-700 transition-colors shrink-0">
+                পোস্টার দেখুন 👉
+              </span>
+            </button>
+          ) : current.badgeText ? (
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#00732A] text-white text-xs sm:text-sm font-semibold tracking-wide shadow-md mb-4 border border-white/20">
               <span className="w-2 h-2 rounded-full bg-emerald-300 animate-ping" />
               <span>{current.badgeText}</span>
             </div>
-          )}
+          ) : null}
 
           {/* Title */}
           <h2 className="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-4xl drop-shadow-md">
@@ -82,6 +103,18 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({
 
           {/* Call to Action Buttons */}
           <div className="mt-8 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
+            {/* Upcoming Event Poster CTA Button */}
+            {upcomingEvent && onOpenEventPoster && (
+              <button
+                type="button"
+                onClick={onOpenEventPoster}
+                className="flex items-center gap-2 px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 hover:from-purple-700 hover:to-red-700 shadow-lg hover:shadow-purple-600/30 transition-all transform hover:-translate-y-0.5 cursor-pointer border border-white/30"
+              >
+                <Megaphone className="w-5 h-5 text-amber-300 animate-bounce" />
+                <span>পোস্টার দেখুন</span>
+              </button>
+            )}
+
             <button
               onClick={() => onNavigate('register')}
               className="flex items-center gap-2 px-6 sm:px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#00732A] hover:bg-[#005c21] shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 cursor-pointer border border-emerald-400/30"
@@ -104,14 +137,18 @@ export const HeroSlider: React.FC<HeroSliderProps> = ({
 
             <button
               onClick={() => {
-                const el = document.getElementById('donations-section');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-                else onNavigate('home');
+                if (onOpenDonationModal) {
+                  onOpenDonationModal();
+                } else {
+                  const el = document.getElementById('donations-section');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  else onNavigate('home');
+                }
               }}
               className="flex items-center gap-2 px-6 sm:px-7 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#CA0000] hover:bg-[#a80000] shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 cursor-pointer border border-red-400/30"
             >
               <Heart className="w-5 h-5" />
-              <span>অনুদান</span>
+              <span>অনুদান করুন</span>
             </button>
           </div>
         </div>

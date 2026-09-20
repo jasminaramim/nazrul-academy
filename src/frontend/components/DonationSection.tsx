@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { HeartHandshake, QrCode, Heart } from 'lucide-react';
 import { Donor } from '../../shared/types';
 import { formatTaka } from '../../shared/utils/formatters';
-import { PaymentModal } from './PaymentModal';
-
 interface DonationSectionProps {
   donors: Donor[];
+  onOpenDonationModal?: () => void;
 }
 
 // Badge configs per category
@@ -19,17 +18,21 @@ const getCategoryStyle = (cat: string) => {
   }
 };
 
-export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
-  const [showDonateModal, setShowDonateModal] = useState(false);
+export const DonationSection: React.FC<DonationSectionProps> = ({ donors, onOpenDonationModal }) => {
+  // Only show approved donors on website
+  const approvedDonors = donors.filter((d) => d.status === 'approved');
 
-  // Split donors into 2 rows for the marquees
-  const half = Math.ceil(donors.length / 2);
-  const row1 = donors.slice(0, half);
-  const row2 = donors.slice(half);
+  // Use marquee only if there are enough donors (>= 6) to span the screen width
+  const useMarquee = approvedDonors.length >= 6;
 
-  // Triple each row for seamless looping
-  const row1Items = [...row1, ...row1, ...row1];
-  const row2Items = [...row2, ...row2, ...row2];
+  // Split approved donors into 2 rows if marquee is active
+  const half = Math.ceil(approvedDonors.length / 2);
+  const row1 = approvedDonors.slice(0, half);
+  const row2 = approvedDonors.slice(half);
+
+  // Duplicate whole row once for seamless 50% infinite translation
+  const row1Items = useMarquee ? [...row1, ...row1] : [];
+  const row2Items = useMarquee ? [...row2, ...row2] : [];
 
   const DonorCard = ({ donor }: { donor: Donor }) => (
     <div className="shrink-0 w-52 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group cursor-default">
@@ -47,7 +50,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
         <div className="relative mb-3">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-200 shadow-md group-hover:scale-110 transition-transform duration-300">
             <img
-              src={donor.image}
+              src={donor.image || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(donor.name)}`}
               alt={donor.name}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -84,10 +87,10 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
       <style>{`
         @keyframes marquee-ltr {
           0%   { transform: translateX(0); }
-          100% { transform: translateX(-33.333%); }
+          100% { transform: translateX(-50%); }
         }
         @keyframes marquee-rtl {
-          0%   { transform: translateX(-33.333%); }
+          0%   { transform: translateX(-50%); }
           100% { transform: translateX(0); }
         }
         .marquee-row-1 {
@@ -128,8 +131,26 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
         </div>
       </div>
 
-      {/* Row 1 — Right to Left */}
-      {row1Items.length > 0 && (
+      {/* When no approved donors yet */}
+      {approvedDonors.length === 0 && (
+        <div className="text-center py-6 mb-8 text-slate-400 text-xs sm:text-sm">
+          <p>অনলাইনে জমাকৃত অনুদানসমূহ বর্তমানে যাচাইকরণ ও অনুমোদন প্রক্রিয়ায় রয়েছে।</p>
+        </div>
+      )}
+
+      {/* CASE 1: Static Centered Cards (when donors are between 1 and 5, no duplicate, no marquee) */}
+      {!useMarquee && approvedDonors.length > 0 && (
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+          <div className="flex flex-wrap justify-center items-center gap-5 sm:gap-6">
+            {approvedDonors.map((donor) => (
+              <DonorCard key={donor.id} donor={donor} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* CASE 2: Continuous Marquee Rows (when donors >= 6) */}
+      {useMarquee && row1Items.length > 0 && (
         <div className="mask-donor overflow-hidden mb-5 px-16">
           <div className="flex w-max gap-5 marquee-row-1">
             {row1Items.map((donor, idx) => (
@@ -141,8 +162,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
         </div>
       )}
 
-      {/* Row 2 — Left to Right */}
-      {row2Items.length > 0 && (
+      {useMarquee && row2Items.length > 0 && (
         <div className="mask-donor overflow-hidden mb-12 px-16">
           <div className="flex w-max gap-5 marquee-row-2">
             {row2Items.map((donor, idx) => (
@@ -156,7 +176,14 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
 
       {/* Callout Box */}
       <div className="max-w-[90rem] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-[#00732A] via-[#005c21] to-[#CA0000] rounded-3xl p-7 sm:p-10 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-emerald-200/40 relative overflow-hidden">
+        <div 
+          onClick={() => {
+            if (onOpenDonationModal) {
+              onOpenDonationModal();
+            }
+          }}
+          className="bg-gradient-to-r from-[#00732A] via-[#005c21] to-[#CA0000] rounded-3xl p-7 sm:p-10 text-white flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl shadow-emerald-200/40 relative overflow-hidden cursor-pointer group hover:shadow-2xl transition-all"
+        >
           {/* Decorative circles */}
           <div className="absolute top-0 right-0 w-40 h-40 rounded-full bg-white/5 -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
           <div className="absolute bottom-0 left-20 w-24 h-24 rounded-full bg-white/5 translate-y-1/2 pointer-events-none"></div>
@@ -174,21 +201,13 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors }) => {
           </div>
 
           <button
-            onClick={() => setShowDonateModal(true)}
-            className="relative px-7 py-3.5 rounded-2xl text-sm font-bold text-slate-900 bg-amber-400 hover:bg-amber-300 shadow-lg transition-all shrink-0 cursor-pointer flex items-center gap-2 hover:-translate-y-0.5"
+            className="relative px-7 py-3.5 rounded-2xl text-sm font-bold text-slate-900 bg-amber-400 group-hover:bg-amber-300 shadow-lg transition-all shrink-0 flex items-center gap-2 group-hover:-translate-y-1"
           >
-            <QrCode className="w-4 h-4" />
-            অনুদান পদ্ধতি ও QR স্ক্যানার
+            <HeartHandshake className="w-4 h-4" />
+            অনলাইনে অনুদান দিন
           </button>
         </div>
       </div>
-
-      {/* Payment Modal */}
-      <PaymentModal
-        isOpen={showDonateModal}
-        onClose={() => setShowDonateModal(false)}
-        title="অনুদান পাঠানোর তথ্য ও স্ক্যানার QR কোড"
-      />
     </section>
   );
 };

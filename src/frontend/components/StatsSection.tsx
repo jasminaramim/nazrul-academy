@@ -6,11 +6,13 @@ import { toBengaliNumber } from '../../shared/utils/formatters';
 interface StatsSectionProps {
   stats: StatsData;
   studentsCount?: number;
+  batchesCount?: number;
 }
 
 export const StatsSection: React.FC<StatsSectionProps> = ({
   stats,
   studentsCount,
+  batchesCount = 0,
 }) => {
   const dynamicStudentsCount =
     typeof studentsCount === 'number' && studentsCount >= 0
@@ -50,15 +52,22 @@ export const StatsSection: React.FC<StatsSectionProps> = ({
       valueColor: 'text-[#FBBF24]',
       label: 'নিবন্ধিত শিক্ষার্থী',
       subLabel: 'সকল সেশনের সম্মিলিত প্রাক্তন',
+    },
+    {
+      icon: Award,
+      value: formatValue(batchesCount),
+      valueColor: 'text-white',
+      label: 'মোট অংশগ্রহণকারী ব্যাচ',
+      subLabel: '১৯১৩ থেকে ২০২৬ সাল পর্যন্ত',
     }
   ];
 
   if (stats.customStats && stats.customStats.length > 0) {
-    stats.customStats.slice(0, 3).forEach((cStat, index) => {
+    stats.customStats.slice(0, 2).forEach((cStat) => {
       cards.push({
         icon: getIcon(cStat.icon || 'Star'),
         value: formatValue(cStat.value),
-        valueColor: index % 2 === 0 ? 'text-[#FBBF24]' : 'text-white',
+        valueColor: cards.length % 2 === 0 ? 'text-[#FBBF24]' : 'text-white',
         label: cStat.label,
         subLabel: cStat.note || cStat.unit || '',
       });

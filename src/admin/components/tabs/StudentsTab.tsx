@@ -7,8 +7,11 @@ import { ImageUploader } from '../../../shared/components/ImageUploader';
 import { Search, Plus, Edit2, Trash2, Check, Eye } from 'lucide-react';
 import { StudentDetailModal } from '../../../frontend/components/StudentDetailModal';
 import { BatchDropdown } from '../../../shared/components/BatchDropdown';
+import * as htmlToImage from 'html-to-image';
+import { StudentCardTemplate } from '../StudentCardTemplate';
 interface StudentsTabProps {
   students: any;
+  globalConfig: any;
   editingStudent: any;
   setEditingStudent: any;
   studentSearch: any;
@@ -32,10 +35,11 @@ const generateBatchOptions = () => {
   return options;
 };
 
-export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStudent, setEditingStudent, studentSearch, setStudentSearch, studentBatchFilter, setStudentBatchFilter, flashMessage, loadAllData }) => {
+export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig, editingStudent, setEditingStudent, studentSearch, setStudentSearch, studentBatchFilter, setStudentBatchFilter, flashMessage, loadAllData }) => {
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [approvingStudent, setApprovingStudent] = useState<Student | null>(null);
   const [isApproving, setIsApproving] = useState(false);
+  const cardRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <>
@@ -366,7 +370,11 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                       onClick={async () => {
                         setIsApproving(true);
                         try {
-                          const res = await apiService.approveRegistration(approvingStudent.id);
+                          let cardImageData = undefined;
+                          if (cardRef.current) {
+                            cardImageData = await htmlToImage.toJpeg(cardRef.current, { quality: 0.8, pixelRatio: 2 });
+                          }
+                          const res = await apiService.approveRegistration(approvingStudent.id, cardImageData);
                           if (res.success) {
                             flashMessage('রেজিস্ট্রেশন সফলভাবে অনুমোদন করা হয়েছে');
                             loadAllData();
@@ -387,6 +395,13 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, editingStude
                     </button>
                   </div>
                 </div>
+              </div>
+            )}
+            
+            {/* Hidden ID Card Template for html2canvas to capture */}
+            {approvingStudent && globalConfig && (
+              <div className="absolute top-[-9999px] left-[-9999px]">
+                <StudentCardTemplate ref={cardRef} student={approvingStudent} globalConfig={globalConfig} />
               </div>
             )}
     </>

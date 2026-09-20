@@ -7,7 +7,7 @@ interface ImageUploaderProps {
   onChange: (url: string) => void;
   label?: string;
   placeholder?: string;
-  aspectRatio?: 'square' | 'video' | 'banner' | 'auto';
+  aspectRatio?: 'square' | 'video' | 'banner' | 'auto' | 'avatar';
   className?: string;
 }
 
@@ -28,14 +28,16 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const getAspectClass = () => {
     switch (aspectRatio) {
+      case 'avatar':
+        return 'aspect-square w-32 h-32 sm:w-36 sm:h-36 mx-auto';
       case 'square':
-        return 'aspect-square w-full sm:max-w-xs mx-auto';
+        return 'aspect-square w-40 h-40 sm:w-48 sm:h-48 mx-auto';
       case 'video':
-        return 'aspect-video max-w-[400px]';
+        return 'aspect-video max-w-[400px] w-full mx-auto';
       case 'banner':
-        return 'aspect-[21/9] max-w-[500px]';
+        return 'aspect-[21/9] max-w-[500px] w-full mx-auto';
       default:
-        return 'min-h-[140px]';
+        return 'max-h-[200px] max-w-sm w-full mx-auto';
     }
   };
 
@@ -155,8 +157,8 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
           {value ? (
             /* Uploaded Image Preview Box */
-            <div className="relative rounded-2xl overflow-hidden border-2 border-emerald-500/40 bg-slate-50 group p-1">
-              <div className={`w-full overflow-hidden rounded-xl bg-slate-100 flex items-center justify-center ${getAspectClass()}`}>
+            <div className="relative rounded-2xl overflow-hidden border-2 border-emerald-500/40 bg-slate-50 group p-1 w-fit mx-auto shadow-sm">
+              <div className={`overflow-hidden rounded-xl bg-slate-100 flex items-center justify-center ${getAspectClass()}`}>
                 <img
                   src={value}
                   alt="Uploaded"
@@ -165,27 +167,27 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               </div>
 
               {/* Overlay Actions */}
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 rounded-2xl">
+              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 rounded-2xl backdrop-blur-xs">
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1.5 rounded-lg bg-white/90 hover:bg-white text-slate-900 text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+                  className="px-2.5 py-1.5 rounded-lg bg-white/95 hover:bg-white text-slate-900 text-[11px] font-bold flex items-center gap-1 shadow-md cursor-pointer"
                 >
-                  <RefreshCw className="w-3.5 h-3.5" />
+                  <RefreshCw className="w-3 h-3" />
                   <span>পরিবর্তন</span>
                 </button>
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+                  className="px-2.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-[11px] font-bold flex items-center gap-1 shadow-md cursor-pointer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3 h-3" />
                   <span>মুছুন</span>
                 </button>
               </div>
 
-              <div className="absolute bottom-2 right-2 bg-emerald-700 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
-                <Check className="w-3 h-3" />
+              <div className="absolute bottom-1.5 right-1.5 bg-emerald-700/90 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 shadow-xs">
+                <Check className="w-2.5 h-2.5" />
                 <span>আপলোড সম্পন্ন</span>
               </div>
             </div>
@@ -196,7 +198,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               onDragLeave={handleDragLeave}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-2xl p-5 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
+              className={`border-2 border-dashed rounded-2xl p-4 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
                 isDragging
                   ? 'border-emerald-500 bg-emerald-50/50 scale-[1.01]'
                   : 'border-slate-300 hover:border-emerald-500 hover:bg-slate-50'
@@ -204,8 +206,20 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             >
               {uploading ? (
                 <div className="flex flex-col items-center gap-2 py-2">
-                  <Loader2 className="w-8 h-8 text-emerald-600 animate-spin" />
+                  <Loader2 className="w-7 h-7 text-emerald-600 animate-spin" />
                   <span className="text-xs font-bold text-slate-600">Cloudinary তে আপলোড হচ্ছে...</span>
+                </div>
+              ) : aspectRatio === 'avatar' ? (
+                <div className="flex flex-col items-center justify-center p-1 text-center">
+                  <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center mb-1">
+                    <UploadCloud className="w-4 h-4" />
+                  </div>
+                  <p className="text-[11px] font-bold text-slate-700 leading-tight">
+                    ছবি সিলেক্ট করুন
+                  </p>
+                  <span className="text-[9px] text-emerald-800 bg-emerald-100/70 px-2 py-0.5 rounded-full mt-1 font-medium">
+                    ড্রপ বা ক্লিক
+                  </span>
                 </div>
               ) : (
                 <>

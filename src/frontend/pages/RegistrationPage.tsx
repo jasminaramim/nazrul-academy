@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight, CreditCard } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight, CreditCard, Copy, Check, Building2, AlertTriangle, Sparkles } from 'lucide-react';
 import { useAuth } from '../../shared/context/AuthContext';
 import { ImageUploader } from '../../shared/components/ImageUploader';
 import { apiService } from '../../shared/services/api';
 import { BatchDropdown } from '../../shared/components/BatchDropdown';
+import { PaymentLimitModal } from '../../shared/components/PaymentLimitModal';
 
 interface RegistrationPageProps {
   onSuccessNavigate: (page: string) => void;
@@ -13,9 +14,11 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
   const { register } = useAuth();
   
   const [config, setConfig] = useState<any>(null);
-  
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [limitModal, setLimitModal] = useState<{ isOpen: boolean; methodName: string; methodId: string } | null>(null);
+
   useEffect(() => {
-    apiService.getGlobalConfig().then(res => setConfig(res));
+    apiService.getGlobalConfig().then((res) => setConfig(res));
   }, []);
 
   const [formData, setFormData] = useState({
@@ -33,14 +36,173 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi',
     tshirtSize: 'L',
     registrationFee: 1500,
+    paymentMethod: 'bkash',
     transactionId: '',
   });
+
+  const handleCopy = (text: string, key: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2500);
+  };
+
+  const getActionMeta = (action?: string, providerName: string = '') => {
+    switch (action) {
+      case 'payment':
+        return {
+          key: 'payment',
+          badge: 'Make Payment (পেমেন্ট)',
+          shortBadge: 'পেমেন্ট',
+          instruction: `${providerName} অ্যাপের "Make Payment" অপশন ব্যবহার করে ফি প্রদান সম্পন্ন করুন।`,
+          tagBg: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        };
+      case 'cash_out':
+        return {
+          key: 'cash_out',
+          badge: 'Cash Out (ক্যাশ আউট)',
+          shortBadge: 'ক্যাশ আউট',
+          instruction: `${providerName} অ্যাপ বা USSD ডায়াল করে "Cash Out" অপশন ব্যবহার করে ফি প্রেরণ করুন।`,
+          tagBg: 'bg-blue-100 text-blue-800 border-blue-300',
+        };
+      case 'send_money':
+      default:
+        return {
+          key: 'send_money',
+          badge: 'Send Money (সেন্ড মানি)',
+          shortBadge: 'সেন্ড মানি',
+          instruction: `${providerName} অ্যাপ বা USSD ডায়াল করে "Send Money" অপশন ব্যবহার করে ফি প্রেরণ করুন।`,
+          tagBg: 'bg-purple-100 text-purple-800 border-purple-300',
+        };
+    }
+  };
+
+  // Only include payment methods that are configured/saved in backend
+  const availableMethods = React.useMemo(() => {
+    const list: any[] = [];
+    if (config?.bkashNumber && config.bkashNumber.trim() !== '') {
+      const actionMeta = getActionMeta(config.bkashAction || (config.bkashType === 'মার্চেন্ট' ? 'payment' : 'send_money'), 'বিকাশ');
+      list.push({
+        id: 'bkash',
+        label: 'বিকাশ (bKash)',
+        number: config.bkashNumber,
+        type: config.bkashType || 'মার্চেন্ট',
+        action: config.bkashAction || 'payment',
+        actionMeta,
+        isLimitOut: !!config.bkashLimitOut,
+        color: '#e2136e',
+        instructions: `বিকাশ অ্যাকাউন্টে ${actionMeta.instruction} এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
+      });
+    }
+    if (config?.nagadNumber && config.nagadNumber.trim() !== '') {
+      const actionMeta = getActionMeta(config.nagadAction || (config.nagadType === 'মার্চেন্ট' ? 'payment' : 'send_money'), 'নগদ');
+      list.push({
+        id: 'nagad',
+        label: 'নগদ (Nagad)',
+        number: config.nagadNumber,
+        type: config.nagadType || 'পার্সোনাল',
+        action: config.nagadAction || 'send_money',
+        actionMeta,
+        isLimitOut: !!config.nagadLimitOut,
+        color: '#d9381e',
+        instructions: `নগদ অ্যাকাউন্টে ${actionMeta.instruction} এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
+      });
+    }
+    if (config?.rocketNumber && config.rocketNumber.trim() !== '') {
+      const actionMeta = getActionMeta(config.rocketAction || (config.rocketType === 'মার্চেন্ট' ? 'payment' : 'send_money'), 'রকেট');
+      list.push({
+        id: 'rocket',
+        label: 'রকেট (Rocket)',
+        number: config.rocketNumber,
+        type: config.rocketType || 'পার্সোনাল',
+        action: config.rocketAction || 'send_money',
+        actionMeta,
+        isLimitOut: !!config.rocketLimitOut,
+        color: '#8c3077',
+        instructions: `রকেট অ্যাকাউন্টে ${actionMeta.instruction} (১১ ডিজিট) এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
+      });
+    }
+    if (config?.bankAccountNumber && config.bankAccountNumber.trim() !== '') {
+      list.push({
+        id: 'bank',
+        label: 'ব্যাংক হিসাব (Bank Deposit / Transfer)',
+        bankName: config.bankName || 'সোনালী ব্যাংক লিমিটেড',
+        accountName: config.bankAccountName || 'ত্রিশাল নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন',
+        accountNumber: config.bankAccountNumber,
+        branch: config.bankBranch || 'ত্রিশাল শাখা, ময়মনসিংহ',
+        routingNumber: config.bankRoutingNumber || '200271234',
+        color: '#00732A',
+        instructions: 'অনলাইন ব্যাংক ট্রান্সফার (BEFTN / NPSB / RTGS) অথবা সরাসরি ব্যাংকে ডিপোজিট করে ডিপোজিট স্লিপ নম্বর TrxID ঘরে লিখুন।',
+      });
+    }
+    return list;
+  }, [config]);
+
+  // Sync initial paymentMethod when availableMethods are resolved (prioritize active methods)
+  useEffect(() => {
+    if (availableMethods.length > 0) {
+      const activeMethod = availableMethods.find((m) => !m.isLimitOut) || availableMethods[0];
+      const exists = availableMethods.some((m) => m.id === formData.paymentMethod);
+      const isCurrentLimitOut = availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut;
+      if (!exists || isCurrentLimitOut) {
+        setFormData((prev) => ({ ...prev, paymentMethod: activeMethod.id }));
+      }
+    }
+  }, [availableMethods]);
+
+  const handleMethodChange = async (selectedId: string) => {
+    setFormData((prev) => ({ ...prev, paymentMethod: selectedId }));
+    const selectedM = availableMethods.find((m) => m.id === selectedId);
+
+    // Immediate local check
+    if (selectedM?.isLimitOut) {
+      setLimitModal({
+        isOpen: true,
+        methodName: selectedM.label,
+        methodId: selectedId,
+      });
+    }
+
+    // Live background check with server
+    try {
+      const latest = await apiService.getGlobalConfig();
+      if (latest) {
+        setConfig(latest);
+        let isOut = false;
+        if (selectedId === 'bkash') isOut = !!latest.bkashLimitOut;
+        else if (selectedId === 'nagad') isOut = !!latest.nagadLimitOut;
+        else if (selectedId === 'rocket') isOut = !!latest.rocketLimitOut;
+
+        if (isOut) {
+          setLimitModal({
+            isOpen: true,
+            methodName: selectedM?.label || selectedId,
+            methodId: selectedId,
+          });
+        }
+      }
+    } catch (err) {}
+  };
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [registeredData, setRegisteredData] = useState<any>(null);
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const successCardRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (success) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      const timer = setTimeout(() => {
+        if (successCardRef.current) {
+          successCardRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+          window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+        }
+      }, 60);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   useEffect(() => {
     const timer = setTimeout(async () => {
@@ -76,6 +238,42 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    const currentMethodObj = availableMethods.find((m) => m.id === formData.paymentMethod);
+
+    // 1. Local limit out check
+    if (currentMethodObj?.isLimitOut) {
+      setLimitModal({
+        isOpen: true,
+        methodName: currentMethodObj.label,
+        methodId: currentMethodObj.id,
+      });
+      setError(`বর্তমানে ${currentMethodObj.label} অ্যাকাউন্টের লেনদেনের সীমা শেষ! অনুগ্রহ করে অন্য মাধ্যমে ফি পরিশোধ করুন।`);
+      return;
+    }
+
+    // 2. Background live check with server before submitting
+    try {
+      const latest = await apiService.getGlobalConfig();
+      if (latest) {
+        setConfig(latest);
+        let isOut = false;
+        if (formData.paymentMethod === 'bkash') isOut = !!latest.bkashLimitOut;
+        else if (formData.paymentMethod === 'nagad') isOut = !!latest.nagadLimitOut;
+        else if (formData.paymentMethod === 'rocket') isOut = !!latest.rocketLimitOut;
+
+        if (isOut) {
+          setLimitModal({
+            isOpen: true,
+            methodName: currentMethodObj?.label || formData.paymentMethod,
+            methodId: formData.paymentMethod,
+          });
+          setError(`বর্তমানে ${currentMethodObj?.label || formData.paymentMethod} অ্যাকাউন্টের লেনদেনের সীমা শেষ! অনুগ্রহ করে অন্য মাধ্যমে ফি পরিশোধ করুন।`);
+          return;
+        }
+      }
+    } catch (err) {}
+
     setLoading(true);
 
     try {
@@ -83,7 +281,15 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
       if (res.success) {
         setSuccess(true);
         setRegisteredData({ ...formData });
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       } else {
+        if ((res as any).isLimitOut) {
+          setLimitModal({
+            isOpen: true,
+            methodName: currentMethodObj?.label || formData.paymentMethod,
+            methodId: formData.paymentMethod,
+          });
+        }
         setError(res.message || 'নিবন্ধন সম্পন্ন করতে ব্যর্থ হয়েছে।');
       }
     } catch (err: any) {
@@ -122,8 +328,8 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
 
   if (success && registeredData) {
     return (
-      <div className="py-16 bg-slate-50 min-h-[80vh] flex items-center justify-center px-4">
-        <div className="bg-white max-w-xl w-full rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
+      <div className="py-16 bg-slate-50 min-h-[85vh] flex items-center justify-center px-4">
+        <div ref={successCardRef} className="bg-white max-w-xl w-full rounded-3xl p-8 border border-slate-200 shadow-xl text-center space-y-6 animate-in fade-in zoom-in-95 duration-300">
           <div className="w-16 h-16 rounded-full bg-emerald-100 text-[#00732A] flex items-center justify-center mx-auto shadow-inner">
             <CheckCircle2 className="w-10 h-10" />
           </div>
@@ -403,16 +609,197 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           {/* Group 4: Payment Details */}
           <div>
             <h3 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-200 flex items-center gap-2 mb-4">
-              <CreditCard className="w-4 h-4 text-purple-600" />
-              <span>পেমেন্ট তথ্য (বিকাশ/নগদ/রকেট)</span>
+              <CreditCard className="w-4 h-4 text-[#00732A]" />
+              <span>পেমেন্ট তথ্য ও ফি পরিশোধ</span>
             </h3>
 
-            <div className="bg-purple-50 p-4 rounded-xl border border-purple-100 mb-4 text-xs sm:text-sm text-purple-900 leading-relaxed">
-              অনুগ্রহ করে নিচে উল্লেখিত ফি নির্দিষ্ট নম্বরে Send Money করে Transaction ID প্রদান করুন।
-              <div className="font-bold mt-2">
-                বিকাশ/নগদ/রকেট: <span className="font-mono bg-purple-200 px-2 py-0.5 rounded">{config?.bkashNumber || '০১৭XX-XXXXXX'}</span> (Personal)
+            {/* If no payment accounts configured in backend */}
+            {availableMethods.length === 0 && (
+              <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl mb-4 text-xs sm:text-sm text-amber-900 leading-relaxed flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  বর্তমানে কোনো অনলাইন পেমেন্ট অ্যাকাউন্ট সক্রিয় নেই। সহায়তার জন্য যোগাযোগ করুন:{' '}
+                  <span className="font-bold">{config?.contactPhone1 || 'হেল্পলাইন'}</span>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Dynamic Method Dropdown & Info Card */}
+            {availableMethods.length > 0 && (() => {
+              const currentMethod = availableMethods.find(m => m.id === formData.paymentMethod) || availableMethods[0];
+              return (
+                <div className="space-y-4 mb-5">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      পেমেন্ট মাধ্যম নির্বাচন করুন *
+                    </label>
+                    <select
+                      value={formData.paymentMethod || currentMethod?.id}
+                      onChange={(e) => handleMethodChange(e.target.value)}
+                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-bold text-slate-800 bg-white"
+                    >
+                      {availableMethods.map((m) => (
+                        <option key={m.id} value={m.id}>
+                          {m.label} {m.type ? `(${m.type})` : ''} {m.actionMeta ? `— [${m.actionMeta.shortBadge}]` : ''} {m.isLimitOut ? '— ⚠️ [সীমা শেষ - গ্রহণযোগ্য নয়]' : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Selected Method Details Card */}
+                  {currentMethod && (
+                    <div
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all ${
+                        currentMethod.id === 'bkash'
+                          ? 'bg-pink-50/60 border-pink-200'
+                          : currentMethod.id === 'nagad'
+                          ? 'bg-orange-50/60 border-orange-200'
+                          : currentMethod.id === 'rocket'
+                          ? 'bg-purple-50/60 border-purple-200'
+                          : 'bg-emerald-50/60 border-emerald-200'
+                      }`}
+                    >
+                      {/* Limit Out Warning if true */}
+                      {currentMethod.isLimitOut && (
+                        <div className="p-3 bg-amber-100 border border-amber-300 rounded-xl flex items-start gap-2.5 text-amber-900 mb-3 animate-in fade-in duration-200">
+                          <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                          <div className="text-xs">
+                            <span className="font-black">⚠️ বর্তমানে আমাদের {currentMethod.label} অ্যাকাউন্টের লেনদেনের সীমা (Limit) পূর্ণ!</span>
+                            <p className="mt-0.5 text-amber-800">
+                              অনুগ্রহ করে ড্রপডাউন থেকে অন্য কোনো মাধ্যম নির্বাচন করুন অথবা কিছুক্ষণ পর পুনরায় চেষ্টা করুন।
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mobile Banking (bKash / Nagad / Rocket) */}
+                      {currentMethod.id !== 'bank' ? (
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className="w-2.5 h-2.5 rounded-full"
+                                style={{ backgroundColor: currentMethod.color }}
+                              />
+                              <span className="font-extrabold text-sm text-slate-800">
+                                {currentMethod.label}
+                              </span>
+                              <span
+                                className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white"
+                                style={{ backgroundColor: currentMethod.color }}
+                              >
+                                {currentMethod.type}
+                              </span>
+                            </div>
+
+                            {currentMethod.actionMeta && (
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[11px] font-semibold text-slate-500">লেনদেনের ধরণ:</span>
+                                <span
+                                  className={`text-[11px] font-extrabold px-2.5 py-0.5 rounded-full border shadow-2xs ${currentMethod.actionMeta.tagBg}`}
+                                >
+                                  {currentMethod.actionMeta.badge}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="bg-white rounded-xl border border-slate-200/80 p-3 flex items-center justify-between shadow-2xs">
+                            <div>
+                              <span className="text-[10px] text-slate-400 font-bold block">
+                                {currentMethod.label} অ্যাকাউন্ট নম্বর
+                              </span>
+                              <span className="text-base font-black text-slate-900 font-mono tracking-wider">
+                                {currentMethod.number}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleCopy(currentMethod.number, currentMethod.id)}
+                              className="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all bg-slate-100 hover:bg-slate-200 text-slate-700 cursor-pointer"
+                            >
+                              {copiedKey === currentMethod.id ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
+                                  <span className="text-emerald-700">কপি হয়েছে</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>কপি করুন</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            📌 {currentMethod.instructions}
+                          </p>
+                        </div>
+                      ) : (
+                        /* Bank Deposit Details */
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-2 pb-2 border-b border-emerald-200/80">
+                            <Building2 className="w-4 h-4 text-[#00732A]" />
+                            <span className="font-extrabold text-sm text-[#00732A]">
+                              ব্যাংক একাউন্ট বিবরণী (Bank Transfer)
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                            <div className="bg-white p-2.5 rounded-xl border border-emerald-100">
+                              <span className="text-slate-400 text-[10px] font-bold block">ব্যাংকের নাম</span>
+                              <span className="font-bold text-slate-900">{currentMethod.bankName}</span>
+                            </div>
+
+                            <div className="bg-white p-2.5 rounded-xl border border-emerald-100">
+                              <span className="text-slate-400 text-[10px] font-bold block">হিসাবের নাম (Account Name)</span>
+                              <span className="font-bold text-slate-900">{currentMethod.accountName}</span>
+                            </div>
+
+                            <div className="bg-white p-2.5 rounded-xl border border-emerald-100 flex items-center justify-between">
+                              <div>
+                                <span className="text-slate-400 text-[10px] font-bold block">হিসাব নম্বর (Account No.)</span>
+                                <span className="font-mono font-bold text-slate-900 text-sm">
+                                  {currentMethod.accountNumber}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(currentMethod.accountNumber, 'reg-bank-acc')}
+                                className="p-1.5 text-slate-500 hover:text-emerald-700 bg-slate-50 border border-slate-200 rounded-lg cursor-pointer"
+                              >
+                                {copiedKey === 'reg-bank-acc' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
+
+                            <div className="bg-white p-2.5 rounded-xl border border-emerald-100 flex items-center justify-between">
+                              <div>
+                                <span className="text-slate-400 text-[10px] font-bold block">শাখা ও রাউটিং নম্বর</span>
+                                <span className="font-bold text-slate-800">
+                                  {currentMethod.branch} ({currentMethod.routingNumber})
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => handleCopy(currentMethod.routingNumber, 'reg-bank-route')}
+                                className="p-1.5 text-slate-500 hover:text-emerald-700 bg-slate-50 border border-slate-200 rounded-lg cursor-pointer"
+                              >
+                                {copiedKey === 'reg-bank-route' ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                              </button>
+                            </div>
+                          </div>
+
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            📌 {currentMethod.instructions}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -433,7 +820,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Transaction ID (TrxID) *
+                  Transaction ID (TrxID) / ডিপোজিট স্লিপ নং *
                 </label>
                 <input
                   required
@@ -441,7 +828,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                   placeholder="যেমন: 9A7B3X8Z"
                   value={formData.transactionId}
                   onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-mono uppercase"
+                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-mono uppercase font-bold"
                 />
                 {validationErrors.transactionId && (
                   <p className="text-[10px] sm:text-xs text-red-600 mt-1.5 ml-1 font-bold">
@@ -480,14 +867,30 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           </div>
 
           {/* Submit Button */}
-          <div className="pt-4 border-t border-slate-200 flex justify-end">
+          <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+            {availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut ? (
+              <div className="text-xs text-red-600 font-bold flex items-center gap-1.5">
+                <AlertTriangle className="w-4 h-4 text-[#CA0000] shrink-0" />
+                <span>বর্তমানে {availableMethods.find((m) => m.id === formData.paymentMethod)?.label} অ্যাকাউন্টের লিমিট শেষ। অনুগ্রহ করে অন্য মাধ্যম নির্বাচন করুন।</span>
+              </div>
+            ) : <div />}
+
             <button
               type="submit"
-              disabled={loading || Object.keys(validationErrors).length > 0}
-              className="px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white bg-[#00732A] hover:bg-[#005c21] shadow-lg hover:shadow-xl transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut}
+              className={`px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white shadow-lg transition-all flex items-center gap-2 ${
+                loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut
+                  ? 'bg-slate-400 cursor-not-allowed opacity-75'
+                  : 'bg-[#00732A] hover:bg-[#005c21] hover:shadow-xl cursor-pointer'
+              }`}
             >
               {loading ? (
                 <span>প্রসেসিং হচ্ছে...</span>
+              ) : availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut ? (
+                <>
+                  <AlertTriangle className="w-5 h-5" />
+                  <span>{availableMethods.find((m) => m.id === formData.paymentMethod)?.label} লিমিট শেষ (অন্য মাধ্যম বাছুন)</span>
+                </>
               ) : (
                 <>
                   <CheckCircle2 className="w-5 h-5" />
@@ -498,6 +901,20 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           </div>
         </form>
       </div>
+
+      {/* Real-time Payment Limit Alert Dialog */}
+      <PaymentLimitModal
+        isOpen={!!limitModal?.isOpen}
+        onClose={() => setLimitModal(null)}
+        methodName={limitModal?.methodName || ''}
+        hasAlternative={availableMethods.some((m) => !m.isLimitOut && m.id !== limitModal?.methodId)}
+        onSelectAlternative={() => {
+          const alt = availableMethods.find((m) => !m.isLimitOut && m.id !== limitModal?.methodId);
+          if (alt) {
+            handleMethodChange(alt.id);
+          }
+        }}
+      />
     </div>
   );
 };
