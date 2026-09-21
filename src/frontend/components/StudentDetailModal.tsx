@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Droplet, MapPin, Briefcase, Building, GraduationCap, Phone, Mail, Users, Shirt } from 'lucide-react';
 import { Student } from '../../shared/types';
+import { useAuth } from '../../shared/context/AuthContext';
 
 interface StudentDetailModalProps {
   student: Student | null;
@@ -8,17 +9,19 @@ interface StudentDetailModalProps {
 }
 
 export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, onClose }) => {
+  const { isAdmin } = useAuth();
+
   if (!student) return null;
 
-  // Helpers to mask sensitive data
+  // Helpers to mask sensitive data (Admins bypass masking)
   const maskPhone = (phone: string) => {
-    if (!phone || phone.length < 5) return phone;
+    if (isAdmin || !phone || phone.length < 5) return phone;
     // Show first 3 and last 2 digits, e.g., 017******22
     return phone.substring(0, 3) + '*'.repeat(phone.length - 5) + phone.substring(phone.length - 2);
   };
 
   const maskEmail = (email: string) => {
-    if (!email || !email.includes('@')) return email;
+    if (isAdmin || !email || !email.includes('@')) return email;
     const [name, domain] = email.split('@');
     if (name.length <= 2) return `${name[0]}***@${domain}`;
     // Show first 2 and last character of the local part, e.g., ri***i@gmail.com
