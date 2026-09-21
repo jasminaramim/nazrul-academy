@@ -1,27 +1,25 @@
 import React from 'react';
 import { X, Droplet, MapPin, Briefcase, Building, GraduationCap, Phone, Mail, Users, Shirt } from 'lucide-react';
 import { Student } from '../../shared/types';
-import { useAuth } from '../../shared/context/AuthContext';
 
 interface StudentDetailModalProps {
   student: Student | null;
   onClose: () => void;
+  isAdminView?: boolean;
 }
 
-export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, onClose }) => {
-  const { isAdmin } = useAuth();
-
+export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, onClose, isAdminView = false }) => {
   if (!student) return null;
 
-  // Helpers to mask sensitive data (Admins bypass masking)
+  // Helpers to mask sensitive data
   const maskPhone = (phone: string) => {
-    if (isAdmin || !phone || phone.length < 5) return phone;
+    if (isAdminView || !phone || phone.length < 5) return phone;
     // Show first 3 and last 2 digits, e.g., 017******22
     return phone.substring(0, 3) + '*'.repeat(phone.length - 5) + phone.substring(phone.length - 2);
   };
 
   const maskEmail = (email: string) => {
-    if (isAdmin || !email || !email.includes('@')) return email;
+    if (isAdminView || !email || !email.includes('@')) return email;
     const [name, domain] = email.split('@');
     if (name.length <= 2) return `${name[0]}***@${domain}`;
     // Show first 2 and last character of the local part, e.g., ri***i@gmail.com

@@ -337,6 +337,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
             <StudentDetailModal
               student={viewingStudent}
               onClose={() => setViewingStudent(null)}
+              isAdminView={true}
             />
 
             {/* Approval Dialog */}
