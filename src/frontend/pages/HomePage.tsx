@@ -114,7 +114,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       <DonationSection donors={donors} onOpenDonationModal={onOpenDonationModal} />
 
       {/* স্মৃতির পাতা ম্যাগাজিন (Magazine) */}
-      <MagazineSection articles={magazineArticles} />
+      <MagazineSection articles={magazineArticles} pdfUrl={globalConfig?.magazinePdfUrl} />
 
       {/* গ্যালারি (Gallery) */}
       <GallerySection gallery={gallery} showAll={false} />

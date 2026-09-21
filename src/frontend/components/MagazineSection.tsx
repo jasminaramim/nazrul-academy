@@ -2,15 +2,46 @@ import React, { useState } from 'react';
 import { BookOpen, Download, User, Calendar, FileText, X, Sparkles, Send } from 'lucide-react';
 import { MagazineArticle } from '../../shared/types';
 import { formatDateBengali } from '../../shared/utils/formatters';
+import { apiService } from '../../shared/services/api';
 
 interface MagazineSectionProps {
   articles: MagazineArticle[];
+  pdfUrl?: string;
 }
 
-export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) => {
+export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles, pdfUrl }) => {
   const [selectedArticle, setSelectedArticle] = useState<MagazineArticle | null>(null);
   const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [showPdfViewer, setShowPdfViewer] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [formData, setFormData] = useState({
+    author: '',
+    authorBatch: '',
+    contactPhone: '',
+    title: '',
+    content: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      await apiService.submitMagazineArticle({
+        ...formData,
+        category: 'স্মৃতিচারণ',
+        type: 'article',
+        shortDescription: formData.content.substring(0, 100) + '...',
+      });
+      setSubmitSuccess(true);
+      setFormData({ author: '', authorBatch: '', contactPhone: '', title: '', content: '' });
+    } catch (err: any) {
+      alert(`দুঃখিত, লেখা জমা দিতে সমস্যা হয়েছে: ${err.message || 'আবার চেষ্টা করুন।'}`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <section className="py-10 sm:py-12 lg:py-16 bg-slate-50 border-b border-slate-200/70" id="magazine-section">
@@ -60,12 +91,28 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
 
             <div className="pt-2 flex flex-wrap gap-3 justify-center md:justify-start">
               <button
-                onClick={() => alert('ম্যাগাজিনটি প্রকাশের কাজ চলছে। উৎসবের দিন ডিজিটাল পিডিএফ সংস্করণ উন্মুক্ত করা হবে।')}
+                onClick={() => {
+                  if (pdfUrl) {
+                    setShowPdfViewer(true);
+                  } else {
+                    alert('ম্যাগাজিনটি প্রকাশের কাজ চলছে। উৎসবের দিন ডিজিটাল পিডিএফ সংস্করণ উন্মুক্ত করা হবে।');
+                  }
+                }}
                 className="flex items-center gap-2 px-6 py-3 rounded-xl text-xs sm:text-sm font-bold text-slate-900 bg-amber-400 hover:bg-amber-500 shadow-md transition-all cursor-pointer"
               >
-                <Download className="w-4 h-4" />
-                <span>পিডিএফ ডাউনলোড (ডিজিটাল কপি)</span>
+                <BookOpen className="w-4 h-4" />
+                <span>ম্যাগাজিন পড়ুন (Live)</span>
               </button>
+
+              {pdfUrl && (
+                <button
+                  onClick={() => window.open(pdfUrl, '_blank')}
+                  className="flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold text-white bg-white/10 hover:bg-white/20 border border-white/30 transition-all cursor-pointer"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>ডাউনলোড</span>
+                </button>
+              )}
 
               <button
                 onClick={() => setShowSubmitModal(true)}
@@ -230,10 +277,7 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
               </div>
             ) : (
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSubmitSuccess(true);
-                }}
+                onSubmit={handleSubmit}
                 className="space-y-4"
               >
                 <div>
@@ -241,6 +285,8 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
                   <input
                     required
                     type="text"
+                    value={formData.author}
+                    onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                     placeholder="আপনার নাম লিখুন"
                     className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                   />
@@ -252,6 +298,8 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
                     <input
                       required
                       type="text"
+                      value={formData.authorBatch}
+                      onChange={(e) => setFormData({ ...formData, authorBatch: e.target.value })}
                       placeholder="যেমন: ব্যাচ ২০০০"
                       className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                     />
@@ -261,6 +309,8 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
                     <input
                       required
                       type="text"
+                      value={formData.contactPhone}
+                      onChange={(e) => setFormData({ ...formData, contactPhone: e.target.value })}
                       placeholder="০১৭১২-৩৪৫৬৭৮"
                       className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                     />
@@ -272,6 +322,8 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
                   <input
                     required
                     type="text"
+                    value={formData.title}
+                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="শিরোনাম লিখুন"
                     className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                   />
@@ -282,6 +334,8 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
                   <textarea
                     required
                     rows={4}
+                    value={formData.content}
+                    onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     placeholder="আপনার লেখা এখানে লিখুন..."
                     className="w-full px-3 py-2 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                   />
@@ -297,13 +351,55 @@ export const MagazineSection: React.FC<MagazineSectionProps> = ({ articles }) =>
                   </button>
                   <button
                     type="submit"
-                    className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21]"
+                    disabled={isSubmitting}
+                    className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21] disabled:opacity-50"
                   >
                     <Send className="w-3.5 h-3.5" />
-                    <span>জমা দিন</span>
+                    <span>{isSubmitting ? 'জমা হচ্ছে...' : 'জমা দিন'}</span>
                   </button>
                 </div>
               </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* PDF Viewer Modal */}
+      {showPdfViewer && pdfUrl && (
+        <div className="fixed inset-0 z-[70] flex flex-col bg-slate-900/95 backdrop-blur-md">
+          <div className="flex items-center justify-between p-4 bg-slate-900 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-5 h-5 text-amber-400" />
+              <h3 className="text-sm font-bold text-white">পুনর্মিলনী স্মারক ম্যাগাজিন</h3>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => window.open(pdfUrl, '_blank')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">ডাউনলোড</span>
+              </button>
+              <button
+                onClick={() => setShowPdfViewer(false)}
+                className="p-1.5 rounded-lg bg-white/10 hover:bg-red-500 hover:text-white text-slate-300 transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex-1 w-full p-2 sm:p-4 bg-slate-950 overflow-hidden relative">
+            <iframe 
+              src={pdfUrl.includes('drive.google.com') ? pdfUrl.replace(/\/view.*$/, '/preview') : `https://docs.google.com/viewer?url=${encodeURIComponent(pdfUrl)}&embedded=true`} 
+              className="w-full h-full rounded-xl bg-white shadow-2xl border-0"
+              title="Magazine PDF Viewer"
+            />
+            {/* Fallback instruction if iframe fails */}
+            {pdfUrl.includes('cloudinary') && (
+              <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-slate-800 text-slate-300 text-[10px] px-3 py-1.5 rounded-full whitespace-nowrap opacity-60 pointer-events-none">
+                লোড না হলে Cloudinary Settings থেকে PDF Delivery Allow করুন অথবা Google Drive লিংক ব্যবহার করুন
+              </div>
             )}
           </div>
         </div>

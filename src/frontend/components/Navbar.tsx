@@ -37,8 +37,16 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
 
   const handleDonationClick = () => {
     setMobileMenuOpen(false);
-    onNavigate('donate');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (currentPage !== 'home') {
+      onNavigate('home');
+      setTimeout(() => {
+        const el = document.getElementById('donations-section');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    } else {
+      const el = document.getElementById('donations-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
   };
 
   return (
@@ -117,13 +125,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
                   onClick={() => handleNavClick(item.id)}
                   className={`relative px-4 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 cursor-pointer whitespace-nowrap ${
                     isActive
-                      ? 'text-[#00732A] bg-emerald-50'
-                      : 'text-slate-700 hover:text-[#00732A] hover:bg-emerald-50/60'
+                      ? 'text-[#00732A]'
+                      : 'text-slate-700 hover:text-[#00732A]'
                   }`}
                 >
                   {item.label}
                   {/* Active underline */}
-                  <span className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 rounded-full bg-[#00732A] transition-all duration-300 ${isActive ? 'w-4' : 'w-0'}`}></span>
+                  <span className={`absolute bottom-1.5 left-1/2 -translate-x-1/2 h-0.5 rounded-full bg-[#00732A] transition-all duration-300 ${isActive ? 'w-[calc(100%-2rem)]' : 'w-0'}`}></span>
                 </button>
               );
             })}
@@ -139,29 +147,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
             >
               <Search className="w-4 h-4" />
               <span className="hidden lg:inline">স্ট্যাটাস চেক</span>
-            </button>
-
-
-
-            {/* অনুদান CTA */}
-            <button
-              onClick={() => handleNavClick('donate')}
-              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all duration-200 cursor-pointer ${
-                currentPage === 'donate'
-                  ? 'bg-[#CA0000] text-white border-[#CA0000] shadow-md shadow-red-200'
-                  : 'bg-red-50 text-[#CA0000] border-red-200 hover:bg-red-100'
-              }`}
-            >
-              <Heart className="w-3.5 h-3.5" />
-              অনুদান করুন
-            </button>
-
-            {/* নিবন্ধন CTA */}
-            <button
-              onClick={() => handleNavClick('register')}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#CA0000] to-rose-700 hover:from-rose-700 hover:to-[#CA0000] shadow-md shadow-red-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
-            >
-              নিবন্ধন করুন
             </button>
           </div>
 
@@ -210,30 +195,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate, globalC
             >
               <Search className="w-4 h-4 text-slate-500" />
               অ্যাপ্লিকেশন স্ট্যাটাস চেক
-            </button>
-
-            <button
-              onClick={() => handleNavClick('magazine')}
-              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-amber-800 bg-amber-50 border border-amber-100 transition-colors"
-            >
-              <BookOpen className="w-4 h-4 text-amber-600" />
-              স্মৃতির পাতা ম্যাগাজিন
-            </button>
-
-            <button
-              onClick={handleDonationClick}
-              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-[#CA0000] hover:bg-[#a80000] shadow-sm transition-colors cursor-pointer"
-            >
-              <Heart className="w-4 h-4 text-white" />
-              অনুদান করুন
-            </button>
-
-            <button
-              onClick={() => handleNavClick('register')}
-              className="w-full text-left flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold text-white bg-gradient-to-r from-[#00732A] to-emerald-700 shadow-sm cursor-pointer"
-            >
-              <UserPlus className="w-4 h-4 text-white" />
-              নিবন্ধন করুন
             </button>
           </div>
         </div>

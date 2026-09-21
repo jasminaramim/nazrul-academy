@@ -9,18 +9,23 @@ interface ImageUploaderProps {
   placeholder?: string;
   aspectRatio?: 'square' | 'video' | 'banner' | 'auto' | 'avatar';
   className?: string;
+  acceptsVideo?: boolean;
+  acceptsPdf?: boolean;
 }
 
 export const ImageUploader: React.FC<ImageUploaderProps> = ({
   value,
   onChange,
   label,
-  placeholder = 'ছবি ড্রপ করুন অথবা সিলেক্ট করুন',
+  placeholder = 'ছবি বা ভিডিও ড্রপ করুন অথবা সিলেক্ট করুন',
   aspectRatio = 'auto',
   className = '',
+  acceptsVideo = false,
+  acceptsPdf = false,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputVal, setUrlInputVal] = useState(value || '');
@@ -43,13 +48,18 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   // Upload file handler (Cloudinary + direct client processing)
   const processAndUploadFile = async (file: File) => {
-    if (!file.type.startsWith('image/')) {
-      setError('অনুগ্রহ করে একটি ছবি ফাইল নির্বাচন করুন (JPG, PNG, WebP)');
+    const isImage = file.type.startsWith('image/');
+    const isVideo = file.type.startsWith('video/');
+    const isPdf = file.type === 'application/pdf';
+
+    if (!isImage && !(acceptsVideo && isVideo) && !(acceptsPdf && isPdf)) {
+      setError(`অনুগ্রহ করে একটি সঠিক ফাইল নির্বাচন করুন`);
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) {
-      setError('ফাইলের আকার সর্বোচ্চ 10MB হতে পারে');
+    const maxSize = isVideo ? 50 * 1024 * 1024 : 10 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setError(`ফাইলের আকার সর্বোচ্চ ${isVideo ? '50MB' : '10MB'} হতে পারে`);
       return;
     }
 
@@ -59,12 +69,22 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
     try {
       const base64Str = await new Promise<string>((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
+        reader.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setUploadProgress(Math.round((e.loaded / e.total) * 40)); // 40% for reading
+          }
+        };
+        reader.onload = () => {
+          setUploadProgress(40);
+          resolve(reader.result as string);
+        };
         reader.onerror = (err) => reject(err);
         reader.readAsDataURL(file);
       });
 
-      const res = await apiService.uploadImage(base64Str);
+      const res = await apiService.uploadMediaWithProgress(base64Str, (percent) => {
+        setUploadProgress(40 + Math.round(percent * 0.6)); // 60% for uploading
+      });
       
       if (res.success && res.url) {
         onChange(res.url);
@@ -73,9 +93,10 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
         throw new Error(res.message || 'আপলোড ব্যর্থ হয়েছে');
       }
     } catch (err: any) {
-      setError('ছবি আপলোড করতে সমস্যা হয়েছে: ' + err.message);
+      setError('আপলোড করতে সমস্যা হয়েছে: ' + err.message);
     } finally {
       setUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -150,7 +171,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
           <input
             ref={fileInputRef}
             type="file"
-            accept="image/*"
+            accept={acceptsPdf ? ".pdf,image/*" : acceptsVideo ? "video/*,image/*" : "image/*"}
             className="hidden"
             onChange={handleFileChange}
           />
@@ -159,11 +180,27 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
             /* Uploaded Image Preview Box */
             <div className="relative rounded-2xl overflow-hidden border-2 border-emerald-500/40 bg-slate-50 group p-1 w-fit mx-auto shadow-sm">
               <div className={`overflow-hidden rounded-xl bg-slate-100 flex items-center justify-center ${getAspectClass()}`}>
-                <img
-                  src={value}
-                  alt="Uploaded"
-                  className="w-full h-full object-cover rounded-lg"
-                />
+                {value.endsWith('.pdf') ? (
+                  <div className="flex flex-col items-center justify-center p-4">
+                    <div className="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center mb-2">
+                      <span className="font-bold text-xl">PDF</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-500 max-w-[120px] truncate">{value.split('/').pop()}</span>
+                  </div>
+                ) : value.match(/\.(mp4|webm|mov)$/i) || value.includes('video/upload') ? (
+                  <div className="relative w-full h-full bg-black flex items-center justify-center rounded-lg overflow-hidden">
+                     <video src={value} className="w-full h-full object-contain" muted />
+                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
+                        <span className="bg-red-600 text-white text-[10px] px-2 py-0.5 rounded-full font-bold">ভিডিও</span>
+                     </div>
+                  </div>
+                ) : (
+                  <img
+                    src={value}
+                    alt="Uploaded"
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                )}
               </div>
 
               {/* Overlay Actions */}
@@ -205,9 +242,19 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
               } ${getAspectClass()}`}
             >
               {uploading ? (
-                <div className="flex flex-col items-center gap-2 py-2">
+                <div className="flex flex-col items-center gap-2 py-2 w-full max-w-[200px]">
                   <Loader2 className="w-7 h-7 text-emerald-600 animate-spin" />
-                  <span className="text-xs font-bold text-slate-600">Cloudinary তে আপলোড হচ্ছে...</span>
+                  <span className="text-xs font-bold text-slate-600">
+                    আপলোড হচ্ছে... {uploadProgress > 0 && `${uploadProgress}%`}
+                  </span>
+                  {uploadProgress > 0 && (
+                    <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+                      <div 
+                        className="bg-emerald-600 h-1.5 rounded-full transition-all duration-300 ease-out" 
+                        style={{ width: `${uploadProgress}%` }}
+                      ></div>
+                    </div>
+                  )}
                 </div>
               ) : aspectRatio === 'avatar' ? (
                 <div className="flex flex-col items-center justify-center p-1 text-center">
@@ -233,7 +280,7 @@ export const ImageUploader: React.FC<ImageUploaderProps> = ({
                     </p>
                   </div>
                   <span className="text-[10px] font-semibold text-emerald-800 bg-emerald-100/70 px-2.5 py-0.5 rounded-full mt-1">
-                    JPG, PNG, WebP (Cloudinary)
+                    {acceptsPdf ? 'PDF, JPG, PNG' : acceptsVideo ? 'MP4, JPG, PNG' : 'JPG, PNG, WebP'}
                   </span>
                 </>
               )}

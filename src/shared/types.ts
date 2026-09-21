@@ -172,8 +172,10 @@ export interface MagazineArticle {
   category: string;
   shortDescription: string;
   content: string;
-  imageUrl?: string;
+  coverImage?: string;
   date: string;
+  isApproved?: boolean;
+  contactPhone?: string;
   pdfUrl?: string;
 }
 
@@ -196,6 +198,7 @@ export interface GlobalConfig {
   cardQuote?: string;
   cardFooterText?: string;
   registrationOpen: boolean;
+  magazinePdfUrl?: string;
   feeOldBatch?: number;
   feeNewBatch?: number;
   maxRegistrations?: number;

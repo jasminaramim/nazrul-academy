@@ -48,7 +48,7 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
       
       {/* Main Footer Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12">
           
           {/* Column 1: About */}
           <div className="space-y-6">
@@ -140,25 +140,7 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
             </div>
           </div>
 
-          {/* Column 4: Bank Details */}
-          <div className="space-y-6">
-            <h4 className="text-lg font-bold text-[#FBBF24]">ব্যাংক হিসাব বিবরণী</h4>
-            <div className="bg-[#0a3826] rounded-xl p-5 border border-emerald-800/30">
-              <div className="space-y-2 text-[13px] text-emerald-50/90 mb-4">
-                <p><span className="font-semibold text-white">হিসাবের নাম:</span> নজরুল একাডেমি পুনর্মিলনী ২০২৬</p>
-                <p><span className="font-semibold text-white">হিসাব নং:</span> ২০২৬-০১২৩-৪৫৬৭৮</p>
-                <p><span className="font-semibold text-white">ব্যাংক:</span> রূপালী ব্যাংক লিমিটেড</p>
-                <p><span className="font-semibold text-white">শাখা:</span> ত্রিশাল শাখা, ময়মনসিংহ</p>
-              </div>
-              
-              <div className="flex items-center gap-2 text-xs font-medium text-[#FBBF24] pt-3 border-t border-emerald-800/50">
-                <div className="w-4 h-4 rounded bg-[#FBBF24] flex items-center justify-center text-[#052317]">
-                  <span className="text-[10px] font-bold">৳</span>
-                </div>
-                বিকাশ ও নগদ মার্চেন্ট: ০১৭০০-০০০০০০
-              </div>
-            </div>
-          </div>
+
           
         </div>
       </div>
@@ -167,11 +149,11 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
       <div className="border-t border-emerald-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-emerald-100/60">
-            <p>© ২০২৬ ত্রিশাল সরকারি নজরুল একাডেমি পুনর্মিলনী উদ্‌যাপন কমিটি। সর্বস্বত্ব সংরক্ষিত।</p>
+            <p>© ২০২৬ নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি। সর্বস্বত্ব সংরক্ষিত।</p>
             <div className="flex items-center gap-1.5">
               <span>উদ্যোগে ও বাস্তবায়নে:</span>
               <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
-              <span>পুনর্মিলনী আইটি উপ-কমিটি</span>
+              <span>নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি</span>
             </div>
           </div>
         </div>

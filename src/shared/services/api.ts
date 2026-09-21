@@ -55,6 +55,26 @@ async function handleResponse<T>(res: Response, fallback: T): Promise<T> {
 }
 
 export const apiService = {
+  // Generic fetch wrapper used by some admin components
+  async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<any> {
+    const url = endpoint.startsWith('http') ? endpoint : `${import.meta.env.VITE_API_URL || ''}${endpoint}`;
+    
+    const headers = new Headers(options.headers || {});
+    if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+      headers.set('Content-Type', 'application/json');
+    }
+
+    try {
+      const res = await fetch(url, {
+        ...options,
+        headers
+      });
+      return await res.json();
+    } catch (err: any) {
+      return { success: false, message: err.message || 'নেটওয়ার্ক সমস্যা' };
+    }
+  },
+
   // Global
   async getGlobalConfig(): Promise<GlobalConfig> {
     try {
@@ -422,13 +442,22 @@ export const apiService = {
   },
 
   // Magazine
-  async getMagazineArticles(): Promise<MagazineArticle[]> {
+  async getMagazineArticles(all: boolean = false): Promise<MagazineArticle[]> {
     try {
-      const res = await fetch(`${BASE_URL}/magazine`);
+      const url = all ? `${BASE_URL}/magazine?all=true` : `${BASE_URL}/magazine`;
+      const res = await fetch(url);
       return await handleResponse<MagazineArticle[]>(res, initialMagazineArticles);
     } catch {
       return initialMagazineArticles;
     }
+  },
+  async submitMagazineArticle(data: Partial<MagazineArticle>): Promise<any> {
+    const res = await fetch(`${BASE_URL}/magazine/submit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return await handleResponse(res, null);
   },
   async addMagazineArticle(article: Omit<MagazineArticle, 'id'>): Promise<MagazineArticle> {
     const res = await fetch(`${BASE_URL}/magazine`, {
@@ -465,6 +494,59 @@ export const apiService = {
     } catch (err: any) {
       return { success: false, message: err.message };
     }
+  },
+
+  uploadMediaWithProgress(
+    base64Str: string,
+    onProgress: (percent: number) => void
+  ): Promise<{ success: boolean; url?: string; message?: string }> {
+    return new Promise((resolve) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${BASE_URL}/upload`, true);
+      
+      const headers = getAuthHeaders();
+      Object.entries(headers).forEach(([key, value]) => {
+        xhr.setRequestHeader(key, value);
+      });
+
+      // Increase timeout for large video uploads (e.g., 5 minutes)
+      xhr.timeout = 300000;
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const percentComplete = Math.round((event.loaded / event.total) * 100);
+          onProgress(percentComplete);
+        }
+      };
+
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (e) {
+            resolve({ success: false, message: 'Invalid response from server' });
+          }
+        } else {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve({ success: false, message: response.message || `Upload failed with status ${xhr.status}` });
+          } catch (e) {
+            resolve({ success: false, message: `Upload failed with status ${xhr.status}` });
+          }
+        }
+      };
+
+      xhr.onerror = () => {
+        resolve({ success: false, message: 'Network error occurred during upload' });
+      };
+
+      xhr.ontimeout = () => {
+        resolve({ success: false, message: 'Upload timed out. Please try a smaller file or faster connection.' });
+      };
+
+      xhr.send(JSON.stringify({ image: base64Str }));
+    });
   },
 
   // Auth & Verification
@@ -574,9 +656,9 @@ export const apiService = {
   async getUpcomingEvents(): Promise<UpcomingEvent[]> {
     try {
       const res = await fetch(`${BASE_URL}/upcoming-events`);
-      return await handleResponse<UpcomingEvent[]>(res, initialUpcomingEvents);
+      return await handleResponse<UpcomingEvent[]>(res, []);
     } catch {
-      return initialUpcomingEvents;
+      return [];
     }
   },
   async addUpcomingEvent(event: Omit<UpcomingEvent, 'id'>): Promise<UpcomingEvent> {

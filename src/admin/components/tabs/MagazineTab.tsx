@@ -4,7 +4,7 @@ import { GlobalConfig, HeroSlide, TeacherMessage, StatsData, CustomStatItem, Stu
 import { BdtIcon } from '../../../shared/components/BdtIcon';
 import { ImageUploader } from '../../../shared/components/ImageUploader';
 
-import { Plus, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Edit2, Trash2, CheckCircle, XCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface MagazineTabProps {
   magazineArticles: any;
@@ -15,6 +15,12 @@ interface MagazineTabProps {
 }
 
 export const MagazineTab: React.FC<MagazineTabProps> = ({ magazineArticles, editingArticle, setEditingArticle, flashMessage, loadAllData }) => {
+  const [expandedArticleId, setExpandedArticleId] = useState<string | null>(null);
+
+  const toggleExpand = (id: string) => {
+    setExpandedArticleId(expandedArticleId === id ? null : id);
+  };
+
   return (
     <>
       
@@ -43,18 +49,52 @@ export const MagazineTab: React.FC<MagazineTabProps> = ({ magazineArticles, edit
 
               <div className="space-y-4">
                 {magazineArticles.map((art) => (
-                  <div key={art.id} className="bg-white p-5 rounded-2xl border border-slate-200 flex justify-between items-center gap-4">
-                    <div>
-                      <span className="text-[11px] font-bold text-[#00732A] mr-2 bg-emerald-50 px-2 py-0.5 rounded">
-                        {art.category}
-                      </span>
+                  <div key={art.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <div className="p-5 flex justify-between items-center gap-4">
+                      <div>
+                        <span className="text-[11px] font-bold text-[#00732A] mr-2 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                          {art.category}
+                        </span>
+                      {art.isApproved ? (
+                        <span className="text-[11px] font-bold text-blue-600 mr-2 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                          Approved
+                        </span>
+                      ) : (
+                        <span className="text-[11px] font-bold text-amber-600 mr-2 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                          Pending
+                        </span>
+                      )}
                       <span className="text-xs font-bold text-slate-800">{art.title}</span>
                       <p className="text-xs text-slate-500 mt-1">লেখক: {art.author} ({art.authorBatch})</p>
+                      {art.contactPhone && <p className="text-xs text-slate-400 mt-0.5">মোবাইল: {art.contactPhone}</p>}
                     </div>
 
                     <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => toggleExpand(art.id)} 
+                        className="p-1.5 text-slate-500 hover:bg-slate-100 rounded transition-colors"
+                        title="কন্টেন্ট দেখুন"
+                      >
+                        {expandedArticleId === art.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </button>
+
+                      {!art.isApproved && (
+                        <button
+                          onClick={async () => {
+                            if (confirm('লেখাটি প্রকাশ করতে চান?')) {
+                              await apiService.updateMagazineArticle(art.id, { isApproved: true });
+                              flashMessage('লেখাটি প্রকাশিত হয়েছে');
+                              loadAllData();
+                            }
+                          }}
+                          className="p-1.5 text-emerald-600 rounded bg-emerald-50 border border-emerald-200"
+                          title="Approve"
+                        >
+                          <CheckCircle className="w-4 h-4" />
+                        </button>
+                      )}
                       <button onClick={() => setEditingArticle(art)} className="p-1.5 text-blue-600 rounded">
-                        <Edit2 className="w-3.5 h-3.5" />
+                        <Edit2 className="w-4 h-4" />
                       </button>
                       <button
                         onClick={async () => {
@@ -66,10 +106,20 @@ export const MagazineTab: React.FC<MagazineTabProps> = ({ magazineArticles, edit
                         }}
                         className="p-1.5 text-red-600 rounded"
                       >
-                        <Trash2 className="w-3.5 h-3.5" />
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
+                  
+                  {expandedArticleId === art.id && (
+                    <div className="border-t border-slate-100 bg-slate-50 p-6">
+                      <h4 className="text-sm font-bold text-slate-800 mb-4 border-b border-slate-200 pb-2">প্রবন্ধের বিষয়বস্তু:</h4>
+                      <div className="prose prose-sm max-w-none text-slate-700 whitespace-pre-wrap leading-relaxed">
+                        {art.content}
+                      </div>
+                    </div>
+                  )}
+                </div>
                 ))}
               </div>
 
@@ -102,6 +152,15 @@ export const MagazineTab: React.FC<MagazineTabProps> = ({ magazineArticles, edit
                           type="text"
                           value={editingArticle.authorBatch}
                           onChange={(e) => setEditingArticle({ ...editingArticle, authorBatch: e.target.value })}
+                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="text-xs font-bold text-slate-700 block mb-1">মোবাইল নম্বর</label>
+                        <input
+                          type="text"
+                          value={editingArticle.contactPhone || ''}
+                          onChange={(e) => setEditingArticle({ ...editingArticle, contactPhone: e.target.value })}
                           className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                         />
                       </div>

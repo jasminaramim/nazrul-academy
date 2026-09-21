@@ -79,31 +79,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
   const nagadNumber = globalConfig.nagadNumber || '01797585073';
   const rocketNumber = globalConfig.rocketNumber || '01712345678'; // 11 digits
 
-  // Generate QR codes for bKash, Nagad, Rocket
-  useEffect(() => {
-    if (!isOpen) return;
 
-    QRCode.toDataURL(`bkash://payment?recipient=${bkashNumber}&type=merchant&purpose=TrishalNazrulAcademy`, {
-      width: 260,
-      margin: 2,
-    })
-      .then(setBkashQrDataUrl)
-      .catch(() => QRCode.toDataURL(bkashNumber, { width: 260, margin: 2 }).then(setBkashQrDataUrl));
-
-    QRCode.toDataURL(`nagad://payment?recipient=${nagadNumber}&purpose=TrishalNazrulAcademy`, {
-      width: 260,
-      margin: 2,
-    })
-      .then(setNagadQrDataUrl)
-      .catch(() => QRCode.toDataURL(nagadNumber, { width: 260, margin: 2 }).then(setNagadQrDataUrl));
-
-    QRCode.toDataURL(`rocket://payment?recipient=${rocketNumber}&purpose=TrishalNazrulAcademy`, {
-      width: 260,
-      margin: 2,
-    })
-      .then(setRocketQrDataUrl)
-      .catch(() => QRCode.toDataURL(rocketNumber, { width: 260, margin: 2 }).then(setRocketQrDataUrl));
-  }, [isOpen, bkashNumber, nagadNumber, rocketNumber]);
 
   // When active tab changes, sync paymentMethod in formData
   const handleTabChange = (tab: 'bkash' | 'nagad' | 'rocket' | 'bank') => {
@@ -200,6 +176,10 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
     }
     if (!formData.phone.trim()) {
       setErrorMessage('দয়া করে যোগাযোগের মোবাইল নম্বর লিখুন।');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setErrorMessage('দয়া করে আপনার ইমেইল ঠিকানা লিখুন।');
       return;
     }
     if (!formData.senderNumber.trim()) {
@@ -524,24 +504,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                           </p>
                         </div>
 
-                        {/* QR Box */}
-                        <div className="flex flex-col items-center bg-pink-50/50 border border-pink-200 rounded-2xl p-3 shrink-0 text-center">
-                          {bkashQrDataUrl ? (
-                            <img src={bkashQrDataUrl} alt="bKash QR" className="w-32 h-32 object-contain rounded-lg bg-white p-1" />
-                          ) : (
-                            <div className="w-32 h-32 flex items-center justify-center bg-white rounded-lg">
-                              <QrCode className="w-8 h-8 text-slate-400 animate-pulse" />
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadQr(bkashQrDataUrl, 'bkash_qr_trishal')}
-                            className="mt-2 text-[10px] font-bold text-slate-600 hover:text-[#e2136e] flex items-center gap-1 cursor-pointer"
-                          >
-                            <Download className="w-3 h-3" />
-                            <span>QR ডাউনলোড</span>
-                          </button>
-                        </div>
+
                       </div>
                     );
                   })()}
@@ -585,24 +548,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                           </p>
                         </div>
 
-                        {/* QR Box */}
-                        <div className="flex flex-col items-center bg-orange-50/50 border border-orange-200 rounded-2xl p-3 shrink-0 text-center">
-                          {nagadQrDataUrl ? (
-                            <img src={nagadQrDataUrl} alt="Nagad QR" className="w-32 h-32 object-contain rounded-lg bg-white p-1" />
-                          ) : (
-                            <div className="w-32 h-32 flex items-center justify-center bg-white rounded-lg">
-                              <QrCode className="w-8 h-8 text-slate-400 animate-pulse" />
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadQr(nagadQrDataUrl, 'nagad_qr_trishal')}
-                            className="mt-2 text-[10px] font-bold text-slate-600 hover:text-[#d9381e] flex items-center gap-1 cursor-pointer"
-                          >
-                            <Download className="w-3 h-3" />
-                            <span>QR ডাউনলোড</span>
-                          </button>
-                        </div>
+
                       </div>
                     );
                   })()}
@@ -646,24 +592,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                           </p>
                         </div>
 
-                        {/* QR Box */}
-                        <div className="flex flex-col items-center bg-purple-50/50 border border-purple-200 rounded-2xl p-3 shrink-0 text-center">
-                          {rocketQrDataUrl ? (
-                            <img src={rocketQrDataUrl} alt="Rocket QR" className="w-32 h-32 object-contain rounded-lg bg-white p-1" />
-                          ) : (
-                            <div className="w-32 h-32 flex items-center justify-center bg-white rounded-lg">
-                              <QrCode className="w-8 h-8 text-slate-400 animate-pulse" />
-                            </div>
-                          )}
-                          <button
-                            type="button"
-                            onClick={() => handleDownloadQr(rocketQrDataUrl, 'rocket_qr_trishal')}
-                            className="mt-2 text-[10px] font-bold text-slate-600 hover:text-[#8c3077] flex items-center gap-1 cursor-pointer"
-                          >
-                            <Download className="w-3 h-3" />
-                            <span>QR ডাউনলোড</span>
-                          </button>
-                        </div>
+
                       </div>
                     );
                   })()}
@@ -756,7 +685,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                       <input
                         type="text"
                         required
-                        placeholder="উদা: মোঃ আরিফুল ইসলাম"
+                        placeholder="তোমার নাম"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300 focus:outline-none focus:border-[#00732A] focus:ring-1 focus:ring-[#00732A]"
@@ -799,12 +728,13 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                   {/* Email */}
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      ইমেইল (অনুমোদন নিশ্চিতকরণ পত্র পেতে)
+                      ইমেইল (অনুমোদন নিশ্চিতকরণ পত্র পেতে) *
                     </label>
                     <div className="relative">
                       <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
                       <input
                         type="email"
+                        required
                         placeholder="example@gmail.com"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}

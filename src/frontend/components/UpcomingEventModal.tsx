@@ -128,7 +128,7 @@ export const UpcomingEventModal: React.FC<UpcomingEventModalProps> = ({
         </button>
 
         {/* Poster Top Banner / Visual */}
-        <div className="relative h-56 sm:h-72 w-full bg-slate-950 shrink-0 overflow-hidden">
+        <div className="relative h-48 sm:h-72 w-full bg-slate-950 shrink-0 overflow-hidden">
           {event.image ? (
             <img
               src={event.image}
@@ -196,9 +196,9 @@ export const UpcomingEventModal: React.FC<UpcomingEventModalProps> = ({
         </div>
 
         {/* Modal Body / Scrollable Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-4 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-3 sm:space-y-4 flex-1">
           <div>
-            <h3 className="text-lg sm:text-2xl font-black text-slate-900 leading-snug">
+            <h3 className="text-[19px] sm:text-2xl font-black text-slate-900 leading-snug">
               {event.title}
             </h3>
 
@@ -262,29 +262,31 @@ export const UpcomingEventModal: React.FC<UpcomingEventModalProps> = ({
         </div>
 
         {/* Footer Actions (নিবন্ধন করুন & অনুদান করুন) */}
-        <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-200/80 shrink-0 flex flex-col sm:flex-row items-center gap-3">
-          <button
-            type="button"
-            onClick={handleGoToRegister}
-            className="w-full sm:flex-1 py-3 px-4 rounded-2xl text-xs sm:text-sm font-extrabold text-white bg-gradient-to-r from-[#00732A] to-[#005c21] hover:from-[#005c21] hover:to-[#004719] shadow-md shadow-emerald-900/20 flex items-center justify-center gap-2 cursor-pointer transition-all scale-100 hover:scale-[1.02]"
-          >
-            <span>নিবন্ধন করুন</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+        <div className="p-3.5 sm:p-5 bg-white border-t border-slate-100 shrink-0 flex flex-col sm:flex-row items-center gap-2.5 sm:gap-3">
+          <div className="w-full flex sm:contents items-center gap-2.5 sm:gap-3">
+            <button
+              type="button"
+              onClick={handleGoToRegister}
+              className="flex-1 py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm font-extrabold text-white bg-gradient-to-r from-[#00732A] to-[#005c21] hover:from-[#005c21] hover:to-[#004719] shadow-md shadow-emerald-900/20 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all scale-100 hover:scale-[1.02]"
+            >
+              <span>নিবন্ধন করুন</span>
+              <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            </button>
 
-          <button
-            type="button"
-            onClick={handleGoToDonate}
-            className="w-full sm:flex-1 py-3 px-4 rounded-2xl text-xs sm:text-sm font-extrabold text-white bg-gradient-to-r from-[#CA0000] to-[#a80000] hover:from-[#a80000] hover:to-[#880000] shadow-md shadow-red-900/20 flex items-center justify-center gap-2 cursor-pointer transition-all scale-100 hover:scale-[1.02]"
-          >
-            <Heart className="w-4 h-4 fill-white" />
-            <span>অনুদান করুন</span>
-          </button>
+            <button
+              type="button"
+              onClick={handleGoToDonate}
+              className="flex-1 py-2.5 sm:py-3 px-2 sm:px-4 rounded-xl sm:rounded-2xl text-[13px] sm:text-sm font-extrabold text-white bg-gradient-to-r from-[#CA0000] to-[#a80000] hover:from-[#a80000] hover:to-[#880000] shadow-md shadow-red-900/20 flex items-center justify-center gap-1.5 sm:gap-2 cursor-pointer transition-all scale-100 hover:scale-[1.02]"
+            >
+              <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-white" />
+              <span>অনুদান করুন</span>
+            </button>
+          </div>
 
           <button
             type="button"
             onClick={handleDismiss}
-            className="w-full sm:w-auto py-2.5 px-4 text-xs font-bold text-slate-500 hover:text-slate-700 hover:bg-slate-200/70 rounded-xl cursor-pointer transition-colors"
+            className="w-full sm:w-auto py-1.5 sm:py-2.5 px-4 text-xs font-bold text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl cursor-pointer transition-colors"
           >
             পরে দেখুন
           </button>

@@ -136,6 +136,39 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ globalConfig, setGloba
                 </div>
               </div>
 
+              {/* Magazine Settings */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
+                <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">
+                  ম্যাগাজিন পিডিএফ (ডিজিটাল কপি)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-1">
+                    <label className="text-xs font-bold text-slate-700 block mb-1">পিডিএফ ফাইল আপলোড (অথবা ড্রাইভ লিংক)</label>
+                    <ImageUploader
+                      value={globalConfig.magazinePdfUrl || ''}
+                      onChange={(url) => setGlobalConfig({ ...globalConfig, magazinePdfUrl: url })}
+                      label=""
+                      placeholder="পিডিএফ ফাইল ড্রপ করুন বা আপলোড করুন"
+                      acceptsPdf={true}
+                      aspectRatio="banner"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end pt-3 border-t border-slate-100">
+                  <button
+                    onClick={async () => {
+                      await apiService.updateGlobalConfig(globalConfig);
+                      flashMessage('ম্যাগাজিন পিডিএফ সংরক্ষিত হয়েছে');
+                      loadAllData();
+                    }}
+                    className="flex items-center gap-1.5 px-6 py-2.5 bg-[#00732A] text-white rounded-xl text-xs font-bold"
+                  >
+                    <Save className="w-4 h-4" />
+                    <span>পিডিএফ সংরক্ষণ করুন</span>
+                  </button>
+                </div>
+              </div>
+
               {/* Registration & Fee Config */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-4">
                 <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-2">

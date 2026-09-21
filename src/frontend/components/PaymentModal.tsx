@@ -29,52 +29,14 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | 'bkash' | 'nagad' | 'bank'>(defaultTab);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [bkashQrDataUrl, setBkashQrDataUrl] = useState<string>('');
-  const [nagadQrDataUrl, setNagadQrDataUrl] = useState<string>('');
-  const [zoomedQr, setZoomedQr] = useState<{ title: string; image: string; type: 'bkash' | 'nagad'; num: string } | null>(null);
+
 
   const bkashNumber = '01712345678';
   const bkashDisplay = '০১৭১২-৩৪৫৬৭৮';
   const nagadNumber = '01797585073';
   const nagadDisplay = '০১৭৯৭-৫৮৫০৭৩';
 
-  // Generate QR codes
-  useEffect(() => {
-    // Generate bKash QR Code (supports bKash merchant/send money standard format)
-    QRCode.toDataURL(
-      `bkash://payment?recipient=${bkashNumber}&type=merchant&purpose=TrishalNazrulAcademyReunion`,
-      {
-        width: 320,
-        margin: 2,
-        color: {
-          dark: '#1e293b',
-          light: '#ffffff',
-        },
-      }
-    )
-      .then((url) => setBkashQrDataUrl(url))
-      .catch(() => {
-        // Fallback simple payload
-        QRCode.toDataURL(`01712345678`, { width: 320, margin: 2 }).then(setBkashQrDataUrl);
-      });
 
-    // Generate Nagad QR Code
-    QRCode.toDataURL(
-      `nagad://payment?recipient=${nagadNumber}&purpose=TrishalNazrulAcademyReunion`,
-      {
-        width: 320,
-        margin: 2,
-        color: {
-          dark: '#1e293b',
-          light: '#ffffff',
-        },
-      }
-    )
-      .then((url) => setNagadQrDataUrl(url))
-      .catch(() => {
-        QRCode.toDataURL(`01797585073`, { width: 320, margin: 2 }).then(setNagadQrDataUrl);
-      });
-  }, []);
 
   if (!isOpen) return null;
 
@@ -84,14 +46,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const handleDownloadQr = (dataUrl: string, filename: string) => {
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = `${filename}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  };
+
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/70 backdrop-blur-xs animate-in fade-in duration-200">
@@ -193,28 +148,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </span>
                   </div>
 
-                  {/* QR Code Container */}
-                  <div className="relative bg-white p-3 rounded-2xl border border-pink-200 shadow-sm my-1 cursor-pointer" onClick={() => setZoomedQr({ title: 'বিকাশ (bKash) পেমেন্ট QR কোড', image: bkashQrDataUrl, type: 'bkash', num: bkashDisplay })}>
-                    {bkashQrDataUrl ? (
-                      <img
-                        src={bkashQrDataUrl}
-                        alt="bKash QR Code"
-                        className="w-44 h-44 sm:w-48 sm:h-48 object-contain rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-44 h-44 flex items-center justify-center bg-slate-100 rounded-lg">
-                        <QrCode className="w-10 h-10 text-slate-400 animate-pulse" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center text-white text-xs font-bold gap-1.5">
-                      <Maximize2 className="w-4 h-4" />
-                      <span>বড় করে দেখুন</span>
-                    </div>
-                  </div>
 
-                  <p className="text-xs text-slate-500 mt-2 font-medium">
-                    bKash অ্যাপ দিয়ে QR কোডটি স্ক্যান করুন
-                  </p>
 
                   {/* Number & Copy */}
                   <div className="mt-3 w-full bg-white rounded-xl border border-pink-200 p-2.5 flex items-center justify-between shadow-2xs">
@@ -244,16 +178,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </button>
                   </div>
 
-                  {/* Action buttons */}
-                  <div className="mt-2.5 w-full flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleDownloadQr(bkashQrDataUrl, 'bkash_qr_trishal_reunion')}
-                      className="text-[11px] font-bold text-slate-600 hover:text-[#e2136e] flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-pink-50 transition-colors cursor-pointer"
-                    >
-                      <Download className="w-3 h-3" />
-                      <span>QR ডাউনলোড</span>
-                    </button>
-                  </div>
+
                 </div>
               )}
 
@@ -274,28 +199,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </span>
                   </div>
 
-                  {/* QR Code Container */}
-                  <div className="relative bg-white p-3 rounded-2xl border border-orange-200 shadow-sm my-1 cursor-pointer" onClick={() => setZoomedQr({ title: 'নগদ (Nagad) পেমেন্ট QR কোড', image: nagadQrDataUrl, type: 'nagad', num: nagadDisplay })}>
-                    {nagadQrDataUrl ? (
-                      <img
-                        src={nagadQrDataUrl}
-                        alt="Nagad QR Code"
-                        className="w-44 h-44 sm:w-48 sm:h-48 object-contain rounded-lg"
-                      />
-                    ) : (
-                      <div className="w-44 h-44 flex items-center justify-center bg-slate-100 rounded-lg">
-                        <QrCode className="w-10 h-10 text-slate-400 animate-pulse" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl flex items-center justify-center text-white text-xs font-bold gap-1.5">
-                      <Maximize2 className="w-4 h-4" />
-                      <span>বড় করে দেখুন</span>
-                    </div>
-                  </div>
 
-                  <p className="text-xs text-slate-500 mt-2 font-medium">
-                    Nagad অ্যাপ দিয়ে QR কোডটি স্ক্যান করুন
-                  </p>
 
                   {/* Number & Copy */}
                   <div className="mt-3 w-full bg-white rounded-xl border border-orange-200 p-2.5 flex items-center justify-between shadow-2xs">
@@ -325,16 +229,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
                     </button>
                   </div>
 
-                  {/* Action buttons */}
-                  <div className="mt-2.5 w-full flex items-center justify-center gap-2">
-                    <button
-                      onClick={() => handleDownloadQr(nagadQrDataUrl, 'nagad_qr_trishal_reunion')}
-                      className="text-[11px] font-bold text-slate-600 hover:text-[#d9381e] flex items-center gap-1 px-2.5 py-1 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer"
-                    >
-                      <Download className="w-3 h-3" />
-                      <span>QR ডাউনলোড</span>
-                    </button>
-                  </div>
+
                 </div>
               )}
             </div>
@@ -427,43 +322,7 @@ export const PaymentModal: React.FC<PaymentModalProps> = ({
         </div>
       </div>
 
-      {/* Zoom Modal for QR code */}
-      {zoomedQr && (
-        <div
-          className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setZoomedQr(null)}
-        >
-          <div
-            className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-4 shadow-2xl relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              onClick={() => setZoomedQr(null)}
-              className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600"
-            >
-              <X className="w-4 h-4" />
-            </button>
 
-            <h4 className="text-base font-bold text-slate-900">{zoomedQr.title}</h4>
-
-            <div className="p-4 bg-white rounded-2xl border-2 border-slate-200 shadow-inner">
-              <img src={zoomedQr.image} alt={zoomedQr.title} className="w-64 h-64 mx-auto object-contain" />
-            </div>
-
-            <p className="text-sm font-mono font-black text-slate-800">{zoomedQr.num}</p>
-
-            <div className="flex gap-2 justify-center pt-2">
-              <button
-                onClick={() => handleDownloadQr(zoomedQr.image, `${zoomedQr.type}_qr_code`)}
-                className="px-4 py-2 rounded-xl text-xs font-bold bg-[#00732A] text-white hover:bg-[#005c21] flex items-center gap-1.5"
-              >
-                <Download className="w-3.5 h-3.5" />
-                <span>QR ডাউনলোড করুন</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

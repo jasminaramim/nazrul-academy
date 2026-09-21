@@ -85,7 +85,7 @@ function MainAppContent() {
   const [donors, setDonors] = useState<Donor[]>(initialDonors);
   const [gallery, setGallery] = useState<GalleryItem[]>(initialGallery);
   const [magazineArticles, setMagazineArticles] = useState<MagazineArticle[]>(initialMagazineArticles);
-  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>(initialUpcomingEvents);
+  const [upcomingEvents, setUpcomingEvents] = useState<UpcomingEvent[]>([]);
 
   const fetchData = async () => {
     try {
@@ -138,6 +138,22 @@ function MainAppContent() {
       setLoading(false);
     }
   };
+
+  // Dynamically update browser tab title and favicon based on Global Config
+  useEffect(() => {
+    if (globalConfig?.siteTitle) {
+      document.title = globalConfig.siteTitle;
+    }
+    if (globalConfig?.logoUrl) {
+      let link = document.querySelector("link[rel~='icon']") as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.head.appendChild(link);
+      }
+      link.href = globalConfig.logoUrl;
+    }
+  }, [globalConfig?.siteTitle, globalConfig?.logoUrl]);
 
   useEffect(() => {
     fetchData();
@@ -287,7 +303,7 @@ function MainAppContent() {
         {/* 6. MAGAZINE / MEMORIES PAGE (স্মৃতির পাতা) */}
         {currentPage === 'magazine' && (
           <div className="py-8 bg-slate-50 min-h-[80vh]">
-            <MagazineSection articles={magazineArticles} />
+            <MagazineSection articles={magazineArticles} pdfUrl={globalConfig?.magazinePdfUrl} />
           </div>
         )}
 

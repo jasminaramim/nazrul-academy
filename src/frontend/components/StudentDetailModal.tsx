@@ -10,6 +10,21 @@ interface StudentDetailModalProps {
 export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student, onClose }) => {
   if (!student) return null;
 
+  // Helpers to mask sensitive data
+  const maskPhone = (phone: string) => {
+    if (!phone || phone.length < 5) return phone;
+    // Show first 3 and last 2 digits, e.g., 017******22
+    return phone.substring(0, 3) + '*'.repeat(phone.length - 5) + phone.substring(phone.length - 2);
+  };
+
+  const maskEmail = (email: string) => {
+    if (!email || !email.includes('@')) return email;
+    const [name, domain] = email.split('@');
+    if (name.length <= 2) return `${name[0]}***@${domain}`;
+    // Show first 2 and last character of the local part, e.g., ri***i@gmail.com
+    return `${name.substring(0, 2)}***${name.substring(name.length - 1)}@${domain}`;
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden relative transform transition-all">
@@ -25,22 +40,22 @@ export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student,
 
         {/* Profile Card Body */}
         <div className="px-6 pb-6 pt-0 relative">
-          {/* Avatar */}
-          <div className="-mt-14 mb-4 flex justify-between items-end">
-            <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-slate-100 ring-2 ring-[#00732A]/20">
+          {/* Avatar & Badges */}
+          <div className="-mt-14 mb-4 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+            <div className="w-24 h-24 rounded-2xl overflow-hidden border-4 border-white shadow-lg bg-slate-100 ring-2 ring-[#00732A]/20 shrink-0 self-start sm:self-auto">
               <img
                 src={student.image}
                 alt={student.name}
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1 bg-red-50 text-[#CA0000] border border-red-200 rounded-full text-xs font-bold flex items-center gap-1">
+            <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
+              <span className="px-3 py-1.5 bg-red-50 text-[#CA0000] border border-red-200 rounded-full text-xs font-bold flex items-center gap-1.5 whitespace-nowrap">
                 <Droplet className="w-3.5 h-3.5 fill-[#CA0000]" />
                 <span>রক্তের গ্রুপ: {student.bloodGroup}</span>
               </span>
-              <span className="px-3 py-1 bg-emerald-50 text-[#00732A] border border-emerald-200 rounded-full text-xs font-bold">
-                {student.batch}
+              <span className="px-3 py-1.5 bg-emerald-50 text-[#00732A] border border-emerald-200 rounded-full text-xs font-bold whitespace-nowrap">
+                {student.batch.includes('ব্যাচ') ? student.batch : `ব্যাচ ${student.batch}`}
               </span>
             </div>
           </div>
@@ -86,14 +101,14 @@ export const StudentDetailModal: React.FC<StudentDetailModalProps> = ({ student,
             {student.phone && (
               <div className="flex items-center gap-3 text-slate-700">
                 <Phone className="w-4 h-4 text-slate-500 shrink-0" />
-                <span><strong>ফোন:</strong> {student.phone}</span>
+                <span><strong>ফোন:</strong> {maskPhone(student.phone)}</span>
               </div>
             )}
 
             {student.email && (
               <div className="flex items-center gap-3 text-slate-700">
                 <Mail className="w-4 h-4 text-slate-500 shrink-0" />
-                <span><strong>ইমেইল:</strong> {student.email}</span>
+                <span><strong>ইমেইল:</strong> {maskEmail(student.email)}</span>
               </div>
             )}
 

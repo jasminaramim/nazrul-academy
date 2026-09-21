@@ -32,10 +32,7 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [limitModal, setLimitModal] = useState<{ isOpen: boolean; methodName: string; methodId: string } | null>(null);
 
-  // QR code URLs for mobile banking
-  const [bkashQrDataUrl, setBkashQrDataUrl] = useState<string>('');
-  const [nagadQrDataUrl, setNagadQrDataUrl] = useState<string>('');
-  const [rocketQrDataUrl, setRocketQrDataUrl] = useState<string>('');
+
 
   // Form states
   const [formData, setFormData] = useState({
@@ -82,36 +79,21 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
   const nagadNum = config?.nagadNumber || '';
   const rocketNum = config?.rocketNumber || '';
 
-  // Generate QR codes
+  const [bkashQrDataUrl, setBkashQrDataUrl] = useState<string | undefined>(undefined);
+  const [nagadQrDataUrl, setNagadQrDataUrl] = useState<string | undefined>(undefined);
+  const [rocketQrDataUrl, setRocketQrDataUrl] = useState<string | undefined>(undefined);
+
   useEffect(() => {
     if (bkashNum) {
-      QRCode.toDataURL(`bkash://payment?recipient=${bkashNum}&type=merchant&purpose=TrishalNazrulAcademy`, {
-        width: 240,
-        margin: 2,
-      })
-        .then(setBkashQrDataUrl)
-        .catch(() => QRCode.toDataURL(bkashNum, { width: 240, margin: 2 }).then(setBkashQrDataUrl));
+      QRCode.toDataURL(bkashNum).then(setBkashQrDataUrl).catch(console.error);
     }
-
     if (nagadNum) {
-      QRCode.toDataURL(`nagad://payment?recipient=${nagadNum}&purpose=TrishalNazrulAcademy`, {
-        width: 240,
-        margin: 2,
-      })
-        .then(setNagadQrDataUrl)
-        .catch(() => QRCode.toDataURL(nagadNum, { width: 240, margin: 2 }).then(setNagadQrDataUrl));
+      QRCode.toDataURL(nagadNum).then(setNagadQrDataUrl).catch(console.error);
     }
-
     if (rocketNum) {
-      QRCode.toDataURL(`rocket://payment?recipient=${rocketNum}&purpose=TrishalNazrulAcademy`, {
-        width: 240,
-        margin: 2,
-      })
-        .then(setRocketQrDataUrl)
-        .catch(() => QRCode.toDataURL(rocketNum, { width: 240, margin: 2 }).then(setRocketQrDataUrl));
+      QRCode.toDataURL(rocketNum).then(setRocketQrDataUrl).catch(console.error);
     }
   }, [bkashNum, nagadNum, rocketNum]);
-
   // Convert Bengali numbers to English
   const bnToEnNumber = (bnStr: string | number): string => {
     if (!bnStr) return '';
@@ -215,7 +197,7 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
       });
     }
     return list;
-  }, [config, bkashQrDataUrl, nagadQrDataUrl, rocketQrDataUrl]);
+  }, [config]);
 
   // Sync initial paymentMethod when methods become available (prioritize active methods)
   useEffect(() => {
@@ -280,7 +262,7 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
     document.body.removeChild(a);
   };
 
-  const presetAmounts = ['৫০০', '১০০০', '২০০০', '৫০০০', '১০০০০'];
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -332,6 +314,10 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
     }
     if (!formData.phone.trim()) {
       setErrorMessage('দয়া করে যোগাযোগের মোবাইল নম্বর লিখুন।');
+      return;
+    }
+    if (!formData.email.trim()) {
+      setErrorMessage('দয়া করে আপনার ইমেইল ঠিকানা লিখুন।');
       return;
     }
     if (!formData.senderNumber.trim()) {
@@ -555,26 +541,7 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
                   অনুদানের পরিমাণ (টাকা / BDT) *
                 </label>
 
-                {/* Preset Pills */}
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {presetAmounts.map((preset) => {
-                    const isSelected = formData.amount === preset;
-                    return (
-                      <button
-                        type="button"
-                        key={preset}
-                        onClick={() => setFormData({ ...formData, amount: preset })}
-                        className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                          isSelected
-                            ? 'bg-[#00732A] text-white border-[#00732A] shadow-sm scale-105'
-                            : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                        }`}
-                      >
-                        ৳{preset}
-                      </button>
-                    );
-                  })}
-                </div>
+
 
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">৳</span>
@@ -598,29 +565,16 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
               </h3>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
+                <div className="sm:col-span-2">
                   <label className="text-xs font-bold text-slate-700 block mb-1">
-                    আপনার পূর্ণ নাম (বাংলায়) *
+                    আপনার পূর্ণ নাম *
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="যেমন: মোহাম্মদ রফিকুল ইসলাম"
+                    placeholder="তোমার নাম"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold text-slate-700 block mb-1">
-                    নাম (English)
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Md. Rafiqul Islam"
-                    value={formData.nameEn}
-                    onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
                   />
                 </div>
@@ -654,10 +608,11 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
 
                 <div className="sm:col-span-2">
                   <label className="text-xs font-bold text-slate-700 block mb-1">
-                    ইমেইল ঠিকানা (ঐচ্ছিক - দিলে অ্যাডমিন অ্যাপ্রুভালের পর কনফার্মেশন পাবেন)
+                    ইমেইল ঠিকানা *
                   </label>
                   <input
                     type="email"
+                    required
                     placeholder="yourname@gmail.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -859,28 +814,6 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
                                 📌 {currentMethod.instructions}
                               </p>
                             </div>
-
-                            {/* QR Code Scanner (Desktop/Mobile) */}
-                            {currentMethod.qrUrl && (
-                              <div className="bg-white p-3 rounded-2xl border border-slate-200 text-center shadow-2xs flex flex-col items-center">
-                                <img
-                                  src={currentMethod.qrUrl}
-                                  alt={`${currentMethod.label} QR`}
-                                  className="w-28 h-28 object-contain rounded-lg border border-slate-100"
-                                />
-                                <span className="text-[10px] font-bold text-slate-500 mt-1 block">
-                                  অ্যাপ দিয়ে স্ক্যান করুন
-                                </span>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDownloadQr(currentMethod.qrUrl, `${currentMethod.id}-qr`)}
-                                  className="mt-1 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer"
-                                >
-                                  <Download className="w-3 h-3" />
-                                  QR ডাউনলোড
-                                </button>
-                              </div>
-                            )}
                           </div>
                         </div>
                       ) : (

@@ -3,6 +3,7 @@ import { HeroTab } from '../components/tabs/HeroTab';
 import { TeachersTab } from '../components/tabs/TeachersTab';
 import { StatsTab } from '../components/tabs/StatsTab';
 import { StudentsTab } from '../components/tabs/StudentsTab';
+import { AdminSettingsTab } from '../components/tabs/AdminSettingsTab';
 import { FinanceTab } from '../components/tabs/FinanceTab';
 import { NoticesTab } from '../components/tabs/NoticesTab';
 import { ScheduleTab } from '../components/tabs/ScheduleTab';
@@ -101,11 +102,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Admin login form states when not logged in
-  const [adminUsername, setAdminUsername] = useState('jasmin');
-  const [adminPassword, setAdminPassword] = useState('jasmin1142005');
+  const [adminUsername, setAdminUsername] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
   const [adminLoginLoading, setAdminLoginLoading] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
   const [copiedCreds, setCopiedCreds] = useState(false);
+
+  // Forgot Password States
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotStep, setForgotStep] = useState(1); // 1: request, 2: verify & reset
+  const [forgotUsername, setForgotUsername] = useState('');
+  const [forgotOtp, setForgotOtp] = useState('');
+  const [forgotNewPassword, setForgotNewPassword] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState('');
+  const [forgotSuccess, setForgotSuccess] = useState('');
 
   // States for all dynamic sections
   const [globalConfig, setGlobalConfig] = useState<GlobalConfig | null>(null);
@@ -206,7 +217,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         apiService.getCulturalSchedule(),
         apiService.getDonations(true),
         apiService.getGallery(),
-        apiService.getMagazineArticles(),
+        apiService.getMagazineArticles(true),
         apiService.getAdminInfo(),
         apiService.getMongoStatus(),
         apiService.getUpcomingEvents(),
@@ -255,6 +266,46 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       setAdminLoginError(err.message || 'লগইনে ত্রুটি ঘটেছে');
     } finally {
       setAdminLoginLoading(false);
+    }
+  };
+
+  const handleForgotPasswordRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true); setForgotError(''); setForgotSuccess('');
+    try {
+      const res = await apiService.fetchWithAuth('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ username: forgotUsername }) });
+      if (res.success) {
+        setForgotSuccess(res.message + ` (Email: ${res.maskedEmail})`);
+        setForgotStep(2);
+      } else {
+        setForgotError(res.message);
+      }
+    } catch (err: any) {
+      setForgotError(err.message || 'সমস্যা হয়েছে');
+    } finally {
+      setForgotLoading(false);
+    }
+  };
+
+  const handleForgotPasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotLoading(true); setForgotError(''); setForgotSuccess('');
+    try {
+      const res = await apiService.fetchWithAuth('/api/auth/reset-password', { method: 'POST', body: JSON.stringify({ email: forgotUsername, otp: forgotOtp, newPassword: forgotNewPassword }) });
+      if (res.success) {
+        setForgotSuccess(res.message);
+        setTimeout(() => {
+          setShowForgotPassword(false);
+          setForgotStep(1);
+          setForgotSuccess('');
+        }, 2000);
+      } else {
+        setForgotError(res.message);
+      }
+    } catch (err: any) {
+      setForgotError(err.message || 'সমস্যা হয়েছে');
+    } finally {
+      setForgotLoading(false);
     }
   };
 
@@ -333,8 +384,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   };
 
   // If user is not authenticated as admin, show the Admin Gate
-  if (!user || user.role !== 'admin') {
+  if (!user || !['admin', 'super-admin'].includes(user.role)) {
     return (
+      <>
       <div className="min-h-screen bg-slate-900 text-slate-100 flex items-center justify-center p-4 selection:bg-[#00732A] selection:text-white">
         <div className="max-w-md w-full bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
           <div className="text-center space-y-2">
@@ -347,33 +399,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
             </p>
           </div>
 
-          {/* Credential Card */}
-          <div className="bg-slate-900/90 border border-emerald-500/40 rounded-2xl p-4 space-y-2">
-            <div className="flex items-center justify-between text-xs font-bold text-emerald-400">
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                অ্যাডমিন লগইন তথ্য
-              </span>
-              <button
-                type="button"
-                onClick={copyAdminDetails}
-                className="text-[11px] text-slate-300 hover:text-white bg-slate-800 px-2 py-0.5 rounded border border-slate-700 flex items-center gap-1 cursor-pointer transition-colors"
-              >
-                {copiedCreds ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
-                {copiedCreds ? 'কপি হয়েছে' : 'কপি করুন'}
-              </button>
-            </div>
-            <div className="grid grid-cols-2 gap-2 text-xs font-mono bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-              <div>
-                <span className="text-[10px] text-slate-500 block uppercase">Username</span>
-                <span className="font-bold text-white">jasmin</span>
-              </div>
-              <div>
-                <span className="text-[10px] text-slate-500 block uppercase">Password</span>
-                <span className="font-bold text-white">jasmin1142005</span>
-              </div>
-            </div>
-          </div>
+
 
           {adminLoginError && (
             <div className="p-3 rounded-xl bg-red-950/70 border border-red-800/80 text-red-300 text-xs flex items-center gap-2">
@@ -427,18 +453,111 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
             </button>
           </form>
 
-          <div className="pt-2 border-t border-slate-700 flex items-center justify-between">
+          <div className="pt-4 border-t border-slate-700 flex flex-col gap-2">
             <button
               type="button"
-              onClick={onNavigateHome}
-              className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer py-1"
+              onClick={() => { setShowForgotPassword(true); setForgotStep(1); setForgotError(''); setForgotSuccess(''); }}
+              className="text-xs text-slate-400 hover:text-white cursor-pointer py-1"
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>হোমপেজে ফিরে যান</span>
+              পাসওয়ার্ড ভুলে গেছেন? (Forgot Password)
             </button>
+            <div className="flex items-center justify-between">
+              <button
+                type="button"
+                onClick={onNavigateHome}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer py-1"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>হোমপেজে ফিরে যান</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
+      
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl relative">
+            <button 
+              onClick={() => setShowForgotPassword(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
+                <Key className="w-6 h-6 text-slate-700" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">পাসওয়ার্ড রিসেট</h3>
+              <p className="text-xs text-slate-500">আপনার অ্যাডমিন অ্যাকাউন্টের অ্যাক্সেস ফিরে পান</p>
+            </div>
+
+            {(forgotError || forgotSuccess) && (
+              <div className={`p-3 rounded-xl mb-4 text-xs font-medium flex items-start gap-2 ${forgotError ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100'}`}>
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{forgotError || forgotSuccess}</span>
+              </div>
+            )}
+
+            {forgotStep === 1 ? (
+              <form onSubmit={handleForgotPasswordRequest} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">ইউজারনেম বা ইমেইল</label>
+                  <input
+                    type="text"
+                    required
+                    value={forgotUsername}
+                    onChange={(e) => setForgotUsername(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00732A] focus:outline-none text-sm"
+                    placeholder="admin@nazrulacademy.edu.bd"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-[#00732A] disabled:opacity-50"
+                >
+                  {forgotLoading ? 'পাঠানো হচ্ছে...' : 'ওটিপি (OTP) পাঠান'}
+                </button>
+              </form>
+            ) : (
+              <form onSubmit={handleForgotPasswordReset} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">ইমেইলে প্রাপ্ত ওটিপি (OTP)</label>
+                  <input
+                    type="text"
+                    required
+                    value={forgotOtp}
+                    onChange={(e) => setForgotOtp(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00732A] focus:outline-none text-sm text-center tracking-[0.5em] font-mono"
+                    maxLength={6}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">নতুন পাসওয়ার্ড</label>
+                  <input
+                    type="password"
+                    required
+                    value={forgotNewPassword}
+                    onChange={(e) => setForgotNewPassword(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00732A] focus:outline-none text-sm"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={forgotLoading}
+                  className="w-full py-2.5 rounded-xl text-sm font-bold text-white bg-[#00732A] disabled:opacity-50"
+                >
+                  {forgotLoading ? 'পরিবর্তন হচ্ছে...' : 'পাসওয়ার্ড পরিবর্তন করুন'}
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+      </>
     );
   }
 
@@ -458,6 +577,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     { id: 'donors', label: 'দাতা ও অনুদান', icon: HeartHandshake, badge: donors.length ? `${donors.length}` : undefined },
     { id: 'gallery', label: 'গ্যালারি ব্যবস্থাপনা', icon: Image, badge: gallery.length ? `${gallery.length}` : undefined },
     { id: 'magazine', label: 'স্মৃতির পাতা ও ম্যাগাজিন', icon: BookOpen, badge: magazineArticles.length ? `${magazineArticles.length}` : undefined },
+    { id: 'admin-settings', label: 'অ্যাডমিন ও নিরাপত্তা', icon: ShieldCheck },
     { id: 'settings', label: 'সাইট ও ডাটাবেজ সেটিংস', icon: Settings },
   ];
 
@@ -467,12 +587,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       {/* Mobile Top Header (Visible only on mobile) */}
       <div className="md:hidden bg-slate-900 text-white flex items-center justify-between p-4 sticky top-0 z-40 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000] text-sm">
-            না
-          </div>
+          {globalConfig?.logoUrl ? (
+            <img 
+              src={globalConfig.logoUrl} 
+              alt="Logo" 
+              className="w-8 h-8 object-contain" 
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-lg bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000] text-sm">
+              না
+            </div>
+          )}
           <div>
             <h2 className="text-sm font-bold text-white leading-tight">অ্যাডমিন প্যানেল</h2>
-            <p className="text-[10px] text-emerald-400">ত্রিশাল সরকারি নজরুল একাডেমি</p>
+            <p className="text-[10px] text-emerald-400">নজরুল একাডেমি অ্যালামনাই</p>
           </div>
         </div>
         <button
@@ -499,12 +627,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       `}>
         {/* Admin Brand */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000]">
-            না
-          </div>
+          {globalConfig?.logoUrl ? (
+            <img 
+              src={globalConfig.logoUrl} 
+              alt="Logo" 
+              className="w-10 h-10 object-contain" 
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000]">
+              না
+            </div>
+          )}
           <div>
             <h2 className="text-sm font-bold text-white leading-tight">অ্যাডমিন প্যানেল</h2>
-            <p className="text-[11px] text-emerald-400">ত্রিশাল সরকারি নজরুল একাডেমি</p>
+            <p className="text-[11px] text-emerald-400">নজরুল একাডেমি অ্যালামনাই</p>
           </div>
         </div>
 
@@ -675,6 +811,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
 
           {/* ===================== TAB 12: MAGAZINE ===================== */}
           {activeTab === 'magazine' && <MagazineTab magazineArticles={magazineArticles} editingArticle={editingArticle} setEditingArticle={setEditingArticle} flashMessage={flashMessage} loadAllData={loadAllData} />}
+
+          {/* ===================== TAB: ADMIN SETTINGS ===================== */}
+          {activeTab === 'admin-settings' && <AdminSettingsTab />}
 
           {/* ===================== TAB MONGODB CLOUD DATABASE ===================== */}
           {activeTab === 'mongodb' && <MongodbTab heroSlides={heroSlides} teacherMessages={teacherMessages} students={students} finance={finance} notices={notices} schedule={schedule} culturalSchedule={culturalSchedule} donors={donors} gallery={gallery} magazineArticles={magazineArticles} mongoStatus={mongoStatus} selectedMongoCollection={selectedMongoCollection} collectionDocs={collectionDocs} collectionLoading={collectionLoading} syncingMongo={syncingMongo} seedingDemo={seedingDemo} mongoUriInput={mongoUriInput} setMongoUriInput={setMongoUriInput} flashMessage={flashMessage} handleSyncMongo={handleSyncMongo} handleSeedDemoData={handleSeedDemoData} handleSaveMongoUri={handleSaveMongoUri} loadMongoCollectionDocs={loadMongoCollectionDocs} />}

@@ -26,6 +26,14 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, showAll
     return item.category === filter;
   });
 
+  const getVideoThumbnail = (url: string) => {
+    if (url.includes('youtube.com') || url.includes('youtu.be')) return ''; // YouTube fallback
+    if (url.includes('res.cloudinary.com') && url.match(/\.(mp4|webm|mov)$/i)) {
+      return url.replace(/\.(mp4|webm|mov)$/i, '.jpg');
+    }
+    return url;
+  };
+
   const displayList = showAll ? filtered : filtered.slice(0, 8);
 
   return (
@@ -70,7 +78,7 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, showAll
               className="group relative rounded-2xl overflow-hidden bg-slate-900 aspect-4/3 cursor-pointer shadow-2xs hover:shadow-lg transition-all"
             >
               <img
-                src={item.type === 'video' && item.videoThumbnail ? item.videoThumbnail : item.url}
+                src={item.type === 'video' ? (item.videoThumbnail || getVideoThumbnail(item.url)) : item.url}
                 alt={item.title}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90 group-hover:opacity-100"
                 loading="lazy"
@@ -121,18 +129,12 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ gallery, showAll
                     allowFullScreen
                   />
                 ) : (
-                  <div className="text-center p-8">
-                    <Video className="w-16 h-16 text-red-500 mx-auto mb-3" />
-                    <p className="text-sm">ভিডিও প্লেয়ার প্রস্তুত হচ্ছে...</p>
-                    <a
-                      href={activeItem.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="mt-3 inline-block px-4 py-2 bg-[#CA0000] text-white rounded-lg text-xs font-bold"
-                    >
-                      ইউটিউবে দেখুন
-                    </a>
-                  </div>
+                  <video 
+                    src={activeItem.url} 
+                    controls 
+                    autoPlay 
+                    className="w-full h-full object-contain bg-black"
+                  />
                 )
               ) : (
                 <img
