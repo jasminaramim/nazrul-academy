@@ -39,6 +39,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [approvingStudent, setApprovingStudent] = useState<Student | null>(null);
   const [isApproving, setIsApproving] = useState(false);
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
   const cardRef = React.useRef<HTMLDivElement>(null);
 
   return (
@@ -67,6 +68,18 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                     <option value="all">সকল ব্যাচ</option>
                     <option value="old">পুরাতন ব্যাচ (২০১০ এর পূর্বে)</option>
                     <option value="new">নতুন ব্যাচ (২০১১ পরবর্তী)</option>
+                  </select>
+
+                  <select
+                    value={paymentMethodFilter}
+                    onChange={(e) => setPaymentMethodFilter(e.target.value)}
+                    className="py-2 px-3 text-xs rounded-xl border border-slate-300 font-medium"
+                  >
+                    <option value="all">সকল পেমেন্ট</option>
+                    <option value="bkash">bKash</option>
+                    <option value="nagad">Nagad</option>
+                    <option value="rocket">Rocket</option>
+                    <option value="bank">Bank</option>
                   </select>
                 </div>
 
@@ -114,6 +127,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                       {students
                         .filter((s) => {
                           if (studentBatchFilter !== 'all' && s.batchType !== studentBatchFilter) return false;
+                          if (paymentMethodFilter !== 'all' && s.paymentMethod?.toLowerCase() !== paymentMethodFilter.toLowerCase()) return false;
                           if (studentSearch) {
                             const q = studentSearch.toLowerCase();
                             return (
@@ -149,7 +163,10 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                             </td>
                             <td className="px-4 py-3">
                               <span className="text-slate-800 font-bold block">{s.registrationFee ? `৳${s.registrationFee}` : '-'}</span>
-                              <span className="text-[10px] text-slate-500 font-mono">{s.transactionId || '-'}</span>
+                              <span className="text-[10px] text-slate-500 font-mono block">{s.transactionId || '-'}</span>
+                              {s.paymentMethod && (
+                                <span className="text-[10px] text-[#00732A] font-medium block capitalize bg-emerald-50 px-1 py-0.5 rounded w-fit mt-0.5 border border-emerald-100">{s.paymentMethod}</span>
+                              )}
                             </td>
                             <td className="px-4 py-3">
                               {s.status === 'pending' ? (

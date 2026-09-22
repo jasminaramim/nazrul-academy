@@ -38,6 +38,7 @@ export const DonorsTab: React.FC<DonorsTabProps> = ({
   loadAllData,
 }) => {
   const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved'>('all');
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
   const [approvingId, setApprovingId] = useState<string | null>(null);
   const [expandedCardIds, setExpandedCardIds] = useState<Record<string, boolean>>({});
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -52,15 +53,17 @@ export const DonorsTab: React.FC<DonorsTabProps> = ({
     setTimeout(() => setCopiedKey(null), 2000);
   };
 
-  const pendingDonors = donors.filter((d) => d.status === 'pending');
-  const approvedDonors = donors.filter((d) => d.status === 'approved' || !d.status);
+  const filteredByPayment = donors.filter(d => paymentMethodFilter === 'all' || d.paymentMethod?.toLowerCase() === paymentMethodFilter.toLowerCase());
+
+  const pendingDonors = filteredByPayment.filter((d) => d.status === 'pending');
+  const approvedDonors = filteredByPayment.filter((d) => d.status === 'approved' || !d.status);
 
   const filteredDonors =
     statusFilter === 'pending'
       ? pendingDonors
       : statusFilter === 'approved'
       ? approvedDonors
-      : donors;
+      : filteredByPayment;
 
   const handleApprove = async (donor: Donor) => {
     setApprovingId(donor.id);
@@ -126,6 +129,18 @@ export const DonorsTab: React.FC<DonorsTabProps> = ({
               <span>অনুমোদিত ({approvedDonors.length})</span>
             </button>
           </div>
+
+          <select
+            value={paymentMethodFilter}
+            onChange={(e) => setPaymentMethodFilter(e.target.value)}
+            className="py-1.5 px-3 text-xs rounded-xl border border-slate-200 font-bold bg-white text-slate-700"
+          >
+            <option value="all">সকল পেমেন্ট</option>
+            <option value="bkash">bKash</option>
+            <option value="nagad">Nagad</option>
+            <option value="rocket">Rocket</option>
+            <option value="bank">Bank</option>
+          </select>
 
           <button
             onClick={() =>

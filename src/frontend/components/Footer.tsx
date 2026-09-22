@@ -156,35 +156,33 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
             </div>
 
             {/* Right side: Credits Section */}
-            <div className="flex flex-col items-center md:items-end gap-3 w-full md:w-auto pt-4 md:pt-0 border-t border-emerald-900/30 md:border-t-0">
+            <div className="flex flex-col items-center md:items-end gap-2 w-full md:w-auto pt-4 md:pt-0 border-t border-emerald-900/30 md:border-t-0">
               
-              {/* Coordinator */}
-              <div className="flex items-center gap-1.5 text-emerald-100/80 text-xs bg-emerald-950/30 px-3 py-1 rounded-full border border-emerald-900/50">
-                <span>Project Coordinated by:</span>
-                <span className="text-white font-semibold tracking-wide">Tarek Newas</span>
-              </div>
-
               {/* Developer */}
               <div className="flex flex-col items-center md:items-end gap-1.5">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-emerald-100/80">Developed by:</span>
-                  <a 
-                    href="https://ranasheikh64.github.io/jronix-software-solutions/" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-2 text-white hover:text-[#FBBF24] transition-all font-bold tracking-wide group"
-                  >
-                    <div className="w-6 h-6 rounded-full overflow-hidden border border-emerald-700/50 group-hover:border-[#FBBF24]/50 group-hover:scale-110 transition-all shadow-sm shrink-0 bg-[#052317]">
-                      <img 
-                        src={jronixLogo} 
-                        alt="Jronix" 
-                        className="w-full h-full object-cover" 
-                      />
-                    </div>
-                    <span className="border-b border-transparent group-hover:border-[#FBBF24]/50 pb-0.5">Jronix-Software Solutions</span>
-                  </a>
+                <div className="flex flex-col md:flex-row items-center gap-1.5 text-xs">
+                  <span className="text-emerald-100/80 mb-1 md:mb-0">Developed by:</span>
+                  <div className="flex flex-wrap justify-center items-center gap-1.5">
+                    <span className="text-white font-bold tracking-wide">Tarek Newas</span>
+                    <span className="text-emerald-100/40 text-[10px]">&amp;</span>
+                    <a 
+                      href="https://ranasheikh64.github.io/jronix-software-solutions/" 
+                      target="_blank" 
+                      rel="noreferrer"
+                      className="flex items-center gap-1.5 text-white hover:text-[#FBBF24] transition-all font-bold tracking-wide group"
+                    >
+                      <div className="w-5 h-5 rounded-full overflow-hidden border border-emerald-700/50 group-hover:border-[#FBBF24]/50 group-hover:scale-110 transition-all shadow-sm shrink-0 bg-[#052317]">
+                        <img 
+                          src={jronixLogo} 
+                          alt="Jronix" 
+                          className="w-full h-full object-cover" 
+                        />
+                      </div>
+                      <span className="border-b border-transparent group-hover:border-[#FBBF24]/50 pb-0.5">Jronix-Software Solutions</span>
+                    </a>
+                  </div>
                 </div>
-                <span className="text-[10px] text-[#FBBF24]/80 italic mt-0.5 tracking-wider font-medium">If you need any website, feel free to contact us!</span>
+                <span className="text-[10px] text-[#FBBF24]/80 italic mt-1 md:mt-0.5 tracking-wider font-medium">If you need any website, feel free to contact us!</span>
               </div>
             </div>
           </div>

@@ -87,15 +87,13 @@ export const StatsTab: React.FC<StatsTabProps> = ({ statsData, setStatsData, set
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      নিবন্ধিত শিক্ষার্থী সংখ্যা (স্বয়ংক্রিয় বা কাস্টম)
+                      নিবন্ধিত শিক্ষার্থী সংখ্যা (স্বয়ংক্রিয়)
                     </label>
                     <input
                       type="number"
                       value={statsData.registeredStudents}
-                      onChange={(e) =>
-                        setStatsData({ ...statsData, registeredStudents: Number(e.target.value) })
-                      }
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold text-emerald-700"
+                      disabled
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 font-bold text-slate-500 bg-slate-100 cursor-not-allowed"
                     />
                   </div>
                 </div>
