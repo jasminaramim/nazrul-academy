@@ -1,6 +1,7 @@
 import React from 'react';
 import { Phone, Mail, MapPin, Facebook, Youtube, Heart, UserPlus, HelpCircle, ChevronRight, MessageCircle } from 'lucide-react';
 import { GlobalConfig } from '../../shared/types';
+import jronixLogo from '../../assets/image.png';
 
 interface FooterProps {
   globalConfig: GlobalConfig;
@@ -142,12 +143,49 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
       {/* Bottom Copyright Bar */}
       <div className="border-t border-emerald-900/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-emerald-100/60">
-            <p>© ২০২৬ নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি। সর্বস্বত্ব সংরক্ষিত।</p>
-            <div className="flex items-center gap-1.5">
-              <span>উদ্যোগে ও বাস্তবায়নে:</span>
-              <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500" />
-              <span>নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি</span>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-6 text-xs text-emerald-100/60">
+            
+            {/* Left side: Copyright & Organizer */}
+            <div className="flex flex-col items-center md:items-start gap-2.5 text-center md:text-left">
+              <p className="leading-relaxed">© ২০২৬ নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি।<br className="hidden sm:block md:hidden" /> সর্বস্বত্ব সংরক্ষিত।</p>
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-1.5 gap-y-1">
+                <span>উদ্যোগে ও বাস্তবায়নে:</span>
+                <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 shrink-0" />
+                <span className="font-medium text-emerald-100/80">নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি</span>
+              </div>
+            </div>
+
+            {/* Right side: Credits Section */}
+            <div className="flex flex-col items-center md:items-end gap-3 w-full md:w-auto pt-4 md:pt-0 border-t border-emerald-900/30 md:border-t-0">
+              
+              {/* Coordinator */}
+              <div className="flex items-center gap-1.5 text-emerald-100/80 text-xs bg-emerald-950/30 px-3 py-1 rounded-full border border-emerald-900/50">
+                <span>Project Coordinated by:</span>
+                <span className="text-white font-semibold tracking-wide">Tarek Newas</span>
+              </div>
+
+              {/* Developer */}
+              <div className="flex flex-col items-center md:items-end gap-1.5">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-emerald-100/80">Developed by:</span>
+                  <a 
+                    href="https://ranasheikh64.github.io/jronix-software-solutions/" 
+                    target="_blank" 
+                    rel="noreferrer"
+                    className="flex items-center gap-2 text-white hover:text-[#FBBF24] transition-all font-bold tracking-wide group"
+                  >
+                    <div className="w-6 h-6 rounded-full overflow-hidden border border-emerald-700/50 group-hover:border-[#FBBF24]/50 group-hover:scale-110 transition-all shadow-sm shrink-0 bg-[#052317]">
+                      <img 
+                        src={jronixLogo} 
+                        alt="Jronix" 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
+                    <span className="border-b border-transparent group-hover:border-[#FBBF24]/50 pb-0.5">Jronix-Software Solutions</span>
+                  </a>
+                </div>
+                <span className="text-[10px] text-[#FBBF24]/80 italic mt-0.5 tracking-wider font-medium">If you need any website, feel free to contact us!</span>
+              </div>
             </div>
           </div>
         </div>

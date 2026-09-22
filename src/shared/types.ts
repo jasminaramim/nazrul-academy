@@ -74,6 +74,10 @@ export interface Student {
   tshirtSize?: string;
   bio?: string;
   status: 'approved' | 'pending';
+  registrationFee?: number;
+  transactionId?: string;
+  paymentMethod?: string;
+  createdAt?: string;
 }
 
 export interface FinanceTransaction {

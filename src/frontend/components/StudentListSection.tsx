@@ -22,8 +22,8 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const uniqueYears = Array.from(new Set(students.map(s => s.batch))).sort((a, b) => {
-    const numA = parseInt(a.replace(/\D/g, '')) || 0;
-    const numB = parseInt(b.replace(/\D/g, '')) || 0;
+    const numA = parseInt(String(a).replace(/\D/g, '')) || 0;
+    const numB = parseInt(String(b).replace(/\D/g, '')) || 0;
     return numB - numA;
   });
 
