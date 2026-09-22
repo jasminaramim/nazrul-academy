@@ -52,7 +52,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                     <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
                     <input
                       type="text"
-                      placeholder="শিক্ষার্থীর নাম বা জেলা খুঁজুন..."
+                      placeholder="শিক্ষার্থীর নাম, জেলা বা TrxID খুঁজুন..."
                       value={studentSearch}
                       onChange={(e) => setStudentSearch(e.target.value)}
                       className="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-300"
@@ -120,7 +120,8 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                               s.name.toLowerCase().includes(q) ||
                               (s.nameEn && s.nameEn.toLowerCase().includes(q)) ||
                               s.location.toLowerCase().includes(q) ||
-                              s.batch.toLowerCase().includes(q)
+                              s.batch.toLowerCase().includes(q) ||
+                              (s.transactionId && s.transactionId.toLowerCase().includes(q))
                             );
                           }
                           return true;

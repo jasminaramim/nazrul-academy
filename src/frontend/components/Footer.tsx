@@ -17,7 +17,7 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
         </div>
         
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-          আপনি কি পুনর্মিলনী ২০২৬-এ আপনার আসন নিশ্চিত করেছেন?
+          আপনি কি {globalConfig.eventName}-এ আপনার আসন নিশ্চিত করেছেন?
         </h2>
         
         <p className="text-emerald-100 text-sm md:text-base mb-10 max-w-2xl mx-auto">
@@ -33,13 +33,7 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
             এখনই নিবন্ধন করুন
           </button>
           
-          <button
-            onClick={() => onNavigate('help')}
-            className="flex items-center gap-2 px-6 py-3 rounded-md bg-transparent border border-emerald-600/50 hover:bg-[#0a3826] text-white font-bold transition-all w-full sm:w-auto justify-center"
-          >
-            <HelpCircle className="w-5 h-5" />
-            কীভাবে নিবন্ধন করবেন?
-          </button>
+
         </div>
       </div>
 

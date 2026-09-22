@@ -22,33 +22,39 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors, onOpen
   // Only show approved donors on website
   const approvedDonors = donors.filter((d) => d.status === 'approved');
 
-  // Use marquee only if there are enough donors (>= 6) to span the screen width
+  // Use marquee if enough donors for desktop (>=6), always use on mobile (handled via CSS)
   const useMarquee = approvedDonors.length >= 6;
 
-  // Split approved donors into 2 rows if marquee is active
+  // Always split into 2 rows for mobile marquee
   const half = Math.ceil(approvedDonors.length / 2);
-  const row1 = approvedDonors.slice(0, half);
-  const row2 = approvedDonors.slice(half);
+  const row1 = approvedDonors.length > 0 ? approvedDonors.slice(0, Math.max(half, 1)) : [];
+  const row2 = approvedDonors.length > 1 ? approvedDonors.slice(Math.max(half, 1)) : approvedDonors;
 
-  // Duplicate whole row once for seamless 50% infinite translation
-  const row1Items = useMarquee ? [...row1, ...row1] : [];
-  const row2Items = useMarquee ? [...row2, ...row2] : [];
+  // Duplicate rows for seamless infinite scroll
+  const minRepeat = (arr: Donor[]) => {
+    if (arr.length === 0) return [];
+    // repeat enough times to fill screen comfortably
+    const times = Math.max(4, Math.ceil(12 / arr.length));
+    return Array.from({ length: times }, () => arr).flat();
+  };
+  const row1Items = minRepeat(row1);
+  const row2Items = minRepeat(row2);
 
-  const DonorCard = ({ donor }: { donor: Donor }) => (
-    <div className="shrink-0 w-52 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group cursor-default">
+  const DonorCard = ({ donor, small = false }: { donor: Donor; small?: boolean }) => (
+    <div className={`shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group cursor-default ${small ? 'w-36 sm:w-44' : 'w-52'}`}>
       {/* Top gradient bar */}
       <div className="h-1.5 bg-gradient-to-r from-[#00732A] via-amber-400 to-[#CA0000]"></div>
-      <div className="p-5 flex flex-col items-center text-center">
+      <div className={`flex flex-col items-center text-center ${small ? 'p-3' : 'p-5'}`}>
         {/* Category Badge */}
         {donor.category && (
-          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full mb-3 ${getCategoryStyle(donor.category)}`}>
+          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${small ? 'mb-2' : 'mb-3'} ${getCategoryStyle(donor.category)}`}>
             {donor.category}
           </span>
         )}
 
         {/* Avatar */}
-        <div className="relative mb-3">
-          <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-amber-200 shadow-md group-hover:scale-110 transition-transform duration-300">
+        <div className="relative mb-2">
+          <div className={`rounded-full overflow-hidden border-2 border-amber-200 shadow-md group-hover:scale-110 transition-transform duration-300 ${small ? 'w-12 h-12' : 'w-16 h-16'}`}>
             <img
               src={donor.image || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(donor.name)}`}
               alt={donor.name}
@@ -56,27 +62,27 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors, onOpen
               loading="lazy"
             />
           </div>
-          <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center">
-            <Heart className="w-2.5 h-2.5 text-white fill-white" />
+          <div className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-amber-400 border-2 border-white flex items-center justify-center">
+            <Heart className="w-2 h-2 text-white fill-white" />
           </div>
         </div>
 
         {/* Name */}
-        <h3 className="text-sm font-extrabold text-slate-900 leading-snug line-clamp-1 group-hover:text-[#00732A] transition-colors">
+        <h3 className={`font-extrabold text-slate-900 leading-snug line-clamp-1 group-hover:text-[#00732A] transition-colors ${small ? 'text-xs' : 'text-sm'}`}>
           {donor.name}
         </h3>
 
         {/* Batch */}
         {donor.batch && (
-          <span className="text-[11px] font-bold text-[#CA0000] mt-1 bg-red-50 px-2.5 py-0.5 rounded-full border border-red-100">
+          <span className="text-[10px] font-bold text-[#CA0000] mt-1 bg-red-50 px-2 py-0.5 rounded-full border border-red-100">
             {donor.batch}
           </span>
         )}
 
         {/* Amount */}
-        <div className="mt-3 pt-3 border-t border-slate-100 w-full">
-          <div className="text-[10px] text-slate-400 font-medium mb-0.5">অনুদান পরিমাণ</div>
-          <div className="text-base font-black text-amber-600">{formatTaka(donor.amount)}</div>
+        <div className={`border-t border-slate-100 w-full ${small ? 'mt-2 pt-2' : 'mt-3 pt-3'}`}>
+          {!small && <div className="text-[10px] text-slate-400 font-medium mb-0.5">অনুদান পরিমাণ</div>}
+          <div className={`font-black text-amber-600 ${small ? 'text-xs' : 'text-base'}`}>{formatTaka(donor.amount)}</div>
         </div>
       </div>
     </div>
@@ -98,6 +104,11 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors, onOpen
         }
         .marquee-row-2 {
           animation: marquee-rtl 55s linear infinite;
+        }
+        /* Mobile-specific: faster + smaller cards */
+        @media (max-width: 767px) {
+          .marquee-row-1 { animation-duration: 28s; }
+          .marquee-row-2 { animation-duration: 32s; }
         }
         .marquee-row-1:hover,
         .marquee-row-2:hover {
@@ -138,40 +149,88 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors, onOpen
         </div>
       )}
 
-      {/* CASE 1: Static Centered Cards (when donors are between 1 and 5, no duplicate, no marquee) */}
+      {/* CASE 1: Static Centered Cards — desktop only (donors 1-5) */}
       {!useMarquee && approvedDonors.length > 0 && (
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
-          <div className="flex flex-wrap justify-center items-center gap-5 sm:gap-6">
+          {/* Desktop: flex wrap centered */}
+          <div className="hidden sm:flex flex-wrap justify-center items-center gap-5 sm:gap-6">
             {approvedDonors.map((donor) => (
               <DonorCard key={donor.id} donor={donor} />
             ))}
           </div>
+          {/* Mobile: always 2-row marquee even for small lists */}
+          <div className="sm:hidden">
+            <div className="mask-donor overflow-hidden mb-4">
+              <div className="flex w-max gap-3 marquee-row-1">
+                {row1Items.map((donor, idx) => (
+                  <div key={`m-r1-${donor.id}-${idx}`}>
+                    <DonorCard donor={donor} small />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="mask-donor overflow-hidden mb-8">
+              <div className="flex w-max gap-3 marquee-row-2">
+                {row2Items.map((donor, idx) => (
+                  <div key={`m-r2-${donor.id}-${idx}`}>
+                    <DonorCard donor={donor} small />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
-      {/* CASE 2: Continuous Marquee Rows (when donors >= 6) */}
+      {/* CASE 2: Continuous Marquee Rows — desktop (donors >= 6) */}
       {useMarquee && row1Items.length > 0 && (
-        <div className="mask-donor overflow-hidden mb-5 px-16">
-          <div className="flex w-max gap-5 marquee-row-1">
-            {row1Items.map((donor, idx) => (
-              <div key={`r1-${donor.id}-${idx}`}>
-                <DonorCard donor={donor} />
-              </div>
-            ))}
+        <>
+          {/* Desktop: normal-size cards */}
+          <div className="hidden sm:block mask-donor overflow-hidden mb-5 px-16">
+            <div className="flex w-max gap-5 marquee-row-1">
+              {row1Items.map((donor, idx) => (
+                <div key={`r1-${donor.id}-${idx}`}>
+                  <DonorCard donor={donor} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+          {/* Mobile: small cards */}
+          <div className="sm:hidden mask-donor overflow-hidden mb-4 px-4">
+            <div className="flex w-max gap-3 marquee-row-1">
+              {row1Items.map((donor, idx) => (
+                <div key={`r1m-${donor.id}-${idx}`}>
+                  <DonorCard donor={donor} small />
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {useMarquee && row2Items.length > 0 && (
-        <div className="mask-donor overflow-hidden mb-12 px-16">
-          <div className="flex w-max gap-5 marquee-row-2">
-            {row2Items.map((donor, idx) => (
-              <div key={`r2-${donor.id}-${idx}`}>
-                <DonorCard donor={donor} />
-              </div>
-            ))}
+        <>
+          {/* Desktop */}
+          <div className="hidden sm:block mask-donor overflow-hidden mb-12 px-16">
+            <div className="flex w-max gap-5 marquee-row-2">
+              {row2Items.map((donor, idx) => (
+                <div key={`r2-${donor.id}-${idx}`}>
+                  <DonorCard donor={donor} />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+          {/* Mobile */}
+          <div className="sm:hidden mask-donor overflow-hidden mb-8 px-4">
+            <div className="flex w-max gap-3 marquee-row-2">
+              {row2Items.map((donor, idx) => (
+                <div key={`r2m-${donor.id}-${idx}`}>
+                  <DonorCard donor={donor} small />
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {/* Callout Box */}
