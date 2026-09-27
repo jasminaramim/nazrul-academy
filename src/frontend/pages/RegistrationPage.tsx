@@ -33,7 +33,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
     currentJob: '',
     company: '',
-    image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi',
+    image: 'https://api.dicebear.com/7.x/micah/svg?seed=Mimi',
     tshirtSize: 'L',
     registrationFee: 1500,
     paymentMethod: 'bkash',
@@ -213,12 +213,12 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
   }, [formData.email, formData.phone, formData.transactionId]);
 
   const sampleAvatars = [
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Jocelyn',
-    'https://api.dicebear.com/7.x/avataaars/svg?seed=Scooter',
+    'https://api.dicebear.com/7.x/micah/svg?seed=Mimi',
+    'https://api.dicebear.com/7.x/micah/svg?seed=Felix',
+    'https://api.dicebear.com/7.x/micah/svg?seed=Aneka',
+    'https://api.dicebear.com/7.x/micah/svg?seed=Jack',
+    'https://api.dicebear.com/7.x/micah/svg?seed=Jocelyn',
+    'https://api.dicebear.com/7.x/micah/svg?seed=Scooter',
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -87,7 +87,7 @@ export const initialAdminInfo: AdminInfo = {
   role: 'super_admin',
   email: 'jasmin@gmail.com',
   phone: '01613475871',
-  image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jasmin',
+  image: 'https://api.dicebear.com/7.x/micah/svg?seed=Jasmin',
   lastLogin: '2026-08-30T10:30:00Z',
 };
 

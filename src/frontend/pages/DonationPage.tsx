@@ -644,11 +644,11 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
                         </span>
                         <div className="flex items-center justify-center gap-2.5 flex-wrap">
                           {[
-                            'https://api.dicebear.com/7.x/avataaars/svg?seed=Mimi',
-                            'https://api.dicebear.com/7.x/avataaars/svg?seed=Aiden',
-                            'https://api.dicebear.com/7.x/avataaars/svg?seed=Felix',
-                            'https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka',
-                            'https://api.dicebear.com/7.x/avataaars/svg?seed=Nala',
+                            'https://api.dicebear.com/7.x/micah/svg?seed=Mimi',
+                            'https://api.dicebear.com/7.x/micah/svg?seed=Aiden',
+                            'https://api.dicebear.com/7.x/micah/svg?seed=Felix',
+                            'https://api.dicebear.com/7.x/micah/svg?seed=Aneka',
+                            'https://api.dicebear.com/7.x/micah/svg?seed=Nala',
                           ].map((av, idx) => (
                             <button
                               key={idx}
