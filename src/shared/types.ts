@@ -195,6 +195,7 @@ export interface GlobalConfig {
   address: string;
   facebookUrl?: string;
   youtubeUrl?: string;
+  cardLogoUrl?: string;
   cardBackgroundUrl?: string;
   cardTitle?: string;
   cardSubtitle1?: string;

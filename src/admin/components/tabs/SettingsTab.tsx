@@ -450,6 +450,15 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ globalConfig, setGloba
                         placeholder="ব্যাকগ্রাউন্ড ছবি আপলোড করুন"
                       />
                     </div>
+                    <div>
+                      <ImageUploader
+                        label="কার্ডের লোগো (URL)"
+                        value={globalConfig.cardLogoUrl || ''}
+                        onChange={(url) => setGlobalConfig({ ...globalConfig, cardLogoUrl: url })}
+                        aspectRatio="square"
+                        placeholder="লোগো আপলোড করুন"
+                      />
+                    </div>
 
                     <div>
                       <label className="text-xs font-bold text-slate-700 block mb-1">প্রধান শিরোনাম (Title)</label>

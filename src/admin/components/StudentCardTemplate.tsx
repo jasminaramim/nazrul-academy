@@ -51,7 +51,7 @@ export const StudentCardTemplate = forwardRef<HTMLDivElement, StudentCardTemplat
             <div className="w-1/3 flex justify-center">
               <div className="w-24 h-24 rounded-full border-4 p-2 flex items-center justify-center shadow-lg -mt-6" style={{ backgroundColor: '#ffffff', borderColor: '#047857' }}>
                  {/* Assuming the school logo or generic icon */}
-                 <img src={globalConfig.logoUrl} alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
+                 <img src={globalConfig.cardLogoUrl || globalConfig.logoUrl} alt="Logo" className="w-full h-full object-contain" crossOrigin="anonymous" />
               </div>
             </div>
 
