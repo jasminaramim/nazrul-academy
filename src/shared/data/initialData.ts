@@ -33,18 +33,15 @@ export const initialGlobalConfig: GlobalConfig = {
   feeNewBatch: 1000,
   maxRegistrations: 8000,
   // Payment methods
-  bkashNumber: '01712345678',
-  bkashType: 'মার্চেন্ট',
-  bkashAction: 'payment',
-  bkashLimitOut: false,
-  nagadNumber: '01797585073',
-  nagadType: 'পার্সোনাল',
-  nagadAction: 'send_money',
-  nagadLimitOut: false,
-  rocketNumber: '01712345678', // 11 digits
-  rocketType: 'পার্সোনাল',
-  rocketAction: 'send_money',
-  rocketLimitOut: false,
+  bkashAccounts: [
+    { number: '01712345678', type: 'মার্চেন্ট', action: 'payment', isLimitOut: false }
+  ],
+  nagadAccounts: [
+    { number: '01797585073', type: 'পার্সোনাল', action: 'send_money', isLimitOut: false }
+  ],
+  rocketAccounts: [
+    { number: '01712345678', type: 'পার্সোনাল', action: 'send_money', isLimitOut: false }
+  ],
   bankName: 'সোনালী ব্যাংক লিমিটেড',
   bankAccountName: 'ত্রিশাল নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন',
   bankAccountNumber: '2050 1234 5678 9012',

@@ -138,66 +138,50 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
   // Only include payment methods configured in backend
   const availableMethods = useMemo(() => {
     const list: any[] = [];
-    if (config?.bkashNumber && config.bkashNumber.trim() !== '') {
-      const actionMeta = getActionMeta(config.bkashAction || (config.bkashType === 'মার্চেন্ট' ? 'payment' : 'send_money'), 'বিকাশ');
-      list.push({
-        id: 'bkash',
-        label: 'বিকাশ (bKash)',
-        number: config.bkashNumber,
-        type: config.bkashType || 'মার্চেন্ট',
-        action: config.bkashAction || 'payment',
-        actionMeta,
-        isLimitOut: !!config.bkashLimitOut,
-        color: '#e2136e',
-        qrUrl: bkashQrDataUrl,
-        instructions: `বিকাশ অ্যাকাউন্টে ${actionMeta.instruction} এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
+    if (config) {
+      ['bkash', 'nagad', 'rocket'].forEach(gateway => {
+        const accounts = config[`${gateway}Accounts`] || [];
+        accounts.forEach((acc: any, index: number) => {
+          if (!acc.number) return;
+          const labelPrefix = gateway === 'bkash' ? 'বিকাশ (bKash)' : gateway === 'nagad' ? 'নগদ (Nagad)' : 'রকেট (Rocket)';
+          const nameBn = gateway === 'bkash' ? 'বিকাশ' : gateway === 'nagad' ? 'নগদ' : 'রকেট';
+          const actionMeta = getActionMeta(acc.action || (acc.type === 'মার্চেন্ট' ? 'payment' : 'send_money'), nameBn);
+          const color = gateway === 'bkash' ? '#e2136e' : gateway === 'nagad' ? '#d9381e' : '#8c3077';
+          const qrUrl = gateway === 'bkash' ? bkashQrDataUrl : gateway === 'nagad' ? nagadQrDataUrl : rocketQrDataUrl;
+          
+          list.push({
+            id: `${gateway}-${index}`,
+            gatewayId: gateway,
+            label: `${labelPrefix} ${accounts.length > 1 ? `(${index + 1})` : ''}`,
+            number: acc.number,
+            type: acc.type || 'পার্সোনাল',
+            action: acc.action || 'send_money',
+            actionMeta,
+            isLimitOut: !!acc.isLimitOut,
+            color,
+            qrUrl,
+            instructions: `${nameBn} অ্যাকাউন্টে ${actionMeta.instruction} এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
+          });
+        });
       });
-    }
-    if (config?.nagadNumber && config.nagadNumber.trim() !== '') {
-      const actionMeta = getActionMeta(config.nagadAction || (config.nagadType === 'মার্চেন্ট' ? 'payment' : 'send_money'), 'নগদ');
-      list.push({
-        id: 'nagad',
-        label: 'নগদ (Nagad)',
-        number: config.nagadNumber,
-        type: config.nagadType || 'পার্সোনাল',
-        action: config.nagadAction || 'send_money',
-        actionMeta,
-        isLimitOut: !!config.nagadLimitOut,
-        color: '#d9381e',
-        qrUrl: nagadQrDataUrl,
-        instructions: `নগদ অ্যাকাউন্টে ${actionMeta.instruction} এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
-      });
-    }
-    if (config?.rocketNumber && config.rocketNumber.trim() !== '') {
-      const actionMeta = getActionMeta(config.rocketAction || (config.rocketType === 'মার্চেন্ট' ? 'payment' : 'send_money'), 'রকেট');
-      list.push({
-        id: 'rocket',
-        label: 'রকেট (Rocket)',
-        number: config.rocketNumber,
-        type: config.rocketType || 'পার্সোনাল',
-        action: config.rocketAction || 'send_money',
-        actionMeta,
-        isLimitOut: !!config.rocketLimitOut,
-        color: '#8c3077',
-        qrUrl: rocketQrDataUrl,
-        instructions: `রকেট অ্যাকাউন্টে ${actionMeta.instruction} (১১ ডিজিট অ্যাকাউন্ট) এবং প্রাপ্ত TrxID সংগ্রহ করুন।`,
-      });
-    }
-    if (config?.bankAccountNumber && config.bankAccountNumber.trim() !== '') {
-      list.push({
-        id: 'bank',
-        label: 'ব্যাংক হিসাব (Bank Deposit / Transfer)',
-        bankName: config.bankName || 'সোনালী ব্যাংক লিমিটেড',
-        accountName: config.bankAccountName || 'ত্রিশাল নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন',
-        accountNumber: config.bankAccountNumber,
-        branch: config.bankBranch || 'ত্রিশাল শাখা, ময়মনসিংহ',
-        routingNumber: config.bankRoutingNumber || '200271234',
-        color: '#00732A',
-        instructions: 'অনলাইন ব্যাংক ট্রান্সফার (BEFTN / NPSB / RTGS) অথবা সরাসরি ব্যাংকে ডিপোজিট করে ডিপোজিট স্লিপ নম্বর TrxID ঘরে লিখুন।',
-      });
+
+      if (config.bankAccountNumber && config.bankAccountNumber.trim() !== '') {
+        list.push({
+          id: 'bank',
+          gatewayId: 'bank',
+          label: 'ব্যাংক হিসাব (Bank Deposit / Transfer)',
+          bankName: config.bankName || 'সোনালী ব্যাংক লিমিটেড',
+          accountName: config.bankAccountName || 'ত্রিশাল নজরুল একাডেমি অ্যালামনাই অ্যাসোসিয়েশন',
+          accountNumber: config.bankAccountNumber,
+          branch: config.bankBranch || 'ত্রিশাল শাখা, ময়মনসিংহ',
+          routingNumber: config.bankRoutingNumber || '200271234',
+          color: '#00732A',
+          instructions: 'অনলাইন ব্যাংক ট্রান্সফার (BEFTN / NPSB / RTGS) অথবা সরাসরি ব্যাংকে ডিপোজিট করে ডিপোজিট স্লিপ নম্বর TrxID ঘরে লিখুন।',
+        });
+      }
     }
     return list;
-  }, [config]);
+  }, [config, bkashQrDataUrl, nagadQrDataUrl, rocketQrDataUrl]);
 
   // Sync initial paymentMethod when methods become available (prioritize active methods)
   useEffect(() => {
@@ -230,9 +214,10 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
       if (latest) {
         setConfig(latest);
         let isOut = false;
-        if (selectedId === 'bkash') isOut = !!latest.bkashLimitOut;
-        else if (selectedId === 'nagad') isOut = !!latest.nagadLimitOut;
-        else if (selectedId === 'rocket') isOut = !!latest.rocketLimitOut;
+        const [gateway, idx] = selectedId.split('-');
+        if (gateway && idx && latest[`${gateway}Accounts`]) {
+          isOut = !!latest[`${gateway}Accounts`][parseInt(idx)]?.isLimitOut;
+        }
 
         if (isOut) {
           setLimitModal({
@@ -287,9 +272,10 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
       if (latest) {
         setConfig(latest);
         let isOut = false;
-        if (formData.paymentMethod === 'bkash') isOut = !!latest.bkashLimitOut;
-        else if (formData.paymentMethod === 'nagad') isOut = !!latest.nagadLimitOut;
-        else if (formData.paymentMethod === 'rocket') isOut = !!latest.rocketLimitOut;
+        const [gateway, idx] = formData.paymentMethod.split('-');
+        if (gateway && idx && latest[`${gateway}Accounts`]) {
+          isOut = !!latest[`${gateway}Accounts`][parseInt(idx)]?.isLimitOut;
+        }
 
         if (isOut) {
           setLimitModal({

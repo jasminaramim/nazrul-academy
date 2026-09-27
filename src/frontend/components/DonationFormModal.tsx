@@ -75,9 +75,9 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
     }
   }, [submittedData]);
 
-  const bkashNumber = globalConfig.bkashNumber || '01712345678';
-  const nagadNumber = globalConfig.nagadNumber || '01797585073';
-  const rocketNumber = globalConfig.rocketNumber || '01712345678'; // 11 digits
+  const bkashNumber = (globalConfig.bkashAccounts && globalConfig.bkashAccounts[0]?.number) || '01712345678';
+  const nagadNumber = (globalConfig.nagadAccounts && globalConfig.nagadAccounts[0]?.number) || '01797585073';
+  const rocketNumber = (globalConfig.rocketAccounts && globalConfig.rocketAccounts[0]?.number) || '01712345678'; // 11 digits
 
 
 
@@ -88,9 +88,9 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
 
     let isOut = false;
     let name = '';
-    if (tab === 'bkash' && globalConfig.bkashLimitOut) { isOut = true; name = 'বিকাশ (bKash)'; }
-    if (tab === 'nagad' && globalConfig.nagadLimitOut) { isOut = true; name = 'নগদ (Nagad)'; }
-    if (tab === 'rocket' && globalConfig.rocketLimitOut) { isOut = true; name = 'রকেট (Rocket)'; }
+    if (tab === 'bkash' && globalConfig.bkashAccounts && globalConfig.bkashAccounts[0]?.isLimitOut) { isOut = true; name = 'বিকাশ (bKash)'; }
+    if (tab === 'nagad' && globalConfig.nagadAccounts && globalConfig.nagadAccounts[0]?.isLimitOut) { isOut = true; name = 'নগদ (Nagad)'; }
+    if (tab === 'rocket' && globalConfig.rocketAccounts && globalConfig.rocketAccounts[0]?.isLimitOut) { isOut = true; name = 'রকেট (Rocket)'; }
 
     if (isOut) {
       setLimitModal({
@@ -151,9 +151,9 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
 
     let isCurrentLimitOut = false;
     let limitName = '';
-    if (formData.paymentMethod === 'bkash' && globalConfig.bkashLimitOut) { isCurrentLimitOut = true; limitName = 'বিকাশ (bKash)'; }
-    if (formData.paymentMethod === 'nagad' && globalConfig.nagadLimitOut) { isCurrentLimitOut = true; limitName = 'নগদ (Nagad)'; }
-    if (formData.paymentMethod === 'rocket' && globalConfig.rocketLimitOut) { isCurrentLimitOut = true; limitName = 'রকেট (Rocket)'; }
+    if (formData.paymentMethod === 'bkash' && globalConfig.bkashAccounts && globalConfig.bkashAccounts[0]?.isLimitOut) { isCurrentLimitOut = true; limitName = 'বিকাশ (bKash)'; }
+    if (formData.paymentMethod === 'nagad' && globalConfig.nagadAccounts && globalConfig.nagadAccounts[0]?.isLimitOut) { isCurrentLimitOut = true; limitName = 'ন নগদ (Nagad)'; }
+    if (formData.paymentMethod === 'rocket' && globalConfig.rocketAccounts && globalConfig.rocketAccounts[0]?.isLimitOut) { isCurrentLimitOut = true; limitName = 'রকেট (Rocket)'; }
 
     if (isCurrentLimitOut) {
       setLimitModal({
@@ -376,7 +376,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                         : 'bg-white text-slate-700 hover:bg-pink-50/60 border-slate-200'
                     }`}
                   >
-                    {globalConfig.bkashLimitOut && (
+                    {globalConfig.bkashAccounts && globalConfig.bkashAccounts[0]?.isLimitOut && (
                       <span className="absolute -top-1.5 -right-1 px-1.5 py-0.2 bg-red-600 text-white rounded-full text-[9px] font-black animate-pulse">
                         লিমিট শেষ
                       </span>
@@ -397,7 +397,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                         : 'bg-white text-slate-700 hover:bg-orange-50/60 border-slate-200'
                     }`}
                   >
-                    {globalConfig.nagadLimitOut && (
+                    {globalConfig.nagadAccounts && globalConfig.nagadAccounts[0]?.isLimitOut && (
                       <span className="absolute -top-1.5 -right-1 px-1.5 py-0.2 bg-red-600 text-white rounded-full text-[9px] font-black animate-pulse">
                         লিমিট শেষ
                       </span>
@@ -418,7 +418,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                         : 'bg-white text-slate-700 hover:bg-purple-50/60 border-slate-200'
                     }`}
                   >
-                    {globalConfig.rocketLimitOut && (
+                    {globalConfig.rocketAccounts && globalConfig.rocketAccounts[0]?.isLimitOut && (
                       <span className="absolute -top-1.5 -right-1 px-1.5 py-0.2 bg-red-600 text-white rounded-full text-[9px] font-black animate-pulse">
                         লিমিট শেষ
                       </span>
@@ -449,9 +449,9 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                 {/* Active Tab Panel */}
                 <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-2xs">
                   {/* LIMIT OUT WARNING BANNER */}
-                  {((activeTab === 'bkash' && globalConfig.bkashLimitOut) ||
-                    (activeTab === 'nagad' && globalConfig.nagadLimitOut) ||
-                    (activeTab === 'rocket' && globalConfig.rocketLimitOut)) && (
+                  {((activeTab === 'bkash' && globalConfig.bkashAccounts && globalConfig.bkashAccounts[0]?.isLimitOut) ||
+                    (activeTab === 'nagad' && globalConfig.nagadAccounts && globalConfig.nagadAccounts[0]?.isLimitOut) ||
+                    (activeTab === 'rocket' && globalConfig.rocketAccounts && globalConfig.rocketAccounts[0]?.isLimitOut)) && (
                     <div className="p-3.5 bg-amber-50 border-2 border-amber-300 rounded-2xl flex items-start gap-3 text-amber-900 mb-4 animate-in fade-in duration-200">
                       <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                       <div>
@@ -837,7 +837,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
 
                   <button
                     type="submit"
-                    disabled={loading || (activeTab === 'bkash' && !!globalConfig.bkashLimitOut) || (activeTab === 'nagad' && !!globalConfig.nagadLimitOut) || (activeTab === 'rocket' && !!globalConfig.rocketLimitOut)}
+                    disabled={loading || (activeTab === 'bkash' && globalConfig.bkashAccounts && !!globalConfig.bkashAccounts[0]?.isLimitOut) || (activeTab === 'nagad' && globalConfig.nagadAccounts && !!globalConfig.nagadAccounts[0]?.isLimitOut) || (activeTab === 'rocket' && globalConfig.rocketAccounts && !!globalConfig.rocketAccounts[0]?.isLimitOut)}
                     className="w-full sm:w-auto px-8 py-3 bg-[#CA0000] hover:bg-[#a80000] text-white rounded-xl text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loading ? (
@@ -845,7 +845,7 @@ export const DonationFormModal: React.FC<DonationFormModalProps> = ({
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                         <span>জমা নেওয়া হচ্ছে...</span>
                       </>
-                    ) : (activeTab === 'bkash' && !!globalConfig.bkashLimitOut) || (activeTab === 'nagad' && !!globalConfig.nagadLimitOut) || (activeTab === 'rocket' && !!globalConfig.rocketLimitOut) ? (
+                    ) : (activeTab === 'bkash' && globalConfig.bkashAccounts && !!globalConfig.bkashAccounts[0]?.isLimitOut) || (activeTab === 'nagad' && globalConfig.nagadAccounts && !!globalConfig.nagadAccounts[0]?.isLimitOut) || (activeTab === 'rocket' && globalConfig.rocketAccounts && !!globalConfig.rocketAccounts[0]?.isLimitOut) ? (
                       <>
                         <AlertTriangle className="w-4 h-4" />
                         <span>লিমিট শেষ (অন্য মাধ্যম বেছে নিন)</span>

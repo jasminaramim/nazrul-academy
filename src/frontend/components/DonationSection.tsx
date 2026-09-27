@@ -40,7 +40,7 @@ export const DonationSection: React.FC<DonationSectionProps> = ({ donors, onOpen
   const row1Items = minRepeat(row1);
   const row2Items = minRepeat(row2);
 
-  const DonorCard = ({ donor, small = false }: { donor: Donor; small?: boolean }) => (
+  const DonorCard: React.FC<{ donor: Donor; small?: boolean }> = ({ donor, small = false }) => (
     <div className={`shrink-0 bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 overflow-hidden group cursor-default ${small ? 'w-36 sm:w-44' : 'w-52'}`}>
       {/* Top gradient bar */}
       <div className="h-1.5 bg-gradient-to-r from-[#00732A] via-amber-400 to-[#CA0000]"></div>

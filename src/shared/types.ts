@@ -207,18 +207,9 @@ export interface GlobalConfig {
   feeNewBatch?: number;
   maxRegistrations?: number;
   // Payment accounts configuration
-  bkashNumber?: string;
-  bkashType?: string;
-  bkashAction?: string; // 'send_money' | 'cash_out' | 'payment'
-  bkashLimitOut?: boolean;
-  nagadNumber?: string;
-  nagadType?: string;
-  nagadAction?: string; // 'send_money' | 'cash_out' | 'payment'
-  nagadLimitOut?: boolean;
-  rocketNumber?: string;
-  rocketType?: string;
-  rocketAction?: string; // 'send_money' | 'cash_out' | 'payment'
-  rocketLimitOut?: boolean;
+  bkashAccounts?: any[];
+  nagadAccounts?: any[];
+  rocketAccounts?: any[];
   bankName?: string;
   bankAccountName?: string;
   bankAccountNumber?: string;

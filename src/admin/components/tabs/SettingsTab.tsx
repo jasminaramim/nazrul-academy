@@ -218,7 +218,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ globalConfig, setGloba
                 </div>
               </div>
 
-              {/* Payment & Donation Accounts Config */}
+                {/* Payment & Donation Accounts Config */}
               <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-6">
                 <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
                   <div>
@@ -227,178 +227,130 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ globalConfig, setGloba
                       <span>অনুদান ও পেমেন্ট নম্বর ব্যবস্থাপনা (bKash, Nagad, Rocket, Bank)</span>
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
-                      অনলাইন অনুদান ও ফি সংগ্রহের জন্য নম্বর ও লিমিট স্ট্যাটাস (isLimitOut) পরিচালনা করুন
+                      একাধিক নম্বর (সর্বোচ্চ ৪টি) যুক্ত করুন এবং লিমিট শেষ হলে (isLimitOut) টিক দিয়ে দিন
                     </p>
                   </div>
                 </div>
 
-                {/* bKash Config */}
-                <div className="p-4 bg-pink-50/40 rounded-xl border border-pink-200/80 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[#e2136e] flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#e2136e]"></span>
-                      বিকাশ (bKash) অ্যাকাউন্ট
-                    </span>
-                    <label className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-pink-200">
-                      <input
-                        type="checkbox"
-                        checked={!!globalConfig.bkashLimitOut}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, bkashLimitOut: e.target.checked })}
-                        className="w-4 h-4 text-red-600 rounded"
-                      />
-                      <span className="text-xs font-bold text-red-700">লিমিট শেষ (isLimitOut)</span>
-                    </label>
-                  </div>
+                {[
+                  { id: 'bkash', title: 'বিকাশ (bKash) অ্যাকাউন্ট', color: 'pink', colorHex: '#e2136e' },
+                  { id: 'nagad', title: 'নগদ (Nagad) অ্যাকাউন্ট', color: 'orange', colorHex: '#d9381e' },
+                  { id: 'rocket', title: 'রকেট (Rocket) অ্যাকাউন্ট', color: 'purple', colorHex: '#8c3077' }
+                ].map(gateway => {
+                  const fieldPrefix = gateway.id;
+                  const accounts = globalConfig[`${fieldPrefix}Accounts`] || [];
+                  
+                  return (
+                    <div key={gateway.id} className={`p-4 bg-${gateway.color}-50/40 rounded-xl border border-${gateway.color}-200/80 space-y-3`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className={`text-xs font-black flex items-center gap-2`} style={{ color: gateway.colorHex }}>
+                          <span className={`w-2.5 h-2.5 rounded-full`} style={{ backgroundColor: gateway.colorHex }}></span>
+                          {gateway.title} ({accounts.length}/4)
+                        </span>
+                        <button
+                          onClick={() => {
+                            if (accounts.length >= 4) return;
+                            const newAccounts = [...accounts, { number: '', type: 'পার্সোনাল', action: 'send_money', isLimitOut: false }];
+                            setGlobalConfig({ ...globalConfig, [`${fieldPrefix}Accounts`]: newAccounts });
+                          }}
+                          disabled={accounts.length >= 4}
+                          className={`text-[10px] font-bold px-3 py-1.5 bg-white rounded shadow-sm border disabled:opacity-50 hover:bg-slate-50 transition-colors`}
+                          style={{ borderColor: gateway.colorHex, color: gateway.colorHex }}
+                        >
+                          + নতুন নম্বর
+                        </button>
+                      </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">বিকাশ নম্বর</label>
-                      <input
-                        type="text"
-                        value={globalConfig.bkashNumber || ''}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, bkashNumber: e.target.value })}
-                        placeholder="01712345678"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-mono bg-white"
-                      />
+                      <div className="space-y-3">
+                        {accounts.map((acc: any, index: number) => (
+                          <div key={index} className={`p-3 bg-white border rounded-lg space-y-3 relative`} style={{ borderColor: `${gateway.colorHex}40` }}>
+                            <div className="absolute -top-2.5 -right-2.5">
+                              <button 
+                                onClick={() => {
+                                  const newAccounts = accounts.filter((_: any, i: number) => i !== index);
+                                  setGlobalConfig({ ...globalConfig, [`${fieldPrefix}Accounts`]: newAccounts });
+                                }} 
+                                className="bg-red-500 text-white w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center hover:bg-red-600 shadow-sm"
+                              >
+                                ×
+                              </button>
+                            </div>
+                            <div className="flex justify-between items-center mb-1">
+                              <span className="text-[11px] font-bold text-slate-500">অ্যাকাউন্ট {index + 1}</span>
+                              <label className="flex items-center gap-1.5 cursor-pointer bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                                <input
+                                  type="checkbox"
+                                  checked={!!acc.isLimitOut}
+                                  onChange={(e) => {
+                                    const newAccounts = [...accounts];
+                                    newAccounts[index] = { ...newAccounts[index], isLimitOut: e.target.checked };
+                                    setGlobalConfig({ ...globalConfig, [`${fieldPrefix}Accounts`]: newAccounts });
+                                  }}
+                                  className="w-3.5 h-3.5 text-red-600 rounded"
+                                />
+                                <span className="text-[10px] font-bold text-red-600">লিমিট শেষ</span>
+                              </label>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                              <div>
+                                <label className="text-[10px] font-bold text-slate-700 block mb-1">নম্বর</label>
+                                <input
+                                  type="text"
+                                  value={acc.number || ''}
+                                  onChange={(e) => {
+                                    const newAccounts = [...accounts];
+                                    newAccounts[index] = { ...newAccounts[index], number: e.target.value };
+                                    setGlobalConfig({ ...globalConfig, [`${fieldPrefix}Accounts`]: newAccounts });
+                                  }}
+                                  placeholder="01712345678"
+                                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 font-mono focus:outline-none focus:border-slate-400"
+                                />
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-bold text-slate-700 block mb-1">অ্যাকাউন্ট টাইপ</label>
+                                <select
+                                  value={acc.type || 'পার্সোনাল'}
+                                  onChange={(e) => {
+                                    const newAccounts = [...accounts];
+                                    newAccounts[index] = { ...newAccounts[index], type: e.target.value };
+                                    setGlobalConfig({ ...globalConfig, [`${fieldPrefix}Accounts`]: newAccounts });
+                                  }}
+                                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 focus:outline-none focus:border-slate-400"
+                                >
+                                  <option value="পার্সোনাল">পার্সোনাল (Personal)</option>
+                                  <option value="মার্চেন্ট">মার্চেন্ট (Merchant)</option>
+                                  <option value="এজেন্ট">এজেন্ট (Agent)</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="text-[10px] font-bold text-slate-700 block mb-1">লেনদেনের ধরণ</label>
+                                <select
+                                  value={acc.action || 'send_money'}
+                                  onChange={(e) => {
+                                    const newAccounts = [...accounts];
+                                    newAccounts[index] = { ...newAccounts[index], action: e.target.value };
+                                    setGlobalConfig({ ...globalConfig, [`${fieldPrefix}Accounts`]: newAccounts });
+                                  }}
+                                  className="w-full px-2.5 py-1.5 text-xs rounded-lg border bg-slate-50 font-semibold focus:outline-none focus:border-slate-400"
+                                  style={{ borderColor: `${gateway.colorHex}60`, color: gateway.colorHex }}
+                                >
+                                  <option value="send_money">Send Money (সেন্ড মানি)</option>
+                                  <option value="payment">Make Payment (পেমেন্ট)</option>
+                                  <option value="cash_out">Cash Out (ক্যাশ আউট)</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        {accounts.length === 0 && (
+                          <div className="py-4 text-center border border-dashed rounded-lg" style={{ borderColor: `${gateway.colorHex}40` }}>
+                            <p className="text-[11px] text-slate-500">কোনো অ্যাকাউন্ট যুক্ত করা হয়নি।</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">অ্যাকাউন্ট টাইপ</label>
-                      <select
-                        value={globalConfig.bkashType || 'মার্চেন্ট'}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, bkashType: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white"
-                      >
-                        <option value="মার্চেন্ট">মার্চেন্ট (Merchant)</option>
-                        <option value="পার্সোনাল">পার্সোনাল (Personal)</option>
-                        <option value="এজেন্ট">এজেন্ট (Agent)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">লেনদেনের ধরণ (Action)</label>
-                      <select
-                        value={globalConfig.bkashAction || 'payment'}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, bkashAction: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-pink-300 bg-white font-bold text-[#e2136e]"
-                      >
-                        <option value="payment">Make Payment (পেমেন্ট)</option>
-                        <option value="send_money">Send Money (সেন্ড মানি)</option>
-                        <option value="cash_out">Cash Out (ক্যাশ আউট)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nagad Config */}
-                <div className="p-4 bg-orange-50/40 rounded-xl border border-orange-200/80 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[#d9381e] flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#d9381e]"></span>
-                      নগদ (Nagad) অ্যাকাউন্ট
-                    </span>
-                    <label className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-orange-200">
-                      <input
-                        type="checkbox"
-                        checked={!!globalConfig.nagadLimitOut}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, nagadLimitOut: e.target.checked })}
-                        className="w-4 h-4 text-red-600 rounded"
-                      />
-                      <span className="text-xs font-bold text-red-700">লিমিট শেষ (isLimitOut)</span>
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">নগদ নম্বর</label>
-                      <input
-                        type="text"
-                        value={globalConfig.nagadNumber || ''}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, nagadNumber: e.target.value })}
-                        placeholder="01797585073"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-mono bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">অ্যাকাউন্ট টাইপ</label>
-                      <select
-                        value={globalConfig.nagadType || 'পার্সোনাল'}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, nagadType: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white"
-                      >
-                        <option value="পার্সোনাল">পার্সোনাল (Personal)</option>
-                        <option value="মার্চেন্ট">মার্চেন্ট (Merchant)</option>
-                        <option value="এজেন্ট">এজেন্ট (Agent)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">লেনদেনের ধরণ (Action)</label>
-                      <select
-                        value={globalConfig.nagadAction || 'send_money'}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, nagadAction: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-orange-300 bg-white font-bold text-[#d9381e]"
-                      >
-                        <option value="send_money">Send Money (সেন্ড মানি)</option>
-                        <option value="cash_out">Cash Out (ক্যাশ আউট)</option>
-                        <option value="payment">Make Payment (পেমেন্ট)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Rocket Config */}
-                <div className="p-4 bg-purple-50/40 rounded-xl border border-purple-200/80 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-[#8c3077] flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-[#8c3077]"></span>
-                      রকেট (Rocket) অ্যাকাউন্ট (১১ ডিজিট)
-                    </span>
-                    <label className="flex items-center gap-2 cursor-pointer bg-white px-2.5 py-1 rounded-lg border border-purple-200">
-                      <input
-                        type="checkbox"
-                        checked={!!globalConfig.rocketLimitOut}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, rocketLimitOut: e.target.checked })}
-                        className="w-4 h-4 text-red-600 rounded"
-                      />
-                      <span className="text-xs font-bold text-red-700">লিমিট শেষ (isLimitOut)</span>
-                    </label>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">রকেট নম্বর (১১ ডিজিট)</label>
-                      <input
-                        type="text"
-                        maxLength={11}
-                        value={globalConfig.rocketNumber || ''}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, rocketNumber: e.target.value })}
-                        placeholder="01712345678"
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-mono bg-white"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">অ্যাকাউন্ট টাইপ</label>
-                      <select
-                        value={globalConfig.rocketType || 'পার্সোনাল'}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, rocketType: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 bg-white"
-                      >
-                        <option value="পার্সোনাল">পার্সোনাল (Personal)</option>
-                        <option value="মার্চেন্ট">মার্চেন্ট (Merchant)</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="text-[11px] font-bold text-slate-700 block mb-1">লেনদেনের ধরণ (Action)</label>
-                      <select
-                        value={globalConfig.rocketAction || 'send_money'}
-                        onChange={(e) => setGlobalConfig({ ...globalConfig, rocketAction: e.target.value })}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-purple-300 bg-white font-bold text-[#8c3077]"
-                      >
-                        <option value="send_money">Send Money (সেন্ড মানি)</option>
-                        <option value="cash_out">Cash Out (ক্যাশ আউট)</option>
-                        <option value="payment">Make Payment (পেমেন্ট)</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
 
                 {/* Bank Account Config */}
                 <div className="p-4 bg-emerald-50/40 rounded-xl border border-emerald-200/80 space-y-3">
