@@ -4,6 +4,7 @@ import { useAuth } from '../../shared/context/AuthContext';
 import { ImageUploader } from '../../shared/components/ImageUploader';
 import { apiService } from '../../shared/services/api';
 import { BatchDropdown } from '../../shared/components/BatchDropdown';
+import { PaymentMethodDropdown } from '../../shared/components/PaymentMethodDropdown';
 import { PaymentLimitModal } from '../../shared/components/PaymentLimitModal';
 
 interface RegistrationPageProps {
@@ -12,10 +13,11 @@ interface RegistrationPageProps {
 
 export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNavigate }) => {
   const { register } = useAuth();
-  
+
   const [config, setConfig] = useState<any>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [limitModal, setLimitModal] = useState<{ isOpen: boolean; methodName: string; methodId: string } | null>(null);
+  const [imageAlertModal, setImageAlertModal] = useState(false);
 
   useEffect(() => {
     apiService.getGlobalConfig().then((res) => setConfig(res));
@@ -33,7 +35,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
     currentJob: '',
     company: '',
-    image: 'https://api.dicebear.com/7.x/micah/svg?seed=Mimi',
+    image: '',
     tshirtSize: 'L',
     registrationFee: 1500,
     paymentMethod: 'bkash',
@@ -88,7 +90,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           const nameBn = gateway === 'bkash' ? 'বিকাশ' : gateway === 'nagad' ? 'নগদ' : 'রকেট';
           const actionMeta = getActionMeta(acc.action || (acc.type === 'মার্চেন্ট' ? 'payment' : 'send_money'), nameBn);
           const color = gateway === 'bkash' ? '#e2136e' : gateway === 'nagad' ? '#d9381e' : '#8c3077';
-          
+
           list.push({
             id: `${gateway}-${index}`,
             gatewayId: gateway,
@@ -166,7 +168,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           });
         }
       }
-    } catch (err) {}
+    } catch (err) { }
   };
 
   const [loading, setLoading] = useState(false);
@@ -196,7 +198,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
       if (formData.email && formData.email.includes('@')) data.email = formData.email;
       if (formData.phone && formData.phone.length >= 11) data.phone = formData.phone;
       if (formData.transactionId && formData.transactionId.length >= 6) data.transactionId = formData.transactionId;
-      
+
       if (Object.keys(data).length > 0) {
         const res = await apiService.checkAvailability(data);
         if (res.success && res.errors) {
@@ -212,18 +214,14 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     return () => clearTimeout(timer);
   }, [formData.email, formData.phone, formData.transactionId]);
 
-  const sampleAvatars = [
-    'https://api.dicebear.com/7.x/micah/svg?seed=Mimi',
-    'https://api.dicebear.com/7.x/micah/svg?seed=Felix',
-    'https://api.dicebear.com/7.x/micah/svg?seed=Aneka',
-    'https://api.dicebear.com/7.x/micah/svg?seed=Jack',
-    'https://api.dicebear.com/7.x/micah/svg?seed=Jocelyn',
-    'https://api.dicebear.com/7.x/micah/svg?seed=Scooter',
-  ];
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!formData.image) {
+      setImageAlertModal(true);
+      return;
+    }
 
     const currentMethodObj = availableMethods.find((m) => m.id === formData.paymentMethod);
 
@@ -259,7 +257,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           return;
         }
       }
-    } catch (err) {}
+    } catch (err) { }
 
     setLoading(true);
 
@@ -298,7 +296,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     const enVal = bnToEnNumber(val);
     const yearMatch = enVal.match(/\d{4}/);
     let fee = formData.registrationFee;
-    
+
     if (yearMatch && config) {
       const year = parseInt(yearMatch[0], 10);
       if (year <= 2015) {
@@ -309,7 +307,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     } else if (!yearMatch) {
       fee = config?.feeOldBatch || 1500;
     }
-    
+
     setFormData({ ...formData, batch: val, registrationFee: fee });
   };
 
@@ -510,7 +508,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           <div>
             <h3 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-200 flex items-center gap-2 mb-4">
               <Shirt className="w-4 h-4 text-[#CA0000]" />
-              <span>ব্যাচ ও উৎসবের পরিমাপ</span>
+              <span>ব্যাচ ও পোশাকের পরিমাপ</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -620,31 +618,24 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                     <label className="text-xs font-bold text-slate-700 block mb-1">
                       পেমেন্ট মাধ্যম নির্বাচন করুন *
                     </label>
-                    <select
+                    <PaymentMethodDropdown
                       value={formData.paymentMethod || currentMethod?.id}
-                      onChange={(e) => handleMethodChange(e.target.value)}
-                      className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-bold text-slate-800 bg-white"
-                    >
-                      {availableMethods.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.label} {m.type ? `(${m.type})` : ''} {m.actionMeta ? `— [${m.actionMeta.shortBadge}]` : ''} {m.isLimitOut ? '— ⚠️ [সীমা শেষ - গ্রহণযোগ্য নয়]' : ''}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => handleMethodChange(val)}
+                      options={availableMethods}
+                    />
                   </div>
 
                   {/* Selected Method Details Card */}
                   {currentMethod && (
                     <div
-                      className={`p-4 sm:p-5 rounded-2xl border transition-all ${
-                        currentMethod.id === 'bkash'
+                      className={`p-4 sm:p-5 rounded-2xl border transition-all ${currentMethod.id === 'bkash'
                           ? 'bg-pink-50/60 border-pink-200'
                           : currentMethod.id === 'nagad'
-                          ? 'bg-orange-50/60 border-orange-200'
-                          : currentMethod.id === 'rocket'
-                          ? 'bg-purple-50/60 border-purple-200'
-                          : 'bg-emerald-50/60 border-emerald-200'
-                      }`}
+                            ? 'bg-orange-50/60 border-orange-200'
+                            : currentMethod.id === 'rocket'
+                              ? 'bg-purple-50/60 border-purple-200'
+                              : 'bg-emerald-50/60 border-emerald-200'
+                        }`}
                     >
                       {/* Limit Out Warning if true */}
                       {currentMethod.isLimitOut && (
@@ -829,30 +820,12 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           {/* Group 5: Profile Image Selection */}
           <div className="space-y-3">
             <ImageUploader
-              label="প্রোফাইল ছবি (Drag & Drop / Cloudinary আপলোড)"
+              label="প্রোফাইল ছবি *"
               value={formData.image}
               onChange={(url) => setFormData({ ...formData, image: url })}
               aspectRatio="square"
-              placeholder="আপনার প্রোফাইল ছবি ড্রপ করুন অথবা ফাইল সিলেক্ট করুন"
+              placeholder="ফাইল সিলেক্ট করুন"
             />
-
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <span className="text-[11px] text-slate-500 shrink-0">অথবা নমুনা ছবি:</span>
-              <div className="flex flex-wrap gap-1.5">
-                {sampleAvatars.map((url, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, image: url })}
-                    className={`w-8 h-8 rounded-lg overflow-hidden border cursor-pointer shrink-0 transition-transform ${
-                      formData.image === url ? 'ring-2 ring-[#00732A] scale-110' : 'opacity-70 hover:opacity-100'
-                    }`}
-                  >
-                    <img src={url} alt="avatar" className="w-full h-full object-cover" />
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Submit Button */}
@@ -867,11 +840,10 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
             <button
               type="submit"
               disabled={loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut}
-              className={`px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white shadow-lg transition-all flex items-center gap-2 ${
-                loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut
+              className={`px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white shadow-lg transition-all flex items-center gap-2 ${loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut
                   ? 'bg-slate-400 cursor-not-allowed opacity-75'
                   : 'bg-[#00732A] hover:bg-[#005c21] hover:shadow-xl cursor-pointer'
-              }`}
+                }`}
             >
               {loading ? (
                 <span>প্রসেসিং হচ্ছে...</span>
@@ -904,6 +876,30 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           }
         }}
       />
+
+      {/* Custom Image Alert Modal */}
+      {imageAlertModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">প্রোফাইল ছবি আবশ্যক!</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                ছবি আপলোড না করলে নিবন্ধন সম্পন্ন হবে না, কারণ আপনার এই ছবিটি আইডি কার্ডে প্রদর্শিত হবে।
+              </p>
+              <button
+                type="button"
+                onClick={() => setImageAlertModal(false)}
+                className="w-full py-3 px-4 bg-[#00732A] hover:bg-[#005c21] text-white rounded-xl font-bold transition-colors shadow-lg hover:shadow-xl cursor-pointer"
+              >
+                বুঝতে পেরেছি
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

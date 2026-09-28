@@ -22,6 +22,7 @@ import { apiService } from '../../shared/services/api';
 import { GlobalConfig } from '../../shared/types';
 import { PaymentLimitModal } from '../../shared/components/PaymentLimitModal';
 import { ImageUploader } from '../../shared/components/ImageUploader';
+import { PaymentMethodDropdown } from '../../shared/components/PaymentMethodDropdown';
 
 interface DonationPageProps {
   onSuccessNavigate: (page: string) => void;
@@ -633,38 +634,10 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
                       <ImageUploader
                         value={formData.image}
                         onChange={(url) => setFormData({ ...formData, image: url })}
-                        label="ডিভাইস থেকে ছবি আপলোড করুন"
+                        label="প্রোফাইল ছবি *"
                         placeholder="ছবি সিলেক্ট করুন বা ড্রপ করুন"
                         aspectRatio="avatar"
                       />
-
-                      <div className="pt-2 border-t border-slate-200/70 text-center">
-                        <span className="text-[11px] font-bold text-slate-500 block mb-2">
-                          অথবা একটি ডিফল্ট অবতার বেছে নিন:
-                        </span>
-                        <div className="flex items-center justify-center gap-2.5 flex-wrap">
-                          {[
-                            'https://api.dicebear.com/7.x/micah/svg?seed=Mimi',
-                            'https://api.dicebear.com/7.x/micah/svg?seed=Aiden',
-                            'https://api.dicebear.com/7.x/micah/svg?seed=Felix',
-                            'https://api.dicebear.com/7.x/micah/svg?seed=Aneka',
-                            'https://api.dicebear.com/7.x/micah/svg?seed=Nala',
-                          ].map((av, idx) => (
-                            <button
-                              key={idx}
-                              type="button"
-                              onClick={() => setFormData({ ...formData, image: av })}
-                              className={`w-9 h-9 rounded-full border-2 overflow-hidden p-0.5 transition-all cursor-pointer ${
-                                formData.image === av
-                                  ? 'border-[#00732A] ring-2 ring-[#00732A]/40 scale-110 shadow-sm bg-white'
-                                  : 'border-slate-300 hover:border-slate-400 opacity-75 hover:opacity-100 bg-white'
-                              }`}
-                            >
-                              <img src={av} alt="Avatar" className="w-full h-full rounded-full" />
-                            </button>
-                          ))}
-                        </div>
-                      </div>
                     </div>
                   </div>
                 </div>
@@ -694,17 +667,12 @@ export const DonationPage: React.FC<DonationPageProps> = ({ onSuccessNavigate })
                     <label className="text-xs font-bold text-slate-700 block mb-1">
                       পেমেন্ট মাধ্যম নির্বাচন করুন *
                     </label>
-                    <select
+                    <PaymentMethodDropdown
                       value={formData.paymentMethod || currentMethod?.id}
-                      onChange={(e) => handleMethodChange(e.target.value)}
-                      className="w-full px-3.5 py-3 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none font-bold text-slate-800 bg-white shadow-2xs"
-                    >
-                      {availableMethods.map((m) => (
-                        <option key={m.id} value={m.id}>
-                          {m.label} {m.type ? `(${m.type})` : ''} {m.actionMeta ? `— [${m.actionMeta.shortBadge}]` : ''} {m.isLimitOut ? '— ⚠️ [সীমা শেষ - গ্রহণযোগ্য নয়]' : ''}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(val) => handleMethodChange(val)}
+                      options={availableMethods}
+                      className="shadow-2xs"
+                    />
                   </div>
 
                   {/* Method Card */}
