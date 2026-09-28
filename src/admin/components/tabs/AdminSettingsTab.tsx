@@ -23,6 +23,7 @@ export const AdminSettingsTab = () => {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [newEmail, setNewEmail] = useState('');
+  const [newName, setNewName] = useState(user?.name || '');
 
   // Admins State
   const [admins, setAdmins] = useState<AdminUser[]>([]);
@@ -96,6 +97,30 @@ export const AdminSettingsTab = () => {
       if (res.success) {
         setSuccess('ইমেইল সফলভাবে পরিবর্তন করা হয়েছে।');
         setNewEmail('');
+      } else {
+        setError(res.message);
+      }
+    } catch (err: any) {
+      setError(err.message || 'সমস্যা হয়েছে');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeName = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(''); setSuccess('');
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('trishal_auth_token');
+      const res = await apiService.fetchWithAuth('/api/auth/change-name', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ newName })
+      });
+      if (res.success) {
+        setSuccess('নাম সফলভাবে পরিবর্তন করা হয়েছে। নতুন নাম দেখতে পুনরায় লগইন করুন বা পেজ রিফ্রেশ করুন।');
+        fetchAdmins();
       } else {
         setError(res.message);
       }
@@ -218,6 +243,36 @@ export const AdminSettingsTab = () => {
 
       {activeSubTab === 'profile' && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Update Name */}
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
+                <ShieldCheck className="w-5 h-5 text-blue-500" />
+              </div>
+              <h3 className="text-lg font-bold text-slate-800">প্রোফাইলের নাম পরিবর্তন</h3>
+            </div>
+            <form onSubmit={handleChangeName} className="space-y-4">
+              <div>
+                <label className="text-sm font-bold text-slate-700 block mb-1">নতুন নাম</label>
+                <input
+                  required
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="আপনার নতুন নাম লিখুন"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:ring-2 focus:ring-[#00732A] focus:outline-none"
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 bg-[#00732A] text-white rounded-xl font-bold hover:bg-[#005e22] transition-colors disabled:opacity-50"
+              >
+                {loading ? 'আপডেট হচ্ছে...' : 'নাম আপডেট করুন'}
+              </button>
+            </form>
+          </div>
+
           {/* Change Password */}
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
             <div className="flex items-center gap-3 mb-6">
