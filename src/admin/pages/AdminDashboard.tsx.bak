@@ -88,6 +88,7 @@ import {
 import { toBengaliNumber, formatTaka, formatDateBengali } from '../../shared/utils/formatters';
 import { BdtIcon } from '../../shared/components/BdtIcon';
 import { ImageUploader } from '../../shared/components/ImageUploader';
+import { div } from 'motion/react-client';
 
 interface AdminDashboardProps {
   onNavigateHome: () => void;
@@ -240,7 +241,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       setMongoStatus(mStat);
       setUpcomingEvents(upEvents);
     } catch (err: any) {
-      flashMessage('ডাটা লোড করতে সমস্যা হয়েছে: ' + err.message, true);
+      flashMessage('à¦¡à¦¾à¦Ÿà¦¾ à¦²à§‹à¦¡ à¦•à¦°à¦¤à§‡ à¦¸à¦®à¦¸à§à¦¯à¦¾ à¦¹à§Ÿà§‡à¦›à§‡: ' + err.message, true);
     } finally {
       setLoading(false);
     }
@@ -258,13 +259,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     try {
       const res = await login({ email: adminUsername, password: adminPassword });
       if (res.success) {
+        setAdminUsername('');
+        setAdminPassword('');
         await loadAllData();
         if (onRefreshData) onRefreshData();
       } else {
-        setAdminLoginError(res.message || 'ভুল ইউজারনেম বা পাসওয়ার্ড');
+        setAdminLoginError(res.message || 'à¦­à§à¦² à¦‡à¦‰à¦œà¦¾à¦°à¦¨à§‡à¦® à¦¬à¦¾ à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§à¦¡');
       }
     } catch (err: any) {
-      setAdminLoginError(err.message || 'লগইনে ত্রুটি ঘটেছে');
+      setAdminLoginError(err.message || 'à¦²à¦—à¦‡à¦¨à§‡ à¦¤à§à¦°à§à¦Ÿà¦¿ à¦˜à¦Ÿà§‡à¦›à§‡');
     } finally {
       setAdminLoginLoading(false);
     }
@@ -277,12 +280,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       const res = await apiService.fetchWithAuth('/api/auth/forgot-password', { method: 'POST', body: JSON.stringify({ username: forgotUsername }) });
       if (res.success) {
         setForgotSuccess(res.message + ` (Email: ${res.maskedEmail})`);
+        if (res.email) setForgotUsername(res.email);
         setForgotStep(2);
       } else {
         setForgotError(res.message);
       }
     } catch (err: any) {
-      setForgotError(err.message || 'সমস্যা হয়েছে');
+      setForgotError(err.message || 'à¦¸à¦®à¦¸à§à¦¯à¦¾ à¦¹à§Ÿà§‡à¦›à§‡');
     } finally {
       setForgotLoading(false);
     }
@@ -304,7 +308,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         setForgotError(res.message);
       }
     } catch (err: any) {
-      setForgotError(err.message || 'সমস্যা হয়েছে');
+      setForgotError(err.message || 'à¦¸à¦®à¦¸à§à¦¯à¦¾ à¦¹à§Ÿà§‡à¦›à§‡');
     } finally {
       setForgotLoading(false);
     }
@@ -323,7 +327,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       const res = await apiService.getMongoCollectionDocs(collectionName);
       setCollectionDocs(res.documents || []);
     } catch (err: any) {
-      flashMessage('কালেকশন লোড করতে ব্যর্থ: ' + err.message, true);
+      flashMessage('à¦•à¦¾à¦²à§‡à¦•à¦¶à¦¨ à¦²à§‹à¦¡ à¦•à¦°à¦¤à§‡ à¦¬à§à¦¯à¦°à§à¦¥: ' + err.message, true);
       setCollectionDocs([]);
     } finally {
       setCollectionLoading(false);
@@ -344,14 +348,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         flashMessage(res.message, true);
       }
     } catch (err: any) {
-      flashMessage('MongoDB সিঙ্ক করতে ত্রুটি: ' + err.message, true);
+      flashMessage('MongoDB à¦¸à¦¿à¦™à§à¦• à¦•à¦°à¦¤à§‡ à¦¤à§à¦°à§à¦Ÿà¦¿: ' + err.message, true);
     } finally {
       setSyncingMongo(false);
     }
   };
 
   const handleSeedDemoData = async () => {
-    if (!window.confirm('আপনি কি নিশ্চিত যে সকল কালেকশনে নতুন সমৃদ্ধ ডেমো ডেটা সিড ও সিঙ্ক করতে চান?')) {
+    if (!window.confirm('à¦†à¦ªà¦¨à¦¿ à¦•à¦¿ à¦¨à¦¿à¦¶à§à¦šà¦¿à¦¤ à¦¯à§‡ à¦¸à¦•à¦² à¦•à¦¾à¦²à§‡à¦•à¦¶à¦¨à§‡ à¦¨à¦¤à§à¦¨ à¦¸à¦®à§ƒà¦¦à§à¦§ à¦¡à§‡à¦®à§‹ à¦¡à§‡à¦Ÿà¦¾ à¦¸à¦¿à¦¡ à¦“ à¦¸à¦¿à¦™à§à¦• à¦•à¦°à¦¤à§‡ à¦šà¦¾à¦¨?')) {
       return;
     }
     setSeedingDemo(true);
@@ -368,7 +372,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         flashMessage(res.message, true);
       }
     } catch (err: any) {
-      flashMessage('ডেমো ডেটা সিড করতে ত্রুটি: ' + err.message, true);
+      flashMessage('à¦¡à§‡à¦®à§‹ à¦¡à§‡à¦Ÿà¦¾ à¦¸à¦¿à¦¡ à¦•à¦°à¦¤à§‡ à¦¤à§à¦°à§à¦Ÿà¦¿: ' + err.message, true);
     } finally {
       setSeedingDemo(false);
     }
@@ -380,7 +384,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       flashMessage(res.message, !res.success);
       await loadAllData();
     } catch (err: any) {
-      flashMessage('URI সংরক্ষণে ত্রুটি: ' + err.message, true);
+      flashMessage('URI à¦¸à¦‚à¦°à¦•à§à¦·à¦£à§‡ à¦¤à§à¦°à§à¦Ÿà¦¿: ' + err.message, true);
     }
   };
 
@@ -402,6 +406,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
             <div className="absolute -inset-[1px] bg-gradient-to-br from-white/10 via-transparent to-emerald-500/10 rounded-3xl blur-sm pointer-events-none"></div>
             <div className="relative grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.6)] border border-white/[0.08]">
 
+              {/* LEFT PANEL: Branding */}
               {/* LEFT PANEL: Branding */}
               <div className="relative bg-gradient-to-br from-[#0d1b35] via-[#0f2040] to-[#0a1628] p-8 sm:p-10 flex flex-col justify-between min-h-[520px]">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-600/8 via-transparent to-emerald-600/10 pointer-events-none"></div>
@@ -550,9 +555,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                   </div>
                 </div>
               </div>
+              </div>
             </div>
           </div>
         </div>
+
 
         {/* Forgot Password Modal */}
         {showForgotPassword && (
@@ -580,13 +587,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       <div className="absolute inset-0 rounded-full animate-ping opacity-20 bg-emerald-400"></div>
                       <Key className="w-10 h-10 text-emerald-400 relative z-10" />
                     </div>
-                    <h3 className="text-3xl font-extrabold text-white tracking-tight">পাসওয়ার্ড রিসেট</h3>
-                    <p className="text-sm text-slate-300 mt-2">আপনার অ্যাডমিন অ্যাকাউন্টের অ্যাক্সেস ফিরে পান</p>
+                    <h3 className="text-3xl font-extrabold text-white tracking-tight">à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§à¦¡ à¦°à¦¿à¦¸à§‡à¦Ÿ</h3>
+                    <p className="text-sm text-slate-300 mt-2">à¦†à¦ªà¦¨à¦¾à¦° à¦…à§à¦¯à¦¾à¦¡à¦®à¦¿à¦¨ à¦…à§à¦¯à¦¾à¦•à¦¾à¦‰à¦¨à§à¦Ÿà§‡à¦° à¦…à§à¦¯à¦¾à¦•à§à¦¸à§‡à¦¸ à¦«à¦¿à¦°à§‡ à¦ªà¦¾à¦¨</p>
                   </div>
 
                   {(forgotError || forgotSuccess) && (
-                    <div className={`p-4 rounded-xl mb-6 text-sm font-medium flex items-start gap-3 backdrop-blur-sm border ${forgotError ? 'bg-red-500/10 text-red-400 border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'}`}>
-                      <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                    <div className={`p-3 rounded-xl mb-5 text-xs font-medium flex items-start gap-2 ${forgotError
+                      ? 'bg-red-950/60 text-red-400 border border-red-800/60'
+                      : 'bg-emerald-950/60 text-emerald-400 border border-emerald-800/60'
+                      }`}>
+                      <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                       <span>{forgotError || forgotSuccess}</span>
                     </div>
                   )}
@@ -594,14 +604,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                   {forgotStep === 1 ? (
                     <form onSubmit={handleForgotPasswordRequest} className="space-y-6">
                       <div>
-                        <label className="block text-sm font-bold text-slate-200 mb-2">ইউজারনেম বা ইমেইল</label>
+                        <label className="block text-sm font-bold text-slate-200 mb-2">à¦‡à¦‰à¦œà¦¾à¦°à¦¨à§‡à¦® à¦¬à¦¾ à¦‡à¦®à§‡à¦‡à¦²</label>
                         <input
                           type="text"
                           required
                           value={forgotUsername}
                           onChange={(e) => setForgotUsername(e.target.value)}
                           className="w-full px-5 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white text-base placeholder-slate-500 focus:ring-2 focus:ring-emerald-400/60 focus:border-emerald-400/60 focus:outline-none transition-all"
-                          placeholder="ইউজারনেম বা ইমেইল দিন"
+                          placeholder="à¦‡à¦‰à¦œà¦¾à¦°à¦¨à§‡à¦® à¦¬à¦¾ à¦‡à¦®à§‡à¦‡à¦² à¦¦à¦¿à¦¨"
                         />
                       </div>
                       <button
@@ -610,14 +620,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         className="w-full py-4 mt-2 rounded-xl text-base font-bold text-white bg-gradient-to-r from-emerald-600 to-[#00732A] hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-50 transition-all shadow-[0_10px_20px_-10px_rgba(16,185,129,0.5)] flex items-center justify-center gap-2 cursor-pointer"
                       >
                         {forgotLoading ? (
-                          <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />পাঠানো হচ্ছে...</>
-                        ) : '📧 ওটিপি (OTP) পাঠান'}
+                          <><span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />à¦ªà¦¾à¦ à¦¾à¦¨à§‹ à¦¹à¦šà§à¦›à§‡...</>
+                        ) : 'ðŸ“§ à¦“à¦Ÿà¦¿à¦ªà¦¿ (OTP) à¦ªà¦¾à¦ à¦¾à¦¨'}
                       </button>
                     </form>
                   ) : (
                     <form onSubmit={handleForgotPasswordReset} className="space-y-6">
                       <div>
-                        <label className="block text-sm font-bold text-slate-200 mb-2">ইমেইলে প্রাপ্ত ওটিপি (OTP)</label>
+                        <label className="block text-sm font-bold text-slate-200 mb-2">à¦‡à¦®à§‡à¦‡à¦²à§‡ à¦ªà§à¦°à¦¾à¦ªà§à¦¤ à¦“à¦Ÿà¦¿à¦ªà¦¿ (OTP)</label>
                         <input
                           type="text"
                           required
@@ -628,14 +638,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-bold text-slate-200 mb-2">নতুন পাসওয়ার্ড</label>
+                        <label className="block text-sm font-bold text-slate-200 mb-2">à¦¨à¦¤à§à¦¨ à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§à¦¡</label>
                         <input
                           type="password"
                           required
                           value={forgotNewPassword}
                           onChange={(e) => setForgotNewPassword(e.target.value)}
                           className="w-full px-5 py-4 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl text-white focus:ring-2 focus:ring-emerald-400/60 focus:border-emerald-400/60 focus:outline-none text-base transition-all"
-                          placeholder="নতুন পাসওয়ার্ড দিন"
+                          placeholder="à¦¨à¦¤à§à¦¨ à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§à¦¡ à¦¦à¦¿à¦¨"
                         />
                       </div>
                       <button
@@ -643,7 +653,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         disabled={forgotLoading}
                         className="w-full py-4 mt-2 rounded-xl text-base font-bold text-white bg-gradient-to-r from-emerald-600 to-[#00732A] hover:from-emerald-500 hover:to-emerald-600 disabled:opacity-50 shadow-[0_10px_20px_-10px_rgba(16,185,129,0.5)] transition-all cursor-pointer"
                       >
-                        {forgotLoading ? 'পরিবর্তন হচ্ছে...' : 'পাসওয়ার্ড পরিবর্তন করুন'}
+                        {forgotLoading ? 'à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¨ à¦¹à¦šà§à¦›à§‡...' : 'à¦ªà¦¾à¦¸à¦“à§Ÿà¦¾à¦°à§à¦¡ à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¨ à¦•à¦°à§à¦¨'}
                       </button>
                     </form>
                   )}
@@ -657,23 +667,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   }
 
   const menuItems = [
-    { id: 'overview', label: 'ওভারভিউ ড্যাশবোর্ড', icon: LayoutDashboard },
-    { id: 'mongodb', label: 'MongoDB ডাটাবেজ (Cloud)', icon: Database, badge: mongoStatus.connected ? 'সংযুক্ত' : 'অফলাইন' },
-    { id: 'hero', label: 'হিরো স্লাইডার (Hero)', icon: Sliders, badge: heroSlides.length ? `${heroSlides.length}` : undefined },
-    { id: 'teachers', label: 'প্রাক্তনদের প্রতি আহবান', icon: UserCheck, badge: teacherMessages.length ? `${teacherMessages.length}` : undefined },
-    { id: 'stats', label: 'পরিসংখ্যান ও তারিখ', icon: BarChart3, badge: statsData?.customStats?.length ? `${statsData.customStats.length}` : undefined },
-    { id: 'students', label: 'প্রাক্তন ছাত্র/ছাত্রী', icon: Users, badge: students.length ? `${students.length}` : undefined },
-    { id: 'finance', label: 'আর্থিক হিসাব (Finance)', icon: BdtIcon, badge: finance?.transactions?.length ? `${finance.transactions.length}` : undefined },
-    { id: 'notices', label: 'নোটিশ বোর্ড', icon: Bell, badge: notices.length ? `${notices.length}` : undefined },
-    { id: 'upcoming', label: 'আসন্ন অনুষ্ঠান ও পোস্টার', icon: Megaphone, badge: upcomingEvents.length ? `${upcomingEvents.length}` : undefined },
-    { id: 'emails', label: 'ইমেইল লগ ও ডেলিভারি', icon: Mail },
-    { id: 'schedule', label: 'কার্যক্রমের সময়সূচি', icon: Calendar, badge: schedule.length ? `${schedule.length}` : undefined },
-    { id: 'cultural', label: 'সাংস্কৃতিক পর্ব', icon: Music, badge: culturalSchedule.length ? `${culturalSchedule.length}` : undefined },
-    { id: 'donors', label: 'দাতা ও অনুদান', icon: HeartHandshake, badge: donors.length ? `${donors.length}` : undefined },
-    { id: 'gallery', label: 'গ্যালারি ব্যবস্থাপনা', icon: Image, badge: gallery.length ? `${gallery.length}` : undefined },
-    { id: 'magazine', label: 'স্মৃতির পাতা ও ম্যাগাজিন', icon: BookOpen, badge: magazineArticles.length ? `${magazineArticles.length}` : undefined },
-    { id: 'admin-settings', label: 'অ্যাডমিন ও নিরাপত্তা', icon: ShieldCheck },
-    { id: 'settings', label: 'সাইট ও ডাটাবেজ সেটিংস', icon: Settings },
+    { id: 'overview', label: 'à¦“à¦­à¦¾à¦°à¦­à¦¿à¦‰ à¦¡à§à¦¯à¦¾à¦¶à¦¬à§‹à¦°à§à¦¡', icon: LayoutDashboard },
+    { id: 'mongodb', label: 'MongoDB à¦¡à¦¾à¦Ÿà¦¾à¦¬à§‡à¦œ (Cloud)', icon: Database, badge: mongoStatus.connected ? 'à¦¸à¦‚à¦¯à§à¦•à§à¦¤' : 'à¦…à¦«à¦²à¦¾à¦‡à¦¨' },
+    { id: 'hero', label: 'à¦¹à¦¿à¦°à§‹ à¦¸à§à¦²à¦¾à¦‡à¦¡à¦¾à¦° (Hero)', icon: Sliders, badge: heroSlides.length ? `${heroSlides.length}` : undefined },
+    { id: 'teachers', label: 'à¦ªà§à¦°à¦¾à¦•à§à¦¤à¦¨à¦¦à§‡à¦° à¦ªà§à¦°à¦¤à¦¿ à¦†à¦¹à¦¬à¦¾à¦¨', icon: UserCheck, badge: teacherMessages.length ? `${teacherMessages.length}` : undefined },
+    { id: 'stats', label: 'à¦ªà¦°à¦¿à¦¸à¦‚à¦–à§à¦¯à¦¾à¦¨ à¦“ à¦¤à¦¾à¦°à¦¿à¦–', icon: BarChart3, badge: statsData?.customStats?.length ? `${statsData.customStats.length}` : undefined },
+    { id: 'students', label: 'à¦ªà§à¦°à¦¾à¦•à§à¦¤à¦¨ à¦›à¦¾à¦¤à§à¦°/à¦›à¦¾à¦¤à§à¦°à§€', icon: Users, badge: students.length ? `${students.length}` : undefined },
+    { id: 'finance', label: 'à¦†à¦°à§à¦¥à¦¿à¦• à¦¹à¦¿à¦¸à¦¾à¦¬ (Finance)', icon: BdtIcon, badge: finance?.transactions?.length ? `${finance.transactions.length}` : undefined },
+    { id: 'notices', label: 'à¦¨à§‹à¦Ÿà¦¿à¦¶ à¦¬à§‹à¦°à§à¦¡', icon: Bell, badge: notices.length ? `${notices.length}` : undefined },
+    { id: 'upcoming', label: 'à¦†à¦¸à¦¨à§à¦¨ à¦…à¦¨à§à¦·à§à¦ à¦¾à¦¨ à¦“ à¦ªà§‹à¦¸à§à¦Ÿà¦¾à¦°', icon: Megaphone, badge: upcomingEvents.length ? `${upcomingEvents.length}` : undefined },
+    { id: 'emails', label: 'à¦‡à¦®à§‡à¦‡à¦² à¦²à¦— à¦“ à¦¡à§‡à¦²à¦¿à¦­à¦¾à¦°à¦¿', icon: Mail },
+    { id: 'schedule', label: 'à¦•à¦¾à¦°à§à¦¯à¦•à§à¦°à¦®à§‡à¦° à¦¸à¦®à§Ÿà¦¸à§‚à¦šà¦¿', icon: Calendar, badge: schedule.length ? `${schedule.length}` : undefined },
+    { id: 'cultural', label: 'à¦¸à¦¾à¦‚à¦¸à§à¦•à§ƒà¦¤à¦¿à¦• à¦ªà¦°à§à¦¬', icon: Music, badge: culturalSchedule.length ? `${culturalSchedule.length}` : undefined },
+    { id: 'donors', label: 'à¦¦à¦¾à¦¤à¦¾ à¦“ à¦…à¦¨à§à¦¦à¦¾à¦¨', icon: HeartHandshake, badge: donors.length ? `${donors.length}` : undefined },
+    { id: 'gallery', label: 'à¦—à§à¦¯à¦¾à¦²à¦¾à¦°à¦¿ à¦¬à§à¦¯à¦¬à¦¸à§à¦¥à¦¾à¦ªà¦¨à¦¾', icon: Image, badge: gallery.length ? `${gallery.length}` : undefined },
+    { id: 'magazine', label: 'à¦¸à§à¦®à§ƒà¦¤à¦¿à¦° à¦ªà¦¾à¦¤à¦¾ à¦“ à¦®à§à¦¯à¦¾à¦—à¦¾à¦œà¦¿à¦¨', icon: BookOpen, badge: magazineArticles.length ? `${magazineArticles.length}` : undefined },
+    { id: 'admin-settings', label: 'à¦…à§à¦¯à¦¾à¦¡à¦®à¦¿à¦¨ à¦“ à¦¨à¦¿à¦°à¦¾à¦ªà¦¤à§à¦¤à¦¾', icon: ShieldCheck },
+    { id: 'settings', label: 'à¦¸à¦¾à¦‡à¦Ÿ à¦“ à¦¡à¦¾à¦Ÿà¦¾à¦¬à§‡à¦œ à¦¸à§‡à¦Ÿà¦¿à¦‚à¦¸', icon: Settings },
   ];
 
   return (
@@ -683,19 +693,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       <div className="md:hidden bg-slate-900 text-white flex items-center justify-between p-4 sticky top-0 z-40 shadow-md">
         <div className="flex items-center gap-3">
           {globalConfig?.logoUrl ? (
-            <img 
-              src={globalConfig.logoUrl} 
-              alt="Logo" 
-              className="w-8 h-8 object-contain" 
+            <img
+              src={globalConfig.logoUrl}
+              alt="Logo"
+              className="w-8 h-8 object-contain"
             />
           ) : (
             <div className="w-8 h-8 rounded-lg bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000] text-sm">
-              না
+              à¦¨à¦¾
             </div>
           )}
           <div>
-            <h2 className="text-sm font-bold text-white leading-tight">অ্যাডমিন প্যানেল</h2>
-            <p className="text-[10px] text-emerald-400">নজরুল একাডেমি অ্যালামনাই</p>
+            <h2 className="text-sm font-bold text-white leading-tight">à¦…à§à¦¯à¦¾à¦¡à¦®à¦¿à¦¨ à¦ªà§à¦¯à¦¾à¦¨à§‡à¦²</h2>
+            <p className="text-[10px] text-emerald-400">à¦¨à¦œà¦°à§à¦² à¦à¦•à¦¾à¦¡à§‡à¦®à¦¿ à¦…à§à¦¯à¦¾à¦²à¦¾à¦®à¦¨à¦¾à¦‡</p>
           </div>
         </div>
         <button
@@ -723,19 +733,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         {/* Admin Brand */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
           {globalConfig?.logoUrl ? (
-            <img 
-              src={globalConfig.logoUrl} 
-              alt="Logo" 
-              className="w-10 h-10 object-contain" 
+            <img
+              src={globalConfig.logoUrl}
+              alt="Logo"
+              className="w-10 h-10 object-contain"
             />
           ) : (
             <div className="w-10 h-10 rounded-xl bg-[#00732A] flex items-center justify-center font-bold text-white shadow-xs border border-[#CA0000]">
-              না
+              à¦¨à¦¾
             </div>
           )}
           <div>
-            <h2 className="text-sm font-bold text-white leading-tight">অ্যাডমিন প্যানেল</h2>
-            <p className="text-[11px] text-emerald-400">নজরুল একাডেমি অ্যালামনাই</p>
+            <h2 className="text-sm font-bold text-white leading-tight">à¦…à§à¦¯à¦¾à¦¡à¦®à¦¿à¦¨ à¦ªà§à¦¯à¦¾à¦¨à§‡à¦²</h2>
+            <p className="text-[11px] text-emerald-400">à¦¨à¦œà¦°à§à¦² à¦à¦•à¦¾à¦¡à§‡à¦®à¦¿ à¦…à§à¦¯à¦¾à¦²à¦¾à¦®à¦¨à¦¾à¦‡</p>
           </div>
         </div>
 
@@ -744,7 +754,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-slate-200 font-medium truncate max-w-[140px]">
-              {user?.name || adminInfo?.name || 'অ্যাডমিন'}
+              à¦…à§à¦¯à¦¾à¦¡à¦®à¦¿à¦¨ (à¦ªà§à¦°à¦§à¦¾à¦¨ à¦ªà§à¦°à¦¶à¦¾à¦¸à¦•)
             </span>
           </div>
           <span className="text-[10px] font-bold bg-[#CA0000] px-1.5 py-0.5 rounded text-white uppercase">
@@ -765,8 +775,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                   setIsMobileMenuOpen(false);
                 }}
                 className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer ${isActive
-                    ? 'bg-[#00732A] text-white shadow-xs'
-                    : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                  ? 'bg-[#00732A] text-white shadow-xs'
+                  : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                   }`}
               >
                 <div className="flex items-center gap-3">
@@ -791,13 +801,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
             className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 cursor-pointer"
           >
             <ExternalLink className="w-3.5 h-3.5" />
-            <span>লাইভ সাইট দেখুন</span>
+            <span>à¦²à¦¾à¦‡à¦­ à¦¸à¦¾à¦‡à¦Ÿ à¦¦à§‡à¦–à§à¦¨</span>
           </button>
 
           <button
             onClick={logout}
             className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-slate-800 rounded-lg cursor-pointer"
-            title="লগআউট"
+            title="à¦²à¦—à¦†à¦‰à¦Ÿ"
           >
             <LogOut className="w-4 h-4" />
           </button>
@@ -810,10 +820,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-10 shadow-2xs">
           <div>
             <h1 className="text-lg sm:text-xl font-bold text-slate-900">
-              {menuItems.find((m) => m.id === activeTab)?.label || 'ড্যাশবোর্ড'}
+              {menuItems.find((m) => m.id === activeTab)?.label || 'à¦¡à§à¦¯à¦¾à¦¶à¦¬à§‹à¦°à§à¦¡'}
             </h1>
             <p className="text-xs text-slate-500">
-              ওয়েবসাইটের সকল কন্টেন্ট ও তথ্য পরিবর্তন ও পরিচালনা করুন
+              à¦“à§Ÿà§‡à¦¬à¦¸à¦¾à¦‡à¦Ÿà§‡à¦° à¦¸à¦•à¦² à¦•à¦¨à§à¦Ÿà§‡à¦¨à§à¦Ÿ à¦“ à¦¤à¦¥à§à¦¯ à¦ªà¦°à¦¿à¦¬à¦°à§à¦¤à¦¨ à¦“ à¦ªà¦°à¦¿à¦šà¦¾à¦²à¦¨à¦¾ à¦•à¦°à§à¦¨
             </p>
           </div>
 
@@ -821,16 +831,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
             {/* Live Database status pill */}
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs font-bold text-[#00732A]">
               <Database className="w-3.5 h-3.5" />
-              <span>{mongoStatus.storageType || 'লোকাল স্টোরেজ (সক্রিয়)'}</span>
+              <span>{mongoStatus.storageType || 'à¦²à§‹à¦•à¦¾à¦² à¦¸à§à¦Ÿà§‹à¦°à§‡à¦œ (à¦¸à¦•à§à¦°à¦¿à§Ÿ)'}</span>
             </div>
 
             <button
               onClick={() => {
                 loadAllData();
-                flashMessage('ডাটা রিফ্রেশ করা হয়েছে');
+                flashMessage('à¦¡à¦¾à¦Ÿà¦¾ à¦°à¦¿à¦«à§à¦°à§‡à¦¶ à¦•à¦°à¦¾ à¦¹à§Ÿà§‡à¦›à§‡');
               }}
               className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg border border-slate-200 cursor-pointer"
-              title="রিফ্রেশ করুন"
+              title="à¦°à¦¿à¦«à§à¦°à§‡à¦¶ à¦•à¦°à§à¦¨"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
             </button>
@@ -925,8 +935,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     <UserCheck className="w-4 h-4 text-[#00732A]" />
                     <span>
                       {editingTeacher.id
-                        ? 'শিক্ষকের বার্তা / আহবান সম্পাদনা'
-                        : 'নতুন শিক্ষকের বার্তা / আহবান যোগ করুন'}
+                        ? 'à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦¬à¦¾à¦°à§à¦¤à¦¾ / à¦†à¦¹à¦¬à¦¾à¦¨ à¦¸à¦®à§à¦ªà¦¾à¦¦à¦¨à¦¾'
+                        : 'à¦¨à¦¤à§à¦¨ à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦¬à¦¾à¦°à§à¦¤à¦¾ / à¦†à¦¹à¦¬à¦¾à¦¨ à¦¯à§‹à¦— à¦•à¦°à§à¦¨'}
                     </span>
                   </h3>
                   <button
@@ -941,7 +951,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      শিক্ষকের নাম *
+                      à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦¨à¦¾à¦® *
                     </label>
                     <input
                       type="text"
@@ -949,14 +959,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, name: e.target.value })
                       }
-                      placeholder="যেমন: জনাব মোহসীন উদ্দিন আহমেদ"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦œà¦¨à¦¾à¦¬ à¦®à§‹à¦¹à¦¸à§€à¦¨ à¦‰à¦¦à§à¦¦à¦¿à¦¨ à¦†à¦¹à¦®à§‡à¦¦"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      পদবি (Designation) *
+                      à¦ªà¦¦à¦¬à¦¿ (Designation) *
                     </label>
                     <input
                       type="text"
@@ -964,14 +974,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, designation: e.target.value })
                       }
-                      placeholder="যেমন: সাবেক প্রধান শিক্ষক / সিনিয়র শিক্ষক"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦¸à¦¾à¦¬à§‡à¦• à¦ªà§à¦°à¦§à¦¾à¦¨ à¦¶à¦¿à¦•à§à¦·à¦• / à¦¸à¦¿à¦¨à¦¿à§Ÿà¦° à¦¶à¦¿à¦•à§à¦·à¦•"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 text-[#CA0000] font-semibold"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      বিদ্যালয় / প্রতিষ্ঠান *
+                      à¦¬à¦¿à¦¦à§à¦¯à¦¾à¦²à§Ÿ / à¦ªà§à¦°à¦¤à¦¿à¦·à§à¦ à¦¾à¦¨ *
                     </label>
                     <input
                       type="text"
@@ -979,14 +989,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, schoolName: e.target.value })
                       }
-                      placeholder="ত্রিশাল সরকারি নজরুল একাডেমি"
+                      placeholder="à¦¤à§à¦°à¦¿à¦¶à¦¾à¦² à¦¸à¦°à¦•à¦¾à¦°à¦¿ à¦¨à¦œà¦°à§à¦² à¦à¦•à¦¾à¦¡à§‡à¦®à¦¿"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      প্রদর্শন ক্রম (Order)
+                      à¦ªà§à¦°à¦¦à¦°à§à¦¶à¦¨ à¦•à§à¦°à¦® (Order)
                     </label>
                     <input
                       type="number"
@@ -1000,17 +1010,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
 
                   <div className="sm:col-span-2">
                     <ImageUploader
-                      label="শিক্ষকের ছবি (Drag & Drop / Cloudinary আপলোড)"
+                      label="à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦›à¦¬à¦¿ (Drag & Drop / Cloudinary à¦†à¦ªà¦²à§‹à¦¡)"
                       value={editingTeacher.image}
                       onChange={(url) => setEditingTeacher({ ...editingTeacher, image: url })}
                       aspectRatio="square"
-                      placeholder="শ্রদ্ধেয় শিক্ষকের ছবি ড্রপ বা নির্বাচন করুন"
+                      placeholder="à¦¶à§à¦°à¦¦à§à¦§à§‡à§Ÿ à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦›à¦¬à¦¿ à¦¡à§à¦°à¦ª à¦¬à¦¾ à¦¨à¦¿à¦°à§à¦¬à¦¾à¦šà¦¨ à¦•à¦°à§à¦¨"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      বিসমিল্লাহ / শুরুর শিরোনাম
+                      à¦¬à¦¿à¦¸à¦®à¦¿à¦²à§à¦²à¦¾à¦¹ / à¦¶à§à¦°à§à¦° à¦¶à¦¿à¦°à§‹à¦¨à¦¾à¦®
                     </label>
                     <input
                       type="text"
@@ -1018,14 +1028,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, bismillahText: e.target.value })
                       }
-                      placeholder="বিসমিল্লাহির রাহমানির রাহিম"
+                      placeholder="à¦¬à¦¿à¦¸à¦®à¦¿à¦²à§à¦²à¦¾à¦¹à¦¿à¦° à¦°à¦¾à¦¹à¦®à¦¾à¦¨à¦¿à¦° à¦°à¦¾à¦¹à¦¿à¦®"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      আহবানের মূল শিরোনাম (Heading) *
+                      à¦†à¦¹à¦¬à¦¾à¦¨à§‡à¦° à¦®à§‚à¦² à¦¶à¦¿à¦°à§‹à¦¨à¦¾à¦® (Heading) *
                     </label>
                     <input
                       type="text"
@@ -1033,14 +1043,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, heading: e.target.value })
                       }
-                      placeholder="যেমন: নজরুল আঙিনায় সৌহার্দ্যের সেতুবন্ধন"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦¨à¦œà¦°à§à¦² à¦†à¦™à¦¿à¦¨à¦¾à§Ÿ à¦¸à§Œà¦¹à¦¾à¦°à§à¦¦à§à¦¯à§‡à¦° à¦¸à§‡à¦¤à§à¦¬à¦¨à§à¦§à¦¨"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      সম্ভাষণ বাক্য (Greeting)
+                      à¦¸à¦®à§à¦­à¦¾à¦·à¦£ à¦¬à¦¾à¦•à§à¦¯ (Greeting)
                     </label>
                     <input
                       type="text"
@@ -1048,14 +1058,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, greeting: e.target.value })
                       }
-                      placeholder="শ্রদ্ধেয় সুধী ও স্নেহের ছাত্র-ছাত্রীগণ,"
+                      placeholder="à¦¶à§à¦°à¦¦à§à¦§à§‡à§Ÿ à¦¸à§à¦§à§€ à¦“ à¦¸à§à¦¨à§‡à¦¹à§‡à¦° à¦›à¦¾à¦¤à§à¦°-à¦›à¦¾à¦¤à§à¦°à§€à¦—à¦£,"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 text-[#00732A] font-semibold"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      পূর্ণাঙ্গ বাণী / আহবান বার্তা (Description) *
+                      à¦ªà§‚à¦°à§à¦£à¦¾à¦™à§à¦— à¦¬à¦¾à¦£à§€ / à¦†à¦¹à¦¬à¦¾à¦¨ à¦¬à¦¾à¦°à§à¦¤à¦¾ (Description) *
                     </label>
                     <textarea
                       rows={6}
@@ -1063,7 +1073,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTeacher({ ...editingTeacher, description: e.target.value })
                       }
-                      placeholder="শ্রদ্ধেয় শিক্ষকের বিস্তারিত বাণী লিখুন..."
+                      placeholder="à¦¶à§à¦°à¦¦à§à¦§à§‡à§Ÿ à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦¬à¦¿à¦¸à§à¦¤à¦¾à¦°à¦¿à¦¤ à¦¬à¦¾à¦£à§€ à¦²à¦¿à¦–à§à¦¨..."
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 leading-relaxed"
                     />
                   </div>
@@ -1075,13 +1085,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     onClick={() => setEditingTeacher(null)}
                     className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer"
                   >
-                    বাতিল
+                    à¦¬à¦¾à¦¤à¦¿à¦²
                   </button>
                   <button
                     type="button"
                     onClick={async () => {
                       if (!editingTeacher.name.trim() || !editingTeacher.heading.trim()) {
-                        flashMessage('অনুগ্রহ করে নাম এবং শিরোনাম পূরণ করুন', true);
+                        flashMessage('à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦¨à¦¾à¦® à¦à¦¬à¦‚ à¦¶à¦¿à¦°à§‹à¦¨à¦¾à¦® à¦ªà§‚à¦°à¦£ à¦•à¦°à§à¦¨', true);
                         return;
                       }
                       try {
@@ -1090,16 +1100,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         } else {
                           await apiService.addTeacherMessage(editingTeacher);
                         }
-                        flashMessage('শিক্ষকের বাণী সংরক্ষিত হয়েছে');
+                        flashMessage('à¦¶à¦¿à¦•à§à¦·à¦•à§‡à¦° à¦¬à¦¾à¦£à§€ à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦¹à§Ÿà§‡à¦›à§‡');
                         setEditingTeacher(null);
                         loadAllData();
                       } catch (err: any) {
-                        flashMessage(err.message || 'সংরক্ষণ ব্যর্থ হয়েছে', true);
+                        flashMessage(err.message || 'à¦¸à¦‚à¦°à¦•à§à¦·à¦£ à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à§Ÿà§‡à¦›à§‡', true);
                       }
                     }}
                     className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21] cursor-pointer shadow-xs"
                   >
-                    সংরক্ষণ করুন
+                    à¦¸à¦‚à¦°à¦•à§à¦·à¦£ à¦•à¦°à§à¦¨
                   </button>
                 </div>
               </div>
@@ -1113,7 +1123,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                     <BarChart3 className="w-4 h-4 text-[#00732A]" />
-                    <span>পরিসংখ্যান কার্ড তৈরি বা সম্পাদনা</span>
+                    <span>à¦ªà¦°à¦¿à¦¸à¦‚à¦–à§à¦¯à¦¾à¦¨ à¦•à¦¾à¦°à§à¦¡ à¦¤à§ˆà¦°à¦¿ à¦¬à¦¾ à¦¸à¦®à§à¦ªà¦¾à¦¦à¦¨à¦¾</span>
                   </h3>
                   <button
                     type="button"
@@ -1127,7 +1137,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      কার্ডের শিরোনাম / লেবেল *
+                      à¦•à¦¾à¦°à§à¦¡à§‡à¦° à¦¶à¦¿à¦°à§‹à¦¨à¦¾à¦® / à¦²à§‡à¦¬à§‡à¦² *
                     </label>
                     <input
                       type="text"
@@ -1135,14 +1145,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingCustomStat({ ...editingCustomStat, label: e.target.value })
                       }
-                      placeholder="যেমন: মোট ব্যাচ সংখ্যা / অংশগ্রাহক ব্যাচ"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦®à§‹à¦Ÿ à¦¬à§à¦¯à¦¾à¦š à¦¸à¦‚à¦–à§à¦¯à¦¾ / à¦…à¦‚à¦¶à¦—à§à¦°à¦¾à¦¹à¦• à¦¬à§à¦¯à¦¾à¦š"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      পরিসংখ্যান মান (Value / Number) *
+                      à¦ªà¦°à¦¿à¦¸à¦‚à¦–à§à¦¯à¦¾à¦¨ à¦®à¦¾à¦¨ (Value / Number) *
                     </label>
                     <input
                       type="text"
@@ -1150,14 +1160,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingCustomStat({ ...editingCustomStat, value: e.target.value })
                       }
-                      placeholder="যেমন: ৫০+ / ৯৫% / ১২০"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à§«à§¦+ / à§¯à§«% / à§§à§¨à§¦"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold text-emerald-700"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      একক / বিবরণ (Unit)
+                      à¦à¦•à¦• / à¦¬à¦¿à¦¬à¦°à¦£ (Unit)
                     </label>
                     <input
                       type="text"
@@ -1165,14 +1175,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingCustomStat({ ...editingCustomStat, unit: e.target.value })
                       }
-                      placeholder="যেমন: টি ব্যাচ / জন / কিমি"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦Ÿà¦¿ à¦¬à§à¦¯à¦¾à¦š / à¦œà¦¨ / à¦•à¦¿à¦®à¦¿"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                     />
                   </div>
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      সংক্ষিপ্ত নোট / সাবটাইটেল
+                      à¦¸à¦‚à¦•à§à¦·à¦¿à¦ªà§à¦¤ à¦¨à§‹à¦Ÿ / à¦¸à¦¾à¦¬à¦Ÿà¦¾à¦‡à¦Ÿà§‡à¦²
                     </label>
                     <input
                       type="text"
@@ -1180,14 +1190,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingCustomStat({ ...editingCustomStat, note: e.target.value })
                       }
-                      placeholder="যেমন: ১৯৭৪ হতে ২০২৫ ব্যাচ পর্যন্ত"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à§§à§¯à§­à§ª à¦¹à¦¤à§‡ à§¨à§¦à§¨à§« à¦¬à§à¦¯à¦¾à¦š à¦ªà¦°à§à¦¯à¦¨à§à¦¤"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      প্রদর্শন ক্রম (Order)
+                      à¦ªà§à¦°à¦¦à¦°à§à¦¶à¦¨ à¦•à§à¦°à¦® (Order)
                     </label>
                     <input
                       type="number"
@@ -1206,13 +1216,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     onClick={() => setEditingCustomStat(null)}
                     className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer"
                   >
-                    বাতিল
+                    à¦¬à¦¾à¦¤à¦¿à¦²
                   </button>
                   <button
                     type="button"
                     onClick={async () => {
                       if (!editingCustomStat.label.trim() || !editingCustomStat.value.trim()) {
-                        flashMessage('অনুগ্রহ করে লেবেল ও মান পূরণ করুন', true);
+                        flashMessage('à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦²à§‡à¦¬à§‡à¦² à¦“ à¦®à¦¾à¦¨ à¦ªà§‚à¦°à¦£ à¦•à¦°à§à¦¨', true);
                         return;
                       }
                       try {
@@ -1228,16 +1238,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         const newStats = { ...statsData, customStats: updatedList };
                         setStatsData(newStats);
                         await apiService.updateStats(newStats);
-                        flashMessage('পরিসংখ্যান কার্ড সংরক্ষিত হয়েছে');
+                        flashMessage('à¦ªà¦°à¦¿à¦¸à¦‚à¦–à§à¦¯à¦¾à¦¨ à¦•à¦¾à¦°à§à¦¡ à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦¹à§Ÿà§‡à¦›à§‡');
                         setEditingCustomStat(null);
                         loadAllData();
                       } catch (err: any) {
-                        flashMessage(err.message || 'সংরক্ষণ ব্যর্থ হয়েছে', true);
+                        flashMessage(err.message || 'à¦¸à¦‚à¦°à¦•à§à¦·à¦£ à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à§Ÿà§‡à¦›à§‡', true);
                       }
                     }}
                     className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21] cursor-pointer shadow-xs"
                   >
-                    সংরক্ষণ করুন
+                    à¦¸à¦‚à¦°à¦•à§à¦·à¦£ à¦•à¦°à§à¦¨
                   </button>
                 </div>
               </div>
@@ -1254,8 +1264,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     <span>
                       {editingTransaction.id.startsWith('tx-') &&
                         !(finance.transactions || []).some((t) => t.id === editingTransaction.id)
-                        ? 'নতুন আর্থিক লেনদেন / ভাউচার যুক্ত করুন'
-                        : 'আর্থিক লেনদেন ভাউচার সম্পাদনা'}
+                        ? 'à¦¨à¦¤à§à¦¨ à¦†à¦°à§à¦¥à¦¿à¦• à¦²à§‡à¦¨à¦¦à§‡à¦¨ / à¦­à¦¾à¦‰à¦šà¦¾à¦° à¦¯à§à¦•à§à¦¤ à¦•à¦°à§à¦¨'
+                        : 'à¦†à¦°à§à¦¥à¦¿à¦• à¦²à§‡à¦¨à¦¦à§‡à¦¨ à¦­à¦¾à¦‰à¦šà¦¾à¦° à¦¸à¦®à§à¦ªà¦¾à¦¦à¦¨à¦¾'}
                     </span>
                   </h3>
                   <button
@@ -1270,7 +1280,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      খাত / লেনদেনের বিবরণ *
+                      à¦–à¦¾à¦¤ / à¦²à§‡à¦¨à¦¦à§‡à¦¨à§‡à¦° à¦¬à¦¿à¦¬à¦°à¦£ *
                     </label>
                     <input
                       type="text"
@@ -1278,14 +1288,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTransaction({ ...editingTransaction, title: e.target.value })
                       }
-                      placeholder="যেমন: ২০০০ ব্যাচের নিবন্ধন ফি জমা / মঞ্চ সজ্জা ব্যয়"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à§¨à§¦à§¦à§¦ à¦¬à§à¦¯à¦¾à¦šà§‡à¦° à¦¨à¦¿à¦¬à¦¨à§à¦§à¦¨ à¦«à¦¿ à¦œà¦®à¦¾ / à¦®à¦žà§à¦š à¦¸à¦œà§à¦œà¦¾ à¦¬à§à¦¯à§Ÿ"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      লেনদেনের ধরন *
+                      à¦²à§‡à¦¨à¦¦à§‡à¦¨à§‡à¦° à¦§à¦°à¦¨ *
                     </label>
                     <select
                       value={editingTransaction.type}
@@ -1297,14 +1307,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       }
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
                     >
-                      <option value="income">আয় / জমা (Income)</option>
-                      <option value="expense">ব্যয় / খরচ (Expense)</option>
+                      <option value="income">à¦†à§Ÿ / à¦œà¦®à¦¾ (Income)</option>
+                      <option value="expense">à¦¬à§à¦¯à§Ÿ / à¦–à¦°à¦š (Expense)</option>
                     </select>
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      টাকার পরিমাণ (টাকা) *
+                      à¦Ÿà¦¾à¦•à¦¾à¦° à¦ªà¦°à¦¿à¦®à¦¾à¦£ (à¦Ÿà¦¾à¦•à¦¾) *
                     </label>
                     <input
                       type="number"
@@ -1315,14 +1325,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                           amount: Number(e.target.value),
                         })
                       }
-                      placeholder="যেমন: 50000"
+                      placeholder="à¦¯à§‡à¦®à¦¨: 50000"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-black text-emerald-800"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      ক্যাটাগরি / উপখাত
+                      à¦•à§à¦¯à¦¾à¦Ÿà¦¾à¦—à¦°à¦¿ / à¦‰à¦ªà¦–à¦¾à¦¤
                     </label>
                     <input
                       type="text"
@@ -1330,14 +1340,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTransaction({ ...editingTransaction, category: e.target.value })
                       }
-                      placeholder="যেমন: নিবন্ধন ফি / বিজ্ঞাপন / আপ্যায়ন"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦¨à¦¿à¦¬à¦¨à§à¦§à¦¨ à¦«à¦¿ / à¦¬à¦¿à¦œà§à¦žà¦¾à¦ªà¦¨ / à¦†à¦ªà§à¦¯à¦¾à¦¯à¦¼à¦¨"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                     />
                   </div>
 
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      তারিখ (Date)
+                      à¦¤à¦¾à¦°à¦¿à¦– (Date)
                     </label>
                     <input
                       type="date"
@@ -1351,7 +1361,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      ভাউচার / রসিদ নং (Voucher No)
+                      à¦­à¦¾à¦‰à¦šà¦¾à¦° / à¦°à¦¸à¦¿à¦¦ à¦¨à¦‚ (Voucher No)
                     </label>
                     <input
                       type="text"
@@ -1366,7 +1376,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
 
                   <div className="sm:col-span-2">
                     <label className="text-xs font-bold text-slate-700 block mb-1">
-                      মন্তব্য / ট্র্যাকিং নোট
+                      à¦®à¦¨à§à¦¤à¦¬à§à¦¯ / à¦Ÿà§à¦°à§à¦¯à¦¾à¦•à¦¿à¦‚ à¦¨à§‹à¦Ÿ
                     </label>
                     <input
                       type="text"
@@ -1374,7 +1384,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                       onChange={(e) =>
                         setEditingTransaction({ ...editingTransaction, note: e.target.value })
                       }
-                      placeholder="যেমন: ব্যাংক একাউন্টে জমা হয়েছে / ক্যাশ ভাউচার"
+                      placeholder="à¦¯à§‡à¦®à¦¨: à¦¬à§à¦¯à¦¾à¦‚à¦• à¦à¦•à¦¾à¦‰à¦¨à§à¦Ÿà§‡ à¦œà¦®à¦¾ à¦¹à§Ÿà§‡à¦›à§‡ / à¦•à§à¦¯à¦¾à¦¶ à¦­à¦¾à¦‰à¦šà¦¾à¦°"
                       className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
                     />
                   </div>
@@ -1386,13 +1396,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     onClick={() => setEditingTransaction(null)}
                     className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 cursor-pointer"
                   >
-                    বাতিল
+                    à¦¬à¦¾à¦¤à¦¿à¦²
                   </button>
                   <button
                     type="button"
                     onClick={async () => {
                       if (!editingTransaction.title.trim() || !editingTransaction.amount) {
-                        flashMessage('অনুগ্রহ করে বিবরণ এবং টাকার পরিমাণ পূরণ করুন', true);
+                        flashMessage('à¦…à¦¨à§à¦—à§à¦°à¦¹ à¦•à¦°à§‡ à¦¬à¦¿à¦¬à¦°à¦£ à¦à¦¬à¦‚ à¦Ÿà¦¾à¦•à¦¾à¦° à¦ªà¦°à¦¿à¦®à¦¾à¦£ à¦ªà§‚à¦°à¦£ à¦•à¦°à§à¦¨', true);
                         return;
                       }
                       try {
@@ -1420,16 +1430,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                         };
                         setFinance(newFinance);
                         await apiService.updateFinance(newFinance);
-                        flashMessage('আর্থিক লেনদেন ভাউচার সংরক্ষিত হয়েছে');
+                        flashMessage('à¦†à¦°à§à¦¥à¦¿à¦• à¦²à§‡à¦¨à¦¦à§‡à¦¨ à¦­à¦¾à¦‰à¦šà¦¾à¦° à¦¸à¦‚à¦°à¦•à§à¦·à¦¿à¦¤ à¦¹à§Ÿà§‡à¦›à§‡');
                         setEditingTransaction(null);
                         loadAllData();
                       } catch (err: any) {
-                        flashMessage(err.message || 'সংরক্ষণ ব্যর্থ হয়েছে', true);
+                        flashMessage(err.message || 'à¦¸à¦‚à¦°à¦•à§à¦·à¦£ à¦¬à§à¦¯à¦°à§à¦¥ à¦¹à§Ÿà§‡à¦›à§‡', true);
                       }
                     }}
                     className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21] cursor-pointer shadow-xs"
                   >
-                    সংরক্ষণ করুন
+                    à¦¸à¦‚à¦°à¦•à§à¦·à¦£ à¦•à¦°à§à¦¨
                   </button>
                 </div>
               </div>
@@ -1440,3 +1450,4 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     </div>
   );
 };
+

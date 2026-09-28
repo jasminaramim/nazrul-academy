@@ -28,6 +28,8 @@ export const AdminSettingsTab = () => {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [newAdminData, setNewAdminData] = useState({ name: '', username: '', email: '', password: '' });
   const [isSuperAdmin, setIsSuperAdmin] = useState(false);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
+  const [targetTransferId, setTargetTransferId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAdmins();
@@ -151,14 +153,21 @@ export const AdminSettingsTab = () => {
     }
   };
 
-  const handleTransferSuperAdmin = async (targetId: string) => {
-    if (!window.confirm('সতর্কতা: আপনি কি নিশ্চিত যে আপনি সুপার-অ্যাডমিন রোল এই অ্যাকাউন্টে ট্রান্সফার করবেন? আপনি সাধারণ অ্যাডমিন হয়ে যাবেন!')) return;
+  const confirmTransfer = (targetId: string) => {
+    setTargetTransferId(targetId);
+    setTransferModalOpen(true);
+  };
+
+  const executeTransfer = async () => {
+    if (!targetTransferId) return;
+    setTransferModalOpen(false);
+    
     try {
       const token = localStorage.getItem('trishal_auth_token');
       const res = await apiService.fetchWithAuth(`/api/transfer`, {
         method: 'PUT',
         headers: { Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ targetId })
+        body: JSON.stringify({ targetId: targetTransferId })
       });
       
       if (res.success) {
@@ -312,18 +321,18 @@ export const AdminSettingsTab = () => {
                     {admin.role === 'admin' && (
                       <>
                         <button
-                          title="মেক সুপার অ্যাডমিন"
-                          onClick={() => handleTransferSuperAdmin(admin.id)}
-                          className="p-2 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors"
+                          onClick={() => confirmTransfer(admin.id)}
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-amber-50 text-amber-600 rounded-lg hover:bg-amber-100 transition-colors text-xs font-bold"
                         >
-                          <Crown className="w-4 h-4" />
+                          <Crown className="w-3.5 h-3.5" />
+                          <span>সুপার অ্যাডমিন করুন</span>
                         </button>
                         <button
-                          title="ডিলিট"
                           onClick={() => handleDeleteAdmin(admin.id)}
-                          className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
+                          className="flex items-center gap-1.5 px-2.5 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors text-xs font-bold"
                         >
-                          <UserMinus className="w-4 h-4" />
+                          <UserMinus className="w-3.5 h-3.5" />
+                          <span>মুছুন</span>
                         </button>
                       </>
                     )}
@@ -392,6 +401,41 @@ export const AdminSettingsTab = () => {
                 {loading ? 'যোগ করা হচ্ছে...' : 'অ্যাডমিন যোগ করুন'}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Transfer Confirmation Modal */}
+      {transferModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="p-6 text-center">
+              <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-8 h-8 text-orange-600" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">সতর্কতা!</h3>
+              <p className="text-slate-600 text-sm leading-relaxed mb-6">
+                আপনি কি নিশ্চিত যে আপনি সুপার-অ্যাডমিন রোল এই অ্যাকাউন্টে ট্রান্সফার করবেন? 
+                <br /><br />
+                <span className="font-bold text-red-600">আপনি এরপর সাধারণ অ্যাডমিন হয়ে যাবেন!</span>
+              </p>
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setTransferModalOpen(false)}
+                  className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl font-bold transition-colors shadow-sm cursor-pointer"
+                >
+                  বাতিল
+                </button>
+                <button
+                  type="button"
+                  onClick={executeTransfer}
+                  className="flex-1 py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold transition-colors shadow-lg cursor-pointer"
+                >
+                  নিশ্চিত করুন
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
