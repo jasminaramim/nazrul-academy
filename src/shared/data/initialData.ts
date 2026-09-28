@@ -83,7 +83,7 @@ export const initialMagazineArticles: MagazineArticle[] = [];
 
 export const initialAdminInfo: AdminInfo = {
   id: 'admin-1',
-  name: 'Jasmin (প্রধান প্রশাসক)',
+  name: '(প্রধান প্রশাসক)',
   role: 'super_admin',
   email: 'jasmin@gmail.com',
   phone: '01613475871',

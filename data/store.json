@@ -2,7 +2,7 @@
   "users": [
     {
       "id": "usr-admin-jasmin",
-      "name": "Jasmin (প্রধান প্রশাসক)",
+      "name": "(প্রধান প্রশাসক)",
       "nameEn": "Jasmin",
       "username": "jasmin",
       "email": "jasmin@nazrulacademy.edu.bd",
@@ -775,7 +775,7 @@
     }
   ],
   "adminInfo": {
-    "name": "Jasmin (প্রধান প্রশাসক)",
+    "name": "(প্রধান প্রশাসক)",
     "photo": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80",
     "designation": "প্রধান প্রশাসক ও সিস্টেম অ্যাডমিন",
     "location": "ত্রিশাল, ময়মনসিংহ",
