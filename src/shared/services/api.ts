@@ -69,6 +69,17 @@ export const apiService = {
         ...options,
         headers
       });
+      const contentType = res.headers.get('content-type') || '';
+      if (!res.ok) {
+        if (contentType.includes('application/json')) {
+          const errData = await res.json().catch(() => ({}));
+          return { success: false, message: errData.message || `অনুরোধ ব্যর্থ (${res.status})` };
+        }
+        return { success: false, message: `সার্ভার ত্রুটি (${res.status}): রুট পাওয়া যায়নি` };
+      }
+      if (!contentType.includes('application/json')) {
+        return { success: false, message: 'সার্ভার থেকে অপ্রত্যাশিত রেসপন্স' };
+      }
       return await res.json();
     } catch (err: any) {
       return { success: false, message: err.message || 'নেটওয়ার্ক সমস্যা' };
