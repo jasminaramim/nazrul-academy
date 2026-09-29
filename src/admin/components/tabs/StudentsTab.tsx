@@ -4,7 +4,7 @@ import { GlobalConfig, HeroSlide, TeacherMessage, StatsData, CustomStatItem, Stu
 import { BdtIcon } from '../../../shared/components/BdtIcon';
 import { ImageUploader } from '../../../shared/components/ImageUploader';
 
-import { Search, Plus, Edit2, Trash2, Check, Eye } from 'lucide-react';
+import { Search, Plus, Edit2, Trash2, Check, Eye, IdCard, Download, Loader2 } from 'lucide-react';
 import { StudentDetailModal } from '../../../frontend/components/StudentDetailModal';
 import { BatchDropdown } from '../../../shared/components/BatchDropdown';
 import * as htmlToImage from 'html-to-image';
@@ -38,9 +38,12 @@ const generateBatchOptions = () => {
 export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig, editingStudent, setEditingStudent, studentSearch, setStudentSearch, studentBatchFilter, setStudentBatchFilter, flashMessage, loadAllData }) => {
   const [viewingStudent, setViewingStudent] = useState<Student | null>(null);
   const [approvingStudent, setApprovingStudent] = useState<Student | null>(null);
+  const [viewingCardStudent, setViewingCardStudent] = useState<Student | null>(null);
+  const [isDownloadingCard, setIsDownloadingCard] = useState(false);
   const [isApproving, setIsApproving] = useState(false);
   const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
   const cardRef = React.useRef<HTMLDivElement>(null);
+  const viewCardRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <>
@@ -192,6 +195,15 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                                   title="অনুমোদন করুন"
                                 >
                                   <Check className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                              {s.status === 'approved' && (
+                                <button
+                                  onClick={() => setViewingCardStudent(s)}
+                                  className="p-1.5 text-purple-600 hover:bg-purple-50 rounded"
+                                  title="আইডি কার্ড দেখুন"
+                                >
+                                  <IdCard className="w-3.5 h-3.5" />
                                 </button>
                               )}
                               <button
@@ -421,6 +433,65 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
             {approvingStudent && globalConfig && (
               <div className="absolute top-[-9999px] left-[-9999px]">
                 <StudentCardTemplate ref={cardRef} student={approvingStudent} globalConfig={globalConfig} />
+              </div>
+            )}
+
+            {/* View & Download ID Card Modal */}
+            {viewingCardStudent && globalConfig && (
+              <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-2xl w-full flex flex-col items-center relative">
+                  <button
+                    onClick={() => setViewingCardStudent(null)}
+                    className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-full transition-colors"
+                  >
+                    ✕
+                  </button>
+                  <h3 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+                    <IdCard className="w-6 h-6 text-[#00732A]" />
+                    শিক্ষার্থীর আইডি কার্ড
+                  </h3>
+                  
+                  <div className="w-[300px] h-[475px] relative overflow-hidden rounded-xl shadow-2xl border border-slate-200 bg-slate-50">
+                    <div className="absolute top-0 left-0 transform scale-50 origin-top-left">
+                      <StudentCardTemplate ref={viewCardRef} student={viewingCardStudent} globalConfig={globalConfig} />
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex gap-4 w-full px-8">
+                    <button
+                      onClick={async () => {
+                        if (!viewCardRef.current) return;
+                        setIsDownloadingCard(true);
+                        try {
+                          const dataUrl = await htmlToImage.toJpeg(viewCardRef.current, { quality: 0.95, pixelRatio: 3 });
+                          const link = document.createElement('a');
+                          link.download = `ID_Card_${viewingCardStudent.id.replace('std-', '')}.jpg`;
+                          link.href = dataUrl;
+                          link.click();
+                          flashMessage('আইডি কার্ড ডাউনলোড শুরু হয়েছে');
+                        } catch (err: any) {
+                          alert('ডাউনলোড করতে সমস্যা হয়েছে: ' + err.message);
+                        } finally {
+                          setIsDownloadingCard(false);
+                        }
+                      }}
+                      disabled={isDownloadingCard}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-[#00732A] hover:bg-[#005c21] transition-colors flex justify-center items-center gap-2 shadow-lg shadow-emerald-200 disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {isDownloadingCard ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          প্রসেস হচ্ছে...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="w-5 h-5" />
+                          কার্ড ডাউনলোড করুন (JPG)
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
     </>

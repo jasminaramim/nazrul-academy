@@ -519,7 +519,7 @@ export const SettingsTab: React.FC<SettingsTabProps> = ({ globalConfig, setGloba
                   <div className="flex flex-col">
                     <label className="text-xs font-bold text-slate-700 block mb-2">কার্ড প্রিভিউ (লাইভ)</label>
                     <div className="flex-1 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-center p-4">
-                      <div className="w-[300px] h-[425px] relative overflow-hidden rounded-xl shadow-lg border border-slate-200">
+                      <div className="w-[300px] h-[475px] relative overflow-hidden rounded-xl shadow-lg border border-slate-200">
                         <div className="absolute top-0 left-0 transform scale-50 origin-top-left">
                           <StudentCardTemplate student={mockStudentPreview} globalConfig={globalConfig} />
                         </div>
