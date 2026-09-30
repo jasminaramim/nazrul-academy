@@ -216,13 +216,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                                 <Edit2 className="w-3.5 h-3.5" />
                               </button>
                               <button
-                                onClick={async () => {
-                                  if (confirm(`আপনি কি "${s.name}" কে তালিকা থেকে মুছে ফেলতে চান?`)) {
-                                    await apiService.deleteStudent(s.id);
-                                    flashMessage('শিক্ষার্থী ডিলিট করা হয়েছে');
-                                    loadAllData();
-                                  }
-                                }}
+                                onClick={() => setStudentToDelete(s)}
                                 className="p-1.5 text-red-600 hover:bg-red-50 rounded"
                                 title="মুছে ফেলুন"
                               >
@@ -371,6 +365,49 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
               onClose={() => setViewingStudent(null)}
               isAdminView={true}
             />
+
+            {/* Delete Confirmation Modal */}
+            {studentToDelete && (
+              <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                <div className="bg-white rounded-3xl p-6 shadow-2xl max-w-sm w-full flex flex-col items-center text-center">
+                  <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                    <Trash2 className="w-8 h-8 text-red-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 mb-2">শিক্ষার্থী মুছে ফেলুন</h3>
+                  <p className="text-sm text-slate-500 mb-6 font-medium">
+                    আপনি কি সত্যিই <span className="font-bold text-slate-900">{studentToDelete.name}</span>-কে তালিকা থেকে মুছে ফেলতে চান?
+                  </p>
+                  <div className="flex gap-3 w-full">
+                    <button
+                      onClick={() => setStudentToDelete(null)}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+                      disabled={isDeleting}
+                    >
+                      বাতিল
+                    </button>
+                    <button
+                      onClick={async () => {
+                        setIsDeleting(true);
+                        try {
+                          await apiService.deleteStudent(studentToDelete.id);
+                          flashMessage('শিক্ষার্থী সফলভাবে মুছে ফেলা হয়েছে');
+                          loadAllData();
+                          setStudentToDelete(null);
+                        } catch (err: any) {
+                          flashMessage('সমস্যা হয়েছে: ' + err.message, true);
+                        } finally {
+                          setIsDeleting(false);
+                        }
+                      }}
+                      className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-red-600 hover:bg-red-700 transition-colors flex justify-center items-center"
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? 'অপেক্ষা করুন...' : 'হ্যাঁ, মুছে ফেলুন'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Approval Dialog */}
             {approvingStudent && (
