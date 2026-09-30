@@ -4,13 +4,14 @@ import { Student, GlobalConfig } from '../../shared/types';
 interface StudentCardTemplateProps {
   student: Student;
   globalConfig: GlobalConfig;
+  isAdminDownload?: boolean;
 }
 
 // Standard ID card ratio: 85.6mm × 54mm → aspect ratio ≈ 1.586:1 (portrait flip → ~0.63:1)
 // We use 600×950 portrait format (0.63 aspect ratio) for a professional look.
 
 export const StudentCardTemplate = forwardRef<HTMLDivElement, StudentCardTemplateProps>(
-  ({ student, globalConfig }, ref) => {
+  ({ student, globalConfig, isAdminDownload }, ref) => {
     const userImage =
       student.image ||
       `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(student.name)}`;
@@ -63,11 +64,7 @@ export const StudentCardTemplate = forwardRef<HTMLDivElement, StudentCardTemplat
           <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             {/* Left: REG + subtitle1 */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 6, width: '28%' }}>
-              <div style={{ background: 'rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.15)', padding: '4px 10px', borderRadius: 8 }}>
-                <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: '#6ee7b7', letterSpacing: '0.05em' }}>
-                  REG: {student.id.replace('std-', '')}
-                </p>
-              </div>
+
               <div style={{ background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', padding: '5px 10px', borderRadius: 10 }}>
                 <p style={{ margin: 0, fontSize: 10, fontWeight: 700, color: 'rgba(254,243,199,0.85)', textTransform: 'uppercase', letterSpacing: '0.05em', lineHeight: 1.3 }}>
                   {globalConfig.cardSubtitle1 || 'আমরা গর্বিত'}
@@ -158,6 +155,17 @@ export const StudentCardTemplate = forwardRef<HTMLDivElement, StudentCardTemplat
 
           {/* ── FOOTER ── */}
           <div style={{ marginTop: 40, paddingTop: 18, width: '100%' }}>
+            
+            {/* Admin Manual Registration Number Box */}
+            {isAdminDownload && (
+              <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
+                <div style={{ background: 'rgba(255,255,255,0.95)', border: '2px solid #fbbf24', borderRadius: 8, padding: '8px 24px', display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 10px rgba(0,0,0,0.3)' }}>
+                  <span style={{ fontSize: 20, fontWeight: 800, color: '#064e3b' }}>Reg:</span>
+                  <div style={{ width: 200, height: 2, background: 'rgba(0,0,0,0.3)', borderBottom: '2px dotted #064e3b', marginTop: 14 }}></div>
+                </div>
+              </div>
+            )}
+
             {/* Quote */}
             <div style={{ position: 'relative', marginBottom: 14, paddingLeft: 16, paddingRight: 16 }}>
               <p style={{ margin: 0, fontSize: 14, fontStyle: 'italic', fontWeight: 500, color: 'rgba(209,250,229,0.9)', textAlign: 'center', lineHeight: 1.5 }}>

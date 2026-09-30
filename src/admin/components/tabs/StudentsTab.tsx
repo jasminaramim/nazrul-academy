@@ -453,7 +453,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                   
                   <div className="w-[300px] h-[475px] relative overflow-hidden rounded-xl shadow-2xl border border-slate-200 bg-slate-50">
                     <div className="absolute top-0 left-0 transform scale-50 origin-top-left">
-                      <StudentCardTemplate ref={viewCardRef} student={viewingCardStudent} globalConfig={globalConfig} />
+                      <StudentCardTemplate ref={viewCardRef} student={viewingCardStudent} globalConfig={globalConfig} isAdminDownload={true} />
                     </div>
                   </div>
 
