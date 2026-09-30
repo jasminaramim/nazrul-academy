@@ -18,7 +18,7 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
         </div>
         
         <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 leading-tight">
-          আপনি কি {globalConfig.eventName}-এ আপনার আসন নিশ্চিত করেছেন?
+          আপনি কি আপনার রেজিস্ট্রেশন নিশ্চিত করেছেন?
         </h2>
         
         <p className="text-emerald-100 text-sm md:text-base mb-10 max-w-2xl mx-auto">
@@ -119,7 +119,7 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
             <div className="space-y-4 text-sm text-emerald-100/80">
               <div className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-                <span>ত্রিশাল সরকারি নজরুল একাডেমি প্রাঙ্গণ, ত্রিশাল,<br/>ময়মনসিংহ-২২২০, বাংলাদেশ</span>
+                <span>{globalConfig.address || 'ত্রিশাল সরকারি নজরুল একাডেমি প্রাঙ্গণ, ত্রিশাল, ময়মনসিংহ-২২২০, বাংলাদেশ'}</span>
               </div>
               <div className="flex items-start gap-3">
                 <Phone className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
@@ -147,11 +147,11 @@ export const Footer: React.FC<FooterProps> = ({ globalConfig, onNavigate }) => {
             
             {/* Left side: Copyright & Organizer */}
             <div className="flex flex-col items-center md:items-start gap-2.5 text-center md:text-left">
-              <p className="leading-relaxed">© ২০২৬ নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি।<br className="hidden sm:block md:hidden" /> সর্বস্বত্ব সংরক্ষিত।</p>
+              <p className="leading-relaxed">© ২০২৬ নজরুল একাডেমি অ্যালামনাই পুনর্মিলনী উদযাপন কমিটি।<br className="hidden sm:block md:hidden" /> সর্বস্বত্ব সংরক্ষিত।</p>
               <div className="flex flex-wrap items-center justify-center md:justify-start gap-x-1.5 gap-y-1">
                 <span>উদ্যোগে ও বাস্তবায়নে:</span>
                 <Heart className="w-3.5 h-3.5 text-red-500 fill-red-500 shrink-0" />
-                <span className="font-medium text-emerald-100/80">নজরুল একাডেমি অ্যালামনাই পূর্ণ মিলন উদযাপন কমিটি</span>
+                <span className="font-medium text-emerald-100/80">নজরুল একাডেমি অ্যালামনাই পুনর্মিলনী উদযাপন কমিটি</span>
               </div>
             </div>
 

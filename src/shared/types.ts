@@ -49,12 +49,25 @@ export interface CustomStatItem {
   order?: number;
 }
 
+export interface Reunion {
+  id: string;
+  title: string;
+  year: number;
+  isActive: boolean;
+}
+
 export interface StatsData {
   registeredStudents: number;
   festivalDate: string; // e.g. "২০২৬-০৩-২৬"
   festivalTime: string; // e.g. "সকাল ০৯:০০ টা"
   festivalTitle?: string;
   customStats?: CustomStatItem[];
+}
+export interface Reunion {
+  id: string;
+  title: string;
+  year: number;
+  isActive: boolean;
 }
 
 export interface Student {
@@ -78,6 +91,7 @@ export interface Student {
   transactionId?: string;
   paymentMethod?: string;
   createdAt?: string;
+  reunionId?: string;
 }
 
 export interface FinanceTransaction {
@@ -89,6 +103,7 @@ export interface FinanceTransaction {
   date: string;
   voucherNo?: string;
   note?: string;
+  fundSource?: string;
 }
 
 export interface FinanceSummary {
@@ -105,6 +120,7 @@ export interface FinanceSummary {
     expenseCategories: { category: string; amount: number }[];
   };
   transactions?: FinanceTransaction[];
+  reunionId?: string;
 }
 
 export interface Notice {

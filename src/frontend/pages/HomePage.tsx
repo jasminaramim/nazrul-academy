@@ -31,6 +31,7 @@ interface HomePageProps {
   statsData: StatsData;
   students: Student[];
   finance: FinanceSummary;
+  globalFinance?: any;
   notices: Notice[];
   schedule: ScheduleItem[];
   culturalSchedule: CulturalItem[];
@@ -51,6 +52,7 @@ export const HomePage: React.FC<HomePageProps> = ({
   statsData,
   students,
   finance,
+  globalFinance,
   notices,
   schedule,
   culturalSchedule,
@@ -95,7 +97,8 @@ export const HomePage: React.FC<HomePageProps> = ({
       />
 
       {/* আর্থিক চিত্র (Financial Condition) */}
-      <FinanceSection finance={finance} />
+      <FinanceSection finance={finance}
+        globalFinance={globalFinance} />
 
       {/* সর্বশেষ নোটিশ (Notice) */}
       <NoticeSection

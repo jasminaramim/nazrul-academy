@@ -79,6 +79,7 @@ function MainAppContent() {
   const [statsData, setStatsData] = useState<StatsData>(initialStatsData);
   const [students, setStudents] = useState<Student[]>(initialStudents);
   const [finance, setFinance] = useState<FinanceSummary>(initialFinanceSummary);
+  const [globalFinance, setGlobalFinance] = useState<any>(null);
   const [notices, setNotices] = useState<Notice[]>(initialNotices);
   const [schedule, setSchedule] = useState<ScheduleItem[]>(initialSchedule);
   const [culturalSchedule, setCulturalSchedule] = useState<CulturalItem[]>(initialCulturalSchedule);
@@ -103,6 +104,7 @@ function MainAppContent() {
         gal,
         mag,
         upEvents,
+        gFin,
       ] = await Promise.all([
         apiService.getGlobalConfig(),
         apiService.getHeroSlides(),
@@ -117,6 +119,8 @@ function MainAppContent() {
         apiService.getGallery(),
         apiService.getMagazineArticles(),
         apiService.getUpcomingEvents(),
+        apiService.getGlobalFinance(),
+        apiService.getGlobalFinance(),
       ]);
 
       setGlobalConfig(gConf);
@@ -132,6 +136,8 @@ function MainAppContent() {
       setGallery(gal);
       setMagazineArticles(mag);
       setUpcomingEvents(upEvents);
+      setGlobalFinance(gFin);
+      setGlobalFinance(gFin);
     } catch (err) {
       console.error('Error fetching website data:', err);
     } finally {
@@ -234,6 +240,7 @@ function MainAppContent() {
             statsData={statsData}
             students={students}
             finance={finance}
+            globalFinance={globalFinance}
             notices={notices}
             schedule={schedule}
             culturalSchedule={culturalSchedule}

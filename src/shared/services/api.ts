@@ -16,6 +16,7 @@ import {
   UpcomingEvent,
   EmailLog,
   EmailStats,
+  Reunion,
 } from '../types';
 import {
   initialGlobalConfig,
@@ -83,6 +84,39 @@ export const apiService = {
       return await res.json();
     } catch (err: any) {
       return { success: false, message: err.message || 'নেটওয়ার্ক সমস্যা' };
+    }
+  },
+
+  reunions: {
+    getAll: async (): Promise<any[]> => {
+      try {
+        const res = await fetch(`${BASE_URL}/reunions`);
+        if (!res.ok) return [];
+        return await res.json();
+      } catch { return []; }
+    },
+    getActive: async (): Promise<any | null> => {
+      try {
+        const res = await fetch(`${BASE_URL}/reunions/active`);
+        if (!res.ok) return null;
+        return await res.json();
+      } catch { return null; }
+    },
+    create: async (data: Partial<any>): Promise<any> => {
+      const res = await fetch(`${BASE_URL}/reunions`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return await handleResponse<any>(res, {} as any);
+    },
+    update: async (id: string, data: Partial<any>): Promise<any> => {
+      const res = await fetch(`${BASE_URL}/reunions/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data),
+      });
+      return await handleResponse<any>(res, {} as any);
     }
   },
 
@@ -247,15 +281,24 @@ export const apiService = {
   },
 
   // Financial Condition
-  async getFinance(): Promise<FinanceSummary> {
+  async getFinance(reunionId?: string): Promise<FinanceSummary> {
     try {
-      const res = await fetch(`${BASE_URL}/finance`);
+      const url = reunionId ? `${BASE_URL}/finance?reunionId=${reunionId}` : `${BASE_URL}/finance`;
+      const res = await fetch(url);
       return await handleResponse<FinanceSummary>(res, initialFinanceSummary);
     } catch {
       return initialFinanceSummary;
     }
   },
-  async updateFinance(data: Partial<FinanceSummary>): Promise<FinanceSummary> {
+  async getGlobalFinance(): Promise<any> {
+    try {
+      const res = await fetch(`${BASE_URL}/finance/global`);
+      return await handleResponse<any>(res, {});
+    } catch {
+      return {};
+    }
+  },
+  async updateFinance(data: Partial<FinanceSummary> & { reunionId?: string }): Promise<FinanceSummary> {
     const res = await fetch(`${BASE_URL}/finance`, {
       method: 'PUT',
       headers: getAuthHeaders(),

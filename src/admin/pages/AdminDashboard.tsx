@@ -15,6 +15,7 @@ import { MongodbTab } from '../components/tabs/MongodbTab';
 import { SettingsTab } from '../components/tabs/SettingsTab';
 import { UpcomingEventsTab } from '../components/tabs/UpcomingEventsTab';
 import { EmailLogsTab } from '../components/tabs/EmailLogsTab';
+import { ReunionTab } from '../components/tabs/ReunionTab';
 import React, { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
@@ -123,9 +124,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   const [globalConfig, setGlobalConfig] = useState<GlobalConfig | null>(null);
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [teacherMessages, setTeacherMessages] = useState<TeacherMessage[]>([]);
+  const [reunions, setReunions] = useState<any[]>([]);
   const [statsData, setStatsData] = useState<StatsData | null>(null);
   const [students, setStudents] = useState<Student[]>([]);
   const [finance, setFinance] = useState<FinanceSummary | null>(null);
+  const [globalFinance, setGlobalFinance] = useState<any>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [schedule, setSchedule] = useState<ScheduleItem[]>([]);
   const [culturalSchedule, setCulturalSchedule] = useState<CulturalItem[]>([]);
@@ -206,6 +209,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         adm,
         mStat,
         upEvents,
+        gFin,
       ] = await Promise.all([
         apiService.getGlobalConfig(),
         apiService.getHeroSlides(),
@@ -222,6 +226,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         apiService.getAdminInfo(),
         apiService.getMongoStatus(),
         apiService.getUpcomingEvents(),
+        apiService.getGlobalFinance(),
+        apiService.reunions.getAll(),
       ]);
 
       setGlobalConfig(gConf);
@@ -239,6 +245,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
       setAdminInfo(adm);
       setMongoStatus(mStat);
       setUpcomingEvents(upEvents);
+      setGlobalFinance(gFin);
+      apiService.reunions.getAll().then(setReunions).catch(() => setReunions([]));
     } catch (err: any) {
       flashMessage('ডাটা লোড করতে সমস্যা হয়েছে: ' + err.message, true);
     } finally {
@@ -311,7 +319,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   };
 
   const copyAdminDetails = () => {
-    navigator.clipboard.writeText('Username: jasmin\nPassword: jasmin1142005\nAdmin URL: /admin');
+    navigator.clipboard.writeText('Username: jasmin\\nPassword: jasmin1142005\\nAdmin URL: /admin');
     setCopiedCreds(true);
     setTimeout(() => setCopiedCreds(false), 2000);
   };
@@ -657,6 +665,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   }
 
   const menuItems = [
+    { id: 'reunions', label: 'পুনর্মিলনী সমূহ', icon: Calendar },
     { id: 'overview', label: 'ওভারভিউ ড্যাশবোর্ড', icon: LayoutDashboard },
     { id: 'mongodb', label: 'MongoDB ডাটাবেজ (Cloud)', icon: Database, badge: mongoStatus.connected ? 'সংযুক্ত' : 'অফলাইন' },
     { id: 'hero', label: 'হিরো স্লাইডার (Hero)', icon: Sliders, badge: heroSlides.length ? `${heroSlides.length}` : undefined },
@@ -856,7 +865,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
         {/* Main Content Area */}
         <div className="p-6 space-y-6 flex-1">
           {/* ===================== TAB 1: OVERVIEW ===================== */}
-          {activeTab === 'overview' && <OverviewTab heroSlides={heroSlides} statsData={statsData} students={students} finance={finance} notices={notices} setActiveTab={setActiveTab} />}
+          {activeTab === 'overview' && <OverviewTab heroSlides={heroSlides} statsData={statsData} students={students} finance={finance}
+          globalFinance={globalFinance} notices={notices} setActiveTab={setActiveTab} reunions={reunions} />}
 
           {/* ===================== TAB 2: HERO SLIDER ===================== */}
           {activeTab === 'hero' && <HeroTab heroSlides={heroSlides} editingSlide={editingSlide} setEditingSlide={setEditingSlide} flashMessage={flashMessage} loadAllData={loadAllData} />}
@@ -871,7 +881,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
           {activeTab === 'students' && <StudentsTab students={students} globalConfig={globalConfig} editingStudent={editingStudent} setEditingStudent={setEditingStudent} studentSearch={studentSearch} setStudentSearch={setStudentSearch} studentBatchFilter={studentBatchFilter} setStudentBatchFilter={setStudentBatchFilter} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
           {/* ===================== TAB 6: FINANCIAL CONDITION ===================== */}
-          {activeTab === 'finance' && <FinanceTab finance={finance} setFinance={setFinance} setEditingTransaction={setEditingTransaction} transactionFilter={transactionFilter} setTransactionFilter={setTransactionFilter} transactionSearch={transactionSearch} setTransactionSearch={setTransactionSearch} flashMessage={flashMessage} loadAllData={loadAllData} />}
+          {activeTab === 'finance' && <FinanceTab reunions={reunions} finance={finance} setFinance={setFinance} setEditingTransaction={setEditingTransaction} transactionFilter={transactionFilter} setTransactionFilter={setTransactionFilter} transactionSearch={transactionSearch} setTransactionSearch={setTransactionSearch} flashMessage={flashMessage} loadAllData={loadAllData} />}
 
           {/* ===================== TAB 7: NOTICES ===================== */}
           {activeTab === 'notices' && <NoticesTab notices={notices} editingNotice={editingNotice} setEditingNotice={setEditingNotice} flashMessage={flashMessage} loadAllData={loadAllData} />}
@@ -888,6 +898,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
           )}
 
           {/* ===================== TAB EMAIL LOGS & DELIVERY ===================== */}
+          {activeTab === 'reunions' && <ReunionTab />}
           {activeTab === 'emails' && (
             <EmailLogsTab flashMessage={flashMessage} />
           )}
@@ -1302,6 +1313,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                     </select>
                   </div>
 
+                  <div className="sm:col-span-2">
+                    <label className="text-xs font-bold text-slate-700 block mb-1">
+                      {editingTransaction.type === 'income' ? 'কোথায় জমা হচ্ছে? (Fund Destination) *' : 'কোথা থেকে ব্যয় হচ্ছে? (Fund Source) *'}
+                    </label>
+                    <select
+                      value={editingTransaction.fundSource || 'other'}
+                      onChange={(e) =>
+                        setEditingTransaction({
+                          ...editingTransaction,
+                          fundSource: e.target.value as 'registration' | 'donation' | 'other',
+                        })
+                      }
+                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
+                    >
+                      <option value="other">অন্যান্য সাধারণ তহবিল (Other Fund)</option>
+                      <option value="registration">নিবন্ধন তহবিল (Registration Fund)</option>
+                      <option value="donation">অনুদান তহবিল (Donation Fund)</option>
+                    </select>
+                  </div>
+
                   <div>
                     <label className="text-xs font-bold text-slate-700 block mb-1">
                       টাকার পরিমাণ (টাকা) *
@@ -1440,3 +1471,4 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     </div>
   );
 };
+

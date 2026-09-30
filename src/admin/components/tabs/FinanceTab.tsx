@@ -8,6 +8,7 @@ import { ImageUploader } from '../../../shared/components/ImageUploader';
 import { Save, Receipt, Plus, Search, Edit2, Trash2, TrendingUp, TrendingDown } from 'lucide-react';
 
 interface FinanceTabProps {
+  reunions: any[];
   finance: any;
   setFinance: any;
   setEditingTransaction: any;
@@ -19,7 +20,26 @@ interface FinanceTabProps {
   loadAllData: any;
 }
 
-export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, setEditingTransaction, transactionFilter, setTransactionFilter, transactionSearch, setTransactionSearch, flashMessage, loadAllData }) => {
+export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFinance, setEditingTransaction, transactionFilter, setTransactionFilter, transactionSearch, setTransactionSearch, flashMessage, loadAllData }) => {
+  const [selectedReunionId, setSelectedReunionId] = useState<string>('');
+  
+  React.useEffect(() => {
+    if (!selectedReunionId && reunions?.length) {
+      const active = reunions.find(r => r.isActive);
+      if (active) setSelectedReunionId(active.id);
+      else setSelectedReunionId(reunions[0].id);
+    }
+  }, [reunions]);
+
+  const handleReunionChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const rId = e.target.value;
+    setSelectedReunionId(rId);
+    try {
+      const data = await apiService.getFinance(rId);
+      setFinance(data);
+    } catch (err) {}
+  };
+
   return (
     <>
       <div className="space-y-6">
@@ -29,6 +49,14 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                   <div>
                     <h3 className="text-sm font-bold text-slate-900">
                       পুনর্মিলনীর সামগ্রিক আর্থিক চিত্র ও তহবিল স্থিতি
+                    </h3>
+                    <div className="mt-2">
+                      <select value={selectedReunionId} onChange={handleReunionChange} className="border rounded px-2 py-1 text-sm bg-slate-50 border-slate-300">
+                        <option value="">সকল/ডিফল্ট</option>
+                        {reunions?.map(r => <option key={r.id} value={r.id}>{r.title} ({r.year})</option>)}
+                      </select>
+                    </div>
+                    <h3 className="hidden">
                     </h3>
                     <p className="text-xs text-slate-500 mt-0.5">
                       মোট আয়, মোট ব্যয় এবং উদ্বৃত্ত তহবিল পরিমাণ নিয়ন্ত্রণ করুন
@@ -83,40 +111,124 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
-                    <label className="text-xs font-bold text-emerald-900 block mb-1">
-                      মোট আয় (টাকা)
-                    </label>
-                    <input
-                      type="number"
-                      value={finance.totalIncome}
-                      readOnly
-                      className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
-                    />
-                  </div>
+                {(() => {
+                  const regIncome = finance?.breakdown?.registrationFees || 0;
+                  
+                  let manualOtherIncome = 0;
+                  let donExp = 0;
+                  let regExpense = 0;
+                  let otherExpense = 0;
+                  
+                  if (finance?.transactions) {
+                    finance.transactions.forEach((t: any) => {
+                      if (t.type === 'income') {
+                        if (t.fundSource !== 'donation') manualOtherIncome += Number(t.amount);
+                      } else if (t.type === 'expense') {
+                        if (t.fundSource === 'donation') donExp += Number(t.amount);
+                        else if (t.fundSource === 'registration') regExpense += Number(t.amount);
+                        else otherExpense += Number(t.amount);
+                      }
+                    });
+                  }
+                  
+                  // Use the global donation fund supplied by backend
+                  const currentDonationFund = finance?.globalDonationFund || 0;
+                  const totalDonationSoFar = finance?.globalTotalDonationIncome || 0;
+                  
+                  // Add donation spending for this event to Total Income so balance doesn't go negative
+                  const grandTotalIncome = regIncome + manualOtherIncome;
+                  const grandTotalExpense = regExpense + donExp + otherExpense;
+                  // Balance excludes donation expenses because they are covered by the central donation fund
+                  const grandBalance = grandTotalIncome - (regExpense + otherExpense);
 
-                  <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
-                    <label className="text-xs font-bold text-rose-900 block mb-1">
-                      মোট ব্যয় (টাকা)
-                    </label>
-                    <input
-                      type="number"
-                      value={finance.totalExpense}
-                      readOnly
-                      className="w-full px-3 py-2 text-sm rounded-xl border border-rose-300 font-black text-rose-800 bg-rose-50 cursor-not-allowed"
-                    />
-                  </div>
+                  return (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      
+                      <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200">
+                        <label className="text-xs font-bold text-blue-900 block mb-1">
+                          নিবন্ধন থেকে আয়
+                        </label>
+                        <input
+                          type="text"
+                          value={formatTaka(regIncome)}
+                          readOnly
+                          className="w-full px-3 py-2 text-sm rounded-xl border border-blue-300 font-black text-blue-800 bg-blue-50 cursor-not-allowed"
+                        />
+                      </div>
+                      
+                      <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-200 relative overflow-hidden">
+                        <label className="text-xs font-bold text-indigo-900 block mb-1">
+                          মোট অনুদান (এ যাবৎ)
+                        </label>
+                        <input
+                          type="text"
+                          value={formatTaka(totalDonationSoFar)}
+                          readOnly
+                          className="w-full px-3 py-2 text-sm rounded-xl border border-indigo-300 font-black text-indigo-800 bg-indigo-50 cursor-not-allowed"
+                        />
+                        <span className="absolute bottom-1 right-3 text-[9px] text-indigo-400">খরচ সহ মোট প্রাপ্তি</span>
+                      </div>
 
-                  <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 flex flex-col justify-between">
-                    <span className="text-xs font-bold text-amber-900 block mb-1">
-                      তহবিল উদ্বৃত্ত (Balance)
-                    </span>
-                    <div className="px-3 py-2 bg-white rounded-xl border border-amber-300 text-base font-black text-amber-700">
-                      {formatTaka(finance.totalIncome - finance.totalExpense)}
+                      <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 relative overflow-hidden">
+                        <label className="text-xs font-bold text-emerald-900 block mb-1">
+                          বর্তমান অনুদান তহবিল
+                        </label>
+                        <input
+                          type="text"
+                          value={formatTaka(currentDonationFund)}
+                          readOnly
+                          className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
+                        />
+                        <span className="absolute bottom-1 right-3 text-[9px] text-emerald-400">ব্যয় বাদ দিয়ে</span>
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-200">
+                        <label className="text-xs font-bold text-purple-900 block mb-1">
+                          অন্যান্য খাত থেকে আয়
+                        </label>
+                        <input
+                          type="text"
+                          value={formatTaka(manualOtherIncome)}
+                          readOnly
+                          className="w-full px-3 py-2 text-sm rounded-xl border border-purple-300 font-black text-purple-800 bg-purple-50 cursor-not-allowed"
+                        />
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
+                        <label className="text-xs font-bold text-emerald-900 block mb-1">
+                          সর্বমোট আয় (টাকা)
+                        </label>
+                        <input
+                          type="text"
+                          value={formatTaka(grandTotalIncome)}
+                          readOnly
+                          className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
+                        />
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
+                        <label className="text-xs font-bold text-rose-900 block mb-1">
+                          সর্বমোট ব্যয় (টাকা)
+                        </label>
+                        <input
+                          type="text"
+                          value={formatTaka(grandTotalExpense)}
+                          readOnly
+                          className="w-full px-3 py-2 text-sm rounded-xl border border-rose-300 font-black text-rose-800 bg-rose-50 cursor-not-allowed"
+                        />
+                      </div>
+
+                      <div className="p-4 rounded-xl bg-yellow-50/60 border border-yellow-200 flex flex-col justify-between">
+                        <span className="text-xs font-bold text-yellow-900 block mb-1">
+                          প্রকৃত তহবিল উদ্বৃত্ত (Balance)
+                        </span>
+                        <div className="px-3 py-2 bg-white rounded-xl border border-yellow-300 text-base font-black text-yellow-700">
+                          {formatTaka(grandBalance)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
 
               {/* Transactions Ledger Management */}
@@ -248,7 +360,12 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                                 <span className="font-bold text-slate-800 block">{tx.title}</span>
                                 {tx.note && <span className="text-[11px] text-slate-400">{tx.note}</span>}
                               </td>
-                              <td className="p-3 text-slate-600">{tx.category}</td>
+                              <td className="p-3 text-slate-600">
+                                {tx.category}
+                                <span className="block mt-1 text-[10px] font-bold px-1.5 py-0.5 rounded-sm bg-slate-100 w-fit text-slate-500">
+                                  {tx.fundSource === 'registration' ? 'নিবন্ধন তহবিল' : tx.fundSource === 'donation' ? 'অনুদান তহবিল' : 'অন্যান্য তহবিল'}
+                                </span>
+                              </td>
                               <td className="p-3">
                                 <span
                                   className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
@@ -315,178 +432,7 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ finance, setFinance, set
                   </table>
                 </div>
               </div>
-
-              {/* Breakdown Category Editors */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-2xs space-y-5">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-900">
-                      আয় ও ব্যয়ের খাত বিবরণী (Category Breakdown)
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-0.5">
-                      ব্যবহারকারী যখন 'বিস্তারিত দেখুন' ক্লিক করবে তখন প্রদর্শিত খাতসমূহ
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      await apiService.updateFinance(finance);
-                      flashMessage('খাত বিবরণী সংরক্ষিত হয়েছে');
-                    }}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-[#00732A] hover:bg-[#005c21] text-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
-                  >
-                    <Save className="w-4 h-4" />
-                    <span>খাত বিবরণী সংরক্ষণ</span>
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Income details */}
-                  <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50/30 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-[#00732A] flex items-center gap-1">
-                        <TrendingUp className="w-3.5 h-3.5" />
-                        <span>আয়ের খাতসমূহ</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = finance.breakdown?.incomeCategories || [];
-                          const updated = [...current, { category: 'নতুন আয়ের খাত', amount: 0 }];
-                          setFinance({
-                            ...finance,
-                            breakdown: { ...finance.breakdown, incomeCategories: updated },
-                          });
-                        }}
-                        className="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 bg-emerald-100 px-2 py-0.5 rounded cursor-pointer"
-                      >
-                        + নতুন খাত যোগ
-                      </button>
-                    </div>
-
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                      {finance.breakdown?.incomeCategories?.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={item.category}
-                            onChange={(e) => {
-                              const updated = [...(finance.breakdown?.incomeCategories || [])];
-                              updated[idx].category = e.target.value;
-                              setFinance({
-                                ...finance,
-                                breakdown: { ...finance.breakdown, incomeCategories: updated },
-                              });
-                            }}
-                            className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white"
-                          />
-                          <input
-                            type="number"
-                            value={item.amount}
-                            onChange={(e) => {
-                              const updated = [...(finance.breakdown?.incomeCategories || [])];
-                              updated[idx].amount = Number(e.target.value);
-                              setFinance({
-                                ...finance,
-                                breakdown: { ...finance.breakdown, incomeCategories: updated },
-                              });
-                            }}
-                            className="w-24 sm:w-28 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 font-bold bg-white text-emerald-800"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updated = (finance.breakdown?.incomeCategories || []).filter(
-                                (_, i) => i !== idx
-                              );
-                              setFinance({
-                                ...finance,
-                                breakdown: { ...finance.breakdown, incomeCategories: updated },
-                              });
-                            }}
-                            className="p-1 text-rose-500 hover:bg-rose-50 rounded"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Expense details */}
-                  <div className="p-4 rounded-xl border border-rose-200 bg-rose-50/30 space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-xs font-bold text-[#CA0000] flex items-center gap-1">
-                        <TrendingDown className="w-3.5 h-3.5" />
-                        <span>ব্যয়ের খাতসমূহ</span>
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const current = finance.breakdown?.expenseCategories || [];
-                          const updated = [...current, { category: 'নতুন ব্যয়ের খাত', amount: 0 }];
-                          setFinance({
-                            ...finance,
-                            breakdown: { ...finance.breakdown, expenseCategories: updated },
-                          });
-                        }}
-                        className="text-[11px] font-bold text-rose-800 hover:text-rose-950 bg-rose-100 px-2 py-0.5 rounded cursor-pointer"
-                      >
-                        + নতুন খাত যোগ
-                      </button>
-                    </div>
-
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                      {finance.breakdown?.expenseCategories?.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={item.category}
-                            onChange={(e) => {
-                              const updated = [...(finance.breakdown?.expenseCategories || [])];
-                              updated[idx].category = e.target.value;
-                              setFinance({
-                                ...finance,
-                                breakdown: { ...finance.breakdown, expenseCategories: updated },
-                              });
-                            }}
-                            className="flex-1 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white"
-                          />
-                          <input
-                            type="number"
-                            value={item.amount}
-                            onChange={(e) => {
-                              const updated = [...(finance.breakdown?.expenseCategories || [])];
-                              updated[idx].amount = Number(e.target.value);
-                              setFinance({
-                                ...finance,
-                                breakdown: { ...finance.breakdown, expenseCategories: updated },
-                              });
-                            }}
-                            className="w-24 sm:w-28 px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 font-bold bg-white text-rose-800"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const updated = (finance.breakdown?.expenseCategories || []).filter(
-                                (_, i) => i !== idx
-                              );
-                              setFinance({
-                                ...finance,
-                                breakdown: { ...finance.breakdown, expenseCategories: updated },
-                              });
-                            }}
-                            className="p-1 text-rose-500 hover:bg-rose-50 rounded"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      </div>
     </>
   );
 };

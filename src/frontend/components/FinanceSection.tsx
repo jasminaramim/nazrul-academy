@@ -1,22 +1,70 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Wallet, BarChart3, X, ChevronRight, Banknote, ArrowUpRight, ArrowDownRight, Sparkles } from 'lucide-react';
 import { FinanceSummary } from '../../shared/types';
 import { formatTaka } from '../../shared/utils/formatters';
+import { apiService } from '../../shared/services/api';
 
 interface FinanceSectionProps {
+  globalFinance?: any;
   finance: FinanceSummary;
 }
 
-export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
+export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalFinance }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const [activeReunion, setActiveReunion] = useState<any>(null);
+  const [activeFinance, setActiveFinance] = useState<any>(finance);
 
-  const totalIncome  = finance.totalIncome  || 0;
-  const totalExpense = finance.totalExpense || 0;
-  const balance      = finance.balance      || 0;
+  useEffect(() => {
+    const fetchActive = async () => {
+      try {
+        const reunions = await apiService.reunions.getAll();
+        const active = reunions.find((r: any) => r.isActive);
+        if (active) {
+          setActiveReunion(active);
+          const f = await apiService.getFinance(active.id);
+          setActiveFinance(f);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchActive();
+  }, []);
+
+
+  let totalIncome = activeFinance?.totalIncome || 0;
+  let totalExpense = activeFinance?.totalExpense || 0;
+  let balance = activeFinance?.balance || 0;
+
+  let donExp = 0;
+  let regExp = 0;
+  let othExp = 0;
+  
+  if (activeFinance?.transactions) {
+    let regIncome = activeFinance?.breakdown?.registrationFees || 0;
+    let manualOtherIncome = 0;
+    
+    activeFinance.transactions.forEach((t: any) => {
+      if (t.type === 'income') {
+        if (t.fundSource !== 'donation') manualOtherIncome += Number(t.amount);
+      } else if (t.type === 'expense') {
+        if (t.fundSource === 'donation') donExp += Number(t.amount);
+        else if (t.fundSource === 'registration') regExp += Number(t.amount);
+        else othExp += Number(t.amount);
+      }
+    });
+    
+    totalIncome = regIncome + manualOtherIncome;
+    totalExpense = regExp + donExp + othExp;
+    balance = totalIncome - (regExp + othExp);
+  }
 
   const incomePercent  = totalIncome > 0 ? 100 : 0;
+  // If expense > income, it can be > 100%
   const expensePercent = totalIncome > 0 ? Math.round((totalExpense / totalIncome) * 100) : 0;
-  const balancePercent = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
+  // Balance can be negative, which would mess up the width. We will cap it at 0 for visual purposes.
+  const visualBalancePercent = totalIncome > 0 ? Math.max(0, Math.round((balance / totalIncome) * 100)) : 0;
+  const displayBalancePercent = totalIncome > 0 ? Math.round((balance / totalIncome) * 100) : 0;
 
   return (
     <section className="py-12 sm:py-20 bg-gradient-to-b from-[#F0FAF4] to-white border-b border-slate-100 relative overflow-hidden">
@@ -51,10 +99,10 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
             আর্থিক তথ্য
           </div>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 mb-3">
-            পুনর্মিলনীর <span className="text-[#00732A]">আর্থিক চিত্র</span>
+            পুনর্মিলনীর <span className="text-[#00732A]">আর্থিক চিত্র</span> {activeReunion ? ` - ${activeReunion.title} (${activeReunion.year})` : ''}
           </h2>
           <p className="text-slate-500 text-sm sm:text-base">
-            পুনর্মিলনী আয়োজনের সর্বমোট আর্থিক হিসাব ও তহবিল
+            {activeReunion ? `${activeReunion.title} (${activeReunion.year}) এর আর্থিক হিসাব ও তহবিল` : 'পুনর্মিলনী আয়োজনের সর্বমোট আর্থিক হিসাব ও তহবিল'}
           </p>
           <div className="flex justify-center mt-5 gap-1.5">
             <div className="h-[3px] w-10 rounded-full bg-[#00732A]"></div>
@@ -64,7 +112,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
         </div>
 
         {/* ── Main 3 Cards ── */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-5 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 mb-6">
 
           {/* Income Card */}
           <div className="fin-card relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm overflow-hidden group">
@@ -80,13 +128,66 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
                   <span className="text-[10px] sm:text-xs font-bold text-[#00732A]">{incomePercent}%</span>
                 </div>
               </div>
-              <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">মোট আয়</div>
+              <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">নিবন্ধন থেকে আয়</div>
               <div className="text-lg sm:text-2xl lg:text-3xl font-black text-[#00732A] tracking-tight mb-1">
-                {formatTaka(totalIncome)}
+                {formatTaka(activeFinance?.breakdown?.registrationFees || 0)}
               </div>
-              <div className="text-[10px] sm:text-xs text-slate-400 mb-4">নিবন্ধন ও অনুদান হতে</div>
+              <div className="text-[10px] sm:text-xs text-slate-400 mb-4">নিবন্ধিত শিক্ষার্থী হতে প্রাপ্ত</div>
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="fin-bar h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-400" style={{ width: `${incomePercent}%` }}></div>
+              </div>
+            </div>
+          </div>
+
+          
+          
+          {/* Other Income Card */}
+          <div className="fin-card relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm overflow-hidden group">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-fuchsia-400 rounded-t-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-50/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center">
+                  <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+                </div>
+                <div className="flex items-center gap-1 bg-purple-100 border border-purple-200 px-2 py-1 rounded-full">
+                  <ArrowUpRight className="w-3 h-3 text-purple-600" />
+                  <span className="text-[10px] sm:text-xs font-bold text-purple-600">100%</span>
+                </div>
+              </div>
+              <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">অন্যান্য আয়</div>
+              <div className="text-lg sm:text-2xl lg:text-3xl font-black text-purple-600 tracking-tight mb-1">
+                {formatTaka((totalIncome) - (activeFinance?.breakdown?.registrationFees || 0))}
+              </div>
+              <div className="text-[10px] sm:text-xs text-slate-400 mb-4">ম্যানুয়াল অন্যান্য আয়</div>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="fin-bar h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-400" style={{ width: `100%` }}></div>
+              </div>
+            </div>
+          </div>
+
+
+          {/* Donation Card */}
+          <div className="fin-card relative bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-slate-200 shadow-sm overflow-hidden group">
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-400 rounded-t-2xl"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl"></div>
+            <div className="relative">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl bg-blue-100 border border-blue-200 flex items-center justify-center">
+                  <Banknote className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                </div>
+                <div className="flex items-center gap-1 bg-blue-100 border border-blue-200 px-2 py-1 rounded-full">
+                  <ArrowUpRight className="w-3 h-3 text-blue-600" />
+                  <span className="text-[10px] sm:text-xs font-bold text-blue-600">100%</span>
+                </div>
+              </div>
+              <div className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">মোট অনুদান</div>
+              <div className="text-lg sm:text-2xl lg:text-3xl font-black text-blue-600 tracking-tight mb-1">
+                {formatTaka(globalFinance?.totalDonationIncome || activeFinance?.breakdown?.donations || 0)}
+              </div>
+              <div className="text-[10px] sm:text-xs text-slate-400 mb-4">এ পর্যন্ত অনুদান পরিমাণ</div>
+              <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                <div className="fin-bar h-full rounded-full bg-gradient-to-r from-blue-500 to-indigo-400" style={{ width: `100%` }}></div>
               </div>
             </div>
           </div>
@@ -109,15 +210,21 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
               <div className="text-lg sm:text-2xl lg:text-3xl font-black text-[#CA0000] tracking-tight mb-1">
                 {formatTaka(totalExpense)}
               </div>
-              <div className="text-[10px] sm:text-xs text-slate-400 mb-4">মঞ্চ, ভোজ ও ব্যবস্থাপনা</div>
+              <div className="text-[9px] sm:text-[10px] text-slate-400 mb-4 font-medium leading-tight">
+                {activeFinance?.transactions ? (
+                  <>নিবন্ধন থেকে: {formatTaka(regExp)} | অনুদান থেকে: {formatTaka(donExp)} | অন্যান্য: {formatTaka(othExp)}</>
+                ) : (
+                  <>মঞ্চ, ভোজ ও ব্যবস্থাপনা</>
+                )}
+              </div>
               <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                <div className="fin-bar h-full rounded-full bg-gradient-to-r from-[#CA0000] to-rose-400" style={{ width: `${expensePercent}%` }}></div>
+                <div className="fin-bar h-full rounded-full bg-gradient-to-r from-[#CA0000] to-rose-400" style={{ width: `${Math.min(100, expensePercent)}%` }}></div>
               </div>
             </div>
           </div>
 
           {/* Surplus Card */}
-          <div className="fin-card col-span-2 md:col-span-1 relative rounded-2xl sm:rounded-3xl p-5 sm:p-6 overflow-hidden group bg-gradient-to-br from-amber-500 to-orange-500 shadow-xl shadow-amber-900/30">
+          <div className="fin-card  relative rounded-2xl sm:rounded-3xl p-5 sm:p-6 overflow-hidden group bg-gradient-to-br from-amber-500 to-orange-500 shadow-xl shadow-amber-900/30">
             <div className="absolute top-0 right-0 w-36 h-36 rounded-full bg-white/10 -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-24 h-24 rounded-full bg-black/10 translate-y-1/2 -translate-x-1/2"></div>
             <div className="absolute inset-0 bg-gradient-to-t from-orange-700/20 to-transparent"></div>
@@ -128,7 +235,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
                 </div>
                 <div className="flex items-center gap-1 bg-white/20 px-2.5 py-1 rounded-full">
                   <Sparkles className="w-3 h-3 text-amber-100" />
-                  <span className="text-[10px] sm:text-xs font-bold text-white">{balancePercent}% উদ্বৃত্ত</span>
+                  <span className="text-[10px] sm:text-xs font-bold text-white">{displayBalancePercent}% উদ্বৃত্ত</span>
                 </div>
               </div>
               <div className="text-[10px] sm:text-xs font-bold text-amber-100 uppercase tracking-widest mb-1">উদ্বৃত্ত</div>
@@ -137,7 +244,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
               </div>
               <div className="text-[10px] sm:text-xs text-amber-100 mb-4">বিদ্যালয় উন্নয়ন তহবিলে</div>
               <div className="h-1 w-full bg-white/20 rounded-full overflow-hidden">
-                <div className="fin-bar h-full rounded-full bg-white" style={{ width: `${balancePercent}%` }}></div>
+                <div className="fin-bar h-full rounded-full bg-white" style={{ width: `${visualBalancePercent}%` }}></div>
               </div>
             </div>
           </div>
@@ -157,16 +264,18 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
             <div className="flex h-7 rounded-full overflow-hidden gap-0.5">
               <div
                 className="fin-bar h-full bg-gradient-to-r from-rose-500 to-rose-400 flex items-center justify-center"
-                style={{ width: `${expensePercent}%` }}
+                style={{ width: `${Math.min(100, expensePercent)}%` }}
               >
                 <span className="text-[10px] font-black text-white px-1 truncate">ব্যয় {expensePercent}%</span>
               </div>
-              <div
-                className="fin-bar h-full bg-gradient-to-r from-amber-500 to-amber-400 flex items-center justify-center"
-                style={{ width: `${balancePercent}%` }}
-              >
-                <span className="text-[10px] font-black text-white px-1 truncate">উদ্বৃত্ত {balancePercent}%</span>
-              </div>
+              {visualBalancePercent > 0 && (
+                <div
+                  className="fin-bar h-full bg-gradient-to-r from-amber-500 to-amber-400 flex items-center justify-center"
+                  style={{ width: `${visualBalancePercent}%` }}
+                >
+                  <span className="text-[10px] font-black text-white px-1 truncate">উদ্বৃত্ত {displayBalancePercent}%</span>
+                </div>
+              )}
             </div>
             {/* Legend */}
             <div className="flex items-center gap-5 mt-4">
@@ -228,7 +337,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
                   আয়ের খাতসমূহ
                 </h4>
                 <ul className="space-y-2 text-xs sm:text-sm">
-                  {finance.breakdown?.incomeCategories?.map((item, idx) => (
+                  {activeFinance?.breakdown?.incomeCategories?.map((item, idx) => (
                     <li key={idx} className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
                       <span className="text-slate-300">{item.category}</span>
                       <span className="font-bold text-emerald-400">{formatTaka(item.amount)}</span>
@@ -250,7 +359,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
                   ব্যয়ের খাতসমূহ
                 </h4>
                 <ul className="space-y-2 text-xs sm:text-sm">
-                  {finance.breakdown?.expenseCategories?.map((item, idx) => (
+                  {activeFinance?.breakdown?.expenseCategories?.map((item, idx) => (
                     <li key={idx} className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
                       <span className="text-slate-300">{item.category}</span>
                       <span className="font-bold text-rose-400">{formatTaka(item.amount)}</span>
@@ -265,14 +374,14 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance }) => {
             </div>
 
             {/* Transactions */}
-            {finance.transactions && finance.transactions.length > 0 && (
+            {activeFinance?.transactions && activeFinance?.transactions.length > 0 && (
               <div className="mt-5">
                 <h4 className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider flex items-center gap-2">
                   <BarChart3 className="w-4 h-4" />
                   সাম্প্রতিক আর্থিক ভাউচার ও ট্রানজেকশন
                 </h4>
                 <div className="max-h-52 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 divide-y divide-white/5 shadow-inner">
-                  {finance.transactions.map((tx) => (
+                  {activeFinance?.transactions.map((tx) => (
                     <div key={tx.id} className="flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors">
                       <div className="flex-1 min-w-0 pr-4">
                         <p className="text-xs sm:text-sm font-bold text-slate-200 truncate mb-1">{tx.title}</p>
