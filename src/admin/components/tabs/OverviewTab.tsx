@@ -73,7 +73,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
       </div>
 
               {/* Stat Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
                 <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
                   <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">নিবন্ধিত শিক্ষার্থী</span>
                   <div className="flex items-baseline justify-between mt-2">
@@ -87,29 +87,23 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
 
 
                 {(() => {
-                  let grandDonationFund = 0;
                   let totalDonationSoFar = 0;
                   let grandTotalIncome = 0;
-                  let grandOtherIncome = 0;
                   let grandTotalExpense = 0;
                   let grandBalance = 0;
                   let regIncome = 0;
 
                   if (selectedReunionId && activeFinance) {
                     regIncome = activeFinance.breakdown?.registrationFees || 0;
-                    grandDonationFund = activeFinance.globalDonationFund || 0;
-                    totalDonationSoFar = activeFinance.globalTotalDonationIncome || 0;
-                    
-                    let manOthInc = 0;
+                    totalDonationSoFar = activeFinance.globalTotalDonationIncome || activeFinance.totalDonationIncome || activeFinance.breakdown?.donations || 0;
+
                     let donExp = 0;
                     let regExp = 0;
                     let othExp = 0;
-                    
+
                     if (activeFinance.transactions) {
                       activeFinance.transactions.forEach((t: any) => {
-                        if (t.type === 'income') {
-                          if (t.fundSource !== 'donation') manOthInc += Number(t.amount);
-                        } else if (t.type === 'expense') {
+                        if (t.type === 'expense') {
                           if (t.fundSource === 'donation') donExp += Number(t.amount);
                           else if (t.fundSource === 'registration') regExp += Number(t.amount);
                           else othExp += Number(t.amount);
@@ -117,18 +111,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
                       });
                     }
 
-                    grandOtherIncome = manOthInc;
-                    // To avoid negative balance when spending from donation, we consider donation spending for this event as income for this event.
-                    grandTotalIncome = regIncome + manOthInc;
+                    grandTotalIncome = regIncome + totalDonationSoFar;
                     grandTotalExpense = regExp + donExp + othExp;
-                    // Balance excludes donation expenses because they are covered by the central donation fund
-                    grandBalance = grandTotalIncome - (regExp + othExp);
+                    grandBalance = grandTotalIncome - grandTotalExpense;
                   } else {
                     regIncome = globalFinance?.totalRegistrationIncome || 0;
-                    grandDonationFund = globalFinance?.globalDonationFund || 0; 
-                    totalDonationSoFar = globalFinance?.globalTotalDonationIncome || 0;
-                    grandTotalIncome = globalFinance?.grandTotalIncome || 0;
-                    grandOtherIncome = globalFinance?.totalManualIncome || 0;
+                    totalDonationSoFar = globalFinance?.globalTotalDonationIncome || globalFinance?.totalDonationIncome || 0;
+                    grandTotalIncome = regIncome + totalDonationSoFar;
                     grandTotalExpense = globalFinance?.grandTotalExpense || 0;
                     grandBalance = grandTotalIncome - grandTotalExpense;
                   }
@@ -156,64 +145,36 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
                         <span className="absolute bottom-3 right-7 text-[10px] text-emerald-600/70">খরচ সহ মোট প্রাপ্তি</span>
                       </div>
 
-                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
-                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">বর্তমান অনুদান তহবিল</span>
-                        <div className="flex items-baseline justify-between mt-2">
-                          <span className="text-2xl font-extrabold text-[#00732A]">
-                            {formatTaka(grandDonationFund)}
-                          </span>
-                          <BdtIcon className="w-8 h-8 text-emerald-600 opacity-80 group-hover:scale-110 transition-transform" />
-                        </div>
-                        {selectedReunionId && <span className="absolute bottom-3 right-7 text-[10px] text-emerald-600/70">ব্যয় বাদ দিয়ে</span>}
-                      </div>
-
-                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
-                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">অন্যান্য আয়</span>
-                        <div className="flex items-baseline justify-between mt-2">
-                          <span className="text-2xl font-extrabold text-[#00732A]">
-                            {formatTaka(grandOtherIncome)}
-                          </span>
-                          <BdtIcon className="w-8 h-8 text-emerald-600 opacity-80 group-hover:scale-110 transition-transform" />
-                        </div>
-                      </div>
-
-                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
-                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">সর্বমোট আয়</span>
+                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
+                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">সর্বমোট আয়</span>
                         <div className="flex items-baseline justify-between mt-2">
                           <span className="text-2xl font-extrabold text-blue-600">
                             {formatTaka(grandTotalIncome)}
                           </span>
                           <BdtIcon className="w-8 h-8 text-blue-600 opacity-80 group-hover:scale-110 transition-transform" />
                         </div>
+                        <span className="absolute bottom-3 right-7 text-[10px] text-blue-500/70">নিবন্ধন + অনুদান</span>
                       </div>
 
-                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
-                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">মোট ব্যয়</span>
-                        <div className="flex flex-col gap-2 mt-2">
-                          <div className="flex items-baseline justify-between">
-                            <span className="text-2xl font-extrabold text-amber-600">
-                              {formatTaka(grandTotalExpense)}
-                            </span>
-                            <BdtIcon className="w-8 h-8 text-amber-600 opacity-80 group-hover:scale-110 transition-transform" />
-                          </div>
-                          {selectedReunionId && activeFinance?.transactions && (
-                            <div className="text-[10px] text-slate-400 font-medium">
-                              নিবন্ধন থেকে: {formatTaka(activeFinance.transactions.filter((t: any) => t.type === 'expense' && t.fundSource === 'registration').reduce((sum: number, t: any) => sum + Number(t.amount), 0))} | 
-                              অনুদান থেকে: {formatTaka(activeFinance.transactions.filter((t: any) => t.type === 'expense' && t.fundSource === 'donation').reduce((sum: number, t: any) => sum + Number(t.amount), 0))} | 
-                              অন্যান্য: {formatTaka(activeFinance.transactions.filter((t: any) => t.type === 'expense' && (!t.fundSource || t.fundSource === 'other')).reduce((sum: number, t: any) => sum + Number(t.amount), 0))}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
-                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">প্রকৃত তহবিল উদ্বৃত্ত</span>
+                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-rose-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
+                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">মোট ব্যয়</span>
                         <div className="flex items-baseline justify-between mt-2">
                           <span className="text-2xl font-extrabold text-[#CA0000]">
+                            {formatTaka(grandTotalExpense)}
+                          </span>
+                          <BdtIcon className="w-8 h-8 text-[#CA0000] opacity-80 group-hover:scale-110 transition-transform" />
+                        </div>
+                      </div>
+
+                      <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-amber-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
+                        <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">উদ্বৃত্ত</span>
+                        <div className="flex items-baseline justify-between mt-2">
+                          <span className={`text-2xl font-extrabold ${grandBalance >= 0 ? 'text-amber-600' : 'text-[#CA0000]'}`}>
                             {formatTaka(grandBalance)}
                           </span>
-                          <BdtIcon className="w-5 h-5 text-[#CA0000]" />
+                          <BdtIcon className={`w-5 h-5 ${grandBalance >= 0 ? 'text-amber-600' : 'text-[#CA0000]'}`} />
                         </div>
+                        <span className="absolute bottom-3 right-7 text-[10px] text-slate-400">সর্বমোট আয় − ব্যয়</span>
                       </div>
                     </>
                   );

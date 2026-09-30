@@ -59,7 +59,7 @@ export const apiService = {
   // Generic fetch wrapper used by some admin components
   async fetchWithAuth(endpoint: string, options: RequestInit = {}): Promise<any> {
     const url = endpoint.startsWith('http') ? endpoint : `${import.meta.env.VITE_API_URL || ''}${endpoint}`;
-    
+
     const headers = new Headers(options.headers || {});
     if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
       headers.set('Content-Type', 'application/json');
@@ -117,6 +117,12 @@ export const apiService = {
         body: JSON.stringify(data),
       });
       return await handleResponse<any>(res, {} as any);
+    },
+    delete: async (id: string): Promise<void> => {
+      await fetch(`${BASE_URL}/reunions/${id}`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
     }
   },
 
@@ -535,7 +541,7 @@ export const apiService = {
       headers: getAuthHeaders(),
     });
   },
-  
+
   // File Upload
   async uploadImage(base64Str: string): Promise<{ success: boolean; url?: string; message?: string }> {
     try {
@@ -557,7 +563,7 @@ export const apiService = {
     return new Promise((resolve) => {
       const xhr = new XMLHttpRequest();
       xhr.open('POST', `${BASE_URL}/upload`, true);
-      
+
       const headers = getAuthHeaders();
       Object.entries(headers).forEach(([key, value]) => {
         xhr.setRequestHeader(key, value);
