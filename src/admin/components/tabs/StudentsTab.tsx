@@ -411,10 +411,12 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                             loadAllData();
                             setApprovingStudent(null);
                           } else {
-                            alert(res.message || 'সমস্যা হয়েছে');
+                            flashMessage(res.message || 'সমস্যা হয়েছে', true);
+                            setApprovingStudent(null);
                           }
                         } catch (err: any) {
-                          alert('সমস্যা হয়েছে: ' + err.message);
+                          flashMessage('সমস্যা হয়েছে: ' + err.message, true);
+                          setApprovingStudent(null);
                         } finally {
                           setIsApproving(false);
                         }
