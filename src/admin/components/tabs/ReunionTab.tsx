@@ -29,6 +29,40 @@ export const ReunionTab: React.FC = () => {
     }
   };
 
+
+  const handleDelete = async (id: string, isActive: boolean) => {
+    if (isActive) {
+      Swal.fire({
+        icon: 'error',
+        title: 'দুঃখিত!',
+        text: 'বর্তমান ইভেন্ট ডিলেট করা যাবে না।',
+        confirmButtonColor: '#059669',
+      });
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'আপনি কি নিশ্চিত?',
+      text: "এই ইভেন্টটি ডিলেট করলে আর ফিরে পাওয়া যাবে না!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#ef4444',
+      cancelButtonColor: '#64748b',
+      confirmButtonText: 'হ্যাঁ, ডিলেট করুন',
+      cancelButtonText: 'বাতিল'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await apiService.reunions.delete(id);
+        Swal.fire('ডিলেট সম্পন্ন!', 'ইভেন্টটি ডিলেট করা হয়েছে।', 'success');
+        loadReunions();
+      } catch (err) {
+        Swal.fire('ত্রুটি!', 'ইভেন্ট ডিলেট করতে সমস্যা হয়েছে।', 'error');
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -103,9 +137,15 @@ export const ReunionTab: React.FC = () => {
                   <td className="p-4 text-right">
                     <button
                       onClick={() => { setFormData(reunion); setShowModal(true); }}
-                      className="text-emerald-600 hover:text-emerald-800 font-medium bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors"
+                      className="text-emerald-600 hover:text-emerald-800 font-medium bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors mr-2"
                     >
                       এডিট করুন
+                    </button>
+                    <button
+                      onClick={() => handleDelete(reunion.id, !!reunion.isActive)}
+                      className="text-red-600 hover:text-red-800 font-medium bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-lg transition-colors"
+                    >
+                      ডিলেট
                     </button>
                   </td>
                 </tr>
@@ -129,7 +169,7 @@ export const ReunionTab: React.FC = () => {
             >
               ✕
             </button>
-            
+
             <h3 className="text-xl font-bold text-slate-800 mb-6">
               {formData._id ? 'পুনর্মিলনী আপডেট করুন' : 'নতুন পুনর্মিলনী তৈরি করুন'}
             </h3>
@@ -146,7 +186,7 @@ export const ReunionTab: React.FC = () => {
                   placeholder="যেমন: শতবর্ষ পূর্তি পুনর্মিলনী ২০২৬"
                 />
               </div>
-              
+
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-1.5">বছর</label>
                 <input

@@ -114,16 +114,13 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                 {(() => {
                   const regIncome = finance?.breakdown?.registrationFees || 0;
                   
-                  let manualOtherIncome = 0;
                   let donExp = 0;
                   let regExpense = 0;
                   let otherExpense = 0;
                   
                   if (finance?.transactions) {
                     finance.transactions.forEach((t: any) => {
-                      if (t.type === 'income') {
-                        if (t.fundSource !== 'donation') manualOtherIncome += Number(t.amount);
-                      } else if (t.type === 'expense') {
+                      if (t.type === 'expense') {
                         if (t.fundSource === 'donation') donExp += Number(t.amount);
                         else if (t.fundSource === 'registration') regExpense += Number(t.amount);
                         else otherExpense += Number(t.amount);
@@ -131,18 +128,14 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                     });
                   }
                   
-                  // Use the global donation fund supplied by backend
-                  const currentDonationFund = finance?.globalDonationFund || 0;
-                  const totalDonationSoFar = finance?.globalTotalDonationIncome || 0;
+                  const totalDonationSoFar = finance?.globalTotalDonationIncome || finance?.totalDonationIncome || finance?.breakdown?.donations || 0;
                   
-                  // Add donation spending for this event to Total Income so balance doesn't go negative
-                  const grandTotalIncome = regIncome + manualOtherIncome;
+                  const grandTotalIncome = regIncome + totalDonationSoFar;
                   const grandTotalExpense = regExpense + donExp + otherExpense;
-                  // Balance excludes donation expenses because they are covered by the central donation fund
-                  const grandBalance = grandTotalIncome - (regExpense + otherExpense);
+                  const grandBalance = grandTotalIncome - grandTotalExpense;
 
                   return (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                       
                       <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200">
                         <label className="text-xs font-bold text-blue-900 block mb-1">
@@ -171,31 +164,6 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
 
                       <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 relative overflow-hidden">
                         <label className="text-xs font-bold text-emerald-900 block mb-1">
-                          বর্তমান অনুদান তহবিল
-                        </label>
-                        <input
-                          type="text"
-                          value={formatTaka(currentDonationFund)}
-                          readOnly
-                          className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
-                        />
-                        <span className="absolute bottom-1 right-3 text-[9px] text-emerald-400">ব্যয় বাদ দিয়ে</span>
-                      </div>
-
-                      <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-200">
-                        <label className="text-xs font-bold text-purple-900 block mb-1">
-                          অন্যান্য খাত থেকে আয়
-                        </label>
-                        <input
-                          type="text"
-                          value={formatTaka(manualOtherIncome)}
-                          readOnly
-                          className="w-full px-3 py-2 text-sm rounded-xl border border-purple-300 font-black text-purple-800 bg-purple-50 cursor-not-allowed"
-                        />
-                      </div>
-
-                      <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200">
-                        <label className="text-xs font-bold text-emerald-900 block mb-1">
                           সর্বমোট আয় (টাকা)
                         </label>
                         <input
@@ -204,6 +172,7 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                           readOnly
                           className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
                         />
+                        <span className="absolute bottom-1 right-3 text-[9px] text-emerald-500/70">নিবন্ধন + অনুদান</span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
