@@ -4,11 +4,23 @@ import { GlobalConfig, HeroSlide, TeacherMessage, StatsData, CustomStatItem, Stu
 import { BdtIcon } from '../../../shared/components/BdtIcon';
 import { ImageUploader } from '../../../shared/components/ImageUploader';
 
-import { Search, Plus, Edit2, Trash2, Check, Eye, IdCard, Download, Loader2 } from 'lucide-react';
+import { 
+  Search, Plus, Edit2, Trash2, Check, Eye, IdCard, Download, Loader2,
+  Shirt, User, MapPin, Briefcase, Building2, Droplets, Phone, Mail, X, Save, Sparkles, GraduationCap
+} from 'lucide-react';
 import { StudentDetailModal } from '../../../frontend/components/StudentDetailModal';
 import { BatchDropdown } from '../../../shared/components/BatchDropdown';
 import * as htmlToImage from 'html-to-image';
 import { StudentCardTemplate } from '../StudentCardTemplate';
+
+const TSHIRT_OPTIONS = [
+  { value: 'S', label: 'S', description: 'Small - ৩৮"' },
+  { value: 'M', label: 'M', description: 'Medium - ৪০"' },
+  { value: 'L', label: 'L', description: 'Large - ৪২"' },
+  { value: 'XL', label: 'XL', description: 'Extra Large - ৪৪"' },
+  { value: 'XXL', label: 'XXL', description: '2XL - ৪৬"' },
+  { value: 'XXXL', label: 'XXXL', description: '3XL - ৪৮"' },
+];
 interface StudentsTabProps {
   students: any;
   globalConfig: any;
@@ -43,6 +55,7 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
   const [isApproving, setIsApproving] = useState(false);
   const [studentToDelete, setStudentToDelete] = useState<Student | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingStudent, setIsSavingStudent] = useState(false);
   const [paymentMethodFilter, setPaymentMethodFilter] = useState('all');
   const cardRef = React.useRef<HTMLDivElement>(null);
   const viewCardRef = React.useRef<HTMLDivElement>(null);
@@ -159,6 +172,11 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                               <span className="text-[10px] text-slate-400 block">
                                 {s.batchType === 'old' ? 'পুরাতন ব্যাচ' : 'নতুন ব্যাচ'}
                               </span>
+                              {s.tshirtSize && (
+                                <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                  <Shirt className="w-2.5 h-2.5" /> সাইজ: {s.tshirtSize}
+                                </span>
+                              )}
                             </td>
                             <td className="px-4 py-3 font-bold text-slate-800">
                               <span className="bg-red-50 text-[#CA0000] px-2 py-0.5 rounded border border-red-200 block w-fit mb-1">
@@ -232,128 +250,322 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
 
               {/* Edit / Add Student Modal */}
               {editingStudent && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-                  <div className="bg-white max-w-xl w-full rounded-2xl p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-                    <h3 className="text-base font-bold text-slate-900 border-b border-slate-200 pb-2">
-                      {editingStudent.id ? 'শিক্ষার্থী তথ্য সম্পাদনা' : 'নতুন শিক্ষার্থী নিবন্ধন'}
-                    </h3>
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in duration-200">
+                  <div className="bg-white max-w-2xl w-full rounded-3xl shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[92vh]">
+                    
+                    {/* Modal Header */}
+                    <div className="bg-gradient-to-r from-emerald-800 via-[#00732A] to-slate-900 text-white p-5 sm:p-6 relative shrink-0">
+                      <button
+                        onClick={() => setEditingStudent(null)}
+                        className="absolute right-4 top-4 p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white transition-colors cursor-pointer"
+                        title="বন্ধ করুন"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className="sm:col-span-2">
-                        <label className="text-xs font-bold text-slate-700 block mb-1">পূর্ণ নাম (বাংলা বা ইংরেজি) *</label>
-                        <input
-                          type="text"
-                          value={editingStudent.name}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
-                        />
+                      <div className="flex items-center gap-3.5">
+                        <div className="w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white shrink-0 shadow-inner">
+                          <GraduationCap className="w-6 h-6 text-emerald-300" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                              {editingStudent.id ? 'শিক্ষার্থী তথ্য সম্পাদনা' : 'নতুন শিক্ষার্থী নিবন্ধন'}
+                            </h3>
+                            {editingStudent.id && (
+                              <span className="text-[10px] font-mono font-semibold bg-emerald-500/30 border border-emerald-400/40 text-emerald-200 px-2 py-0.5 rounded-full">
+                                ID: {editingStudent.id}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-emerald-100/80 mt-0.5">
+                            শিক্ষার্থীর ব্যক্তিগত তথ্য, ব্যাচ, টি-শার্ট সাইজ ও যোগাযোগের বিবরণ হালনাগাদ করুন
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">ব্যাচ *</label>
-                        <BatchDropdown
-                          value={editingStudent.batch}
-                          onChange={(val) => {
-                            const bnToEnMap: Record<string, string> = { '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9' };
-                            const enVal = val.replace(/[০-৯]/g, (m) => bnToEnMap[m]);
-                            const yearMatch = enVal.match(/\d{4}/);
-                            let batchType = editingStudent.batchType;
-                            if (yearMatch) {
-                              const year = parseInt(yearMatch[0], 10);
-                              batchType = year <= 2015 ? 'old' : 'new';
-                            }
-                            setEditingStudent({ ...editingStudent, batch: val, batchType });
-                          }}
-                        />
+                    </div>
+
+                    {/* Modal Body */}
+                    <div className="p-5 sm:p-6 space-y-4 overflow-y-auto bg-slate-50/70 flex-1">
+                      
+                      {/* Card 1: নাম ও ব্যাচ সংক্রান্ত তথ্য */}
+                      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5">
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-800 border-b border-slate-100 pb-2">
+                          <User className="w-4 h-4 text-emerald-600" />
+                          <span>মৌলিক ও ব্যাচ বিবরণ</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                              পূর্ণ নাম (বাংলা) <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="যেমন: মো: সাজ্জাদ হোসাইন (সোহাগ)"
+                              value={editingStudent.name || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-bold text-slate-900 transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                              নাম (ইংরেজি - ID কার্ডের জন্য)
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="e.g. Md. Sazzad Hossain"
+                              value={editingStudent.nameEn || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, nameEn: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-sans text-slate-800 transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                              ব্যাচ <span className="text-red-500">*</span>
+                            </label>
+                            <BatchDropdown
+                              value={editingStudent.batch}
+                              onChange={(val) => {
+                                const bnToEnMap = { '০': '0', '১': '1', '২': '2', '৩': '3', '৪': '4', '৫': '5', '৬': '6', '৭': '7', '৮': '8', '৯': '9' };
+                                const enVal = val.replace(/[০-৯]/g, (m) => bnToEnMap[m]);
+                                const yearMatch = enVal.match(/\d{4}/);
+                                let batchType = editingStudent.batchType;
+                                if (yearMatch) {
+                                  const year = parseInt(yearMatch[0], 10);
+                                  batchType = year <= 2015 ? 'old' : 'new';
+                                }
+                                setEditingStudent({ ...editingStudent, batch: val, batchType });
+                              }}
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">ব্যাচ টাইপ</label>
+                            <select
+                              value={editingStudent.batchType}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, batchType: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 bg-white transition-all outline-none"
+                            >
+                              <option value="new">নতুন ব্যাচ (২০১১ পরবর্তী)</option>
+                              <option value="old">পুরাতন ব্যাচ (২০১০ এর পূর্বে)</option>
+                            </select>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">ব্যাচ টাইপ</label>
-                        <select
-                          value={editingStudent.batchType}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, batchType: e.target.value as any })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
-                        >
-                          <option value="new">নতুন ব্যাচ</option>
-                          <option value="old">পুরাতন ব্যাচ</option>
-                        </select>
+
+                      {/* Card 2: টি-শার্ট সাইজ ও রক্তের গ্রুপ */}
+                      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-200/80 shadow-2xs space-y-3.5 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-50 to-transparent rounded-bl-full pointer-events-none" />
+
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                            <Shirt className="w-4 h-4 text-emerald-600" />
+                            <span>টি-শার্ট সাইজ ও রক্তের গ্রুপ</span>
+                          </div>
+                          <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200">
+                            নির্বাচিত সাইজ: {editingStudent.tshirtSize || 'L'}
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold text-slate-700 block mb-2">
+                            টি-শার্ট সাইজ নির্বাচন করুন <span className="text-red-500">*</span>
+                          </label>
+                          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                            {TSHIRT_OPTIONS.map((item) => {
+                              const isSelected = (editingStudent.tshirtSize || 'L') === item.value;
+                              return (
+                                <button
+                                  key={item.value}
+                                  type="button"
+                                  onClick={() => setEditingStudent({ ...editingStudent, tshirtSize: item.value })}
+                                  className={`py-2 px-1.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center cursor-pointer ${
+                                    isSelected
+                                      ? 'border-emerald-600 bg-emerald-50/90 text-emerald-900 shadow-xs ring-2 ring-emerald-500/30 font-bold'
+                                      : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-1">
+                                    <span className="font-extrabold text-sm">{item.value}</span>
+                                    {isSelected && <Check className="w-3 h-3 text-emerald-600 stroke-[3]" />}
+                                  </div>
+                                  <span className="text-[10px] text-slate-500 font-medium">
+                                    {item.description.includes('-') ? item.description.split('-')[1].trim() : item.description}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                              রক্তের গ্রুপ
+                            </label>
+                            <select
+                              value={editingStudent.bloodGroup}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, bloodGroup: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-bold text-slate-800 bg-white transition-all outline-none"
+                            >
+                              <option value="A+">A+ (পজিটিভ)</option>
+                              <option value="A-">A- (নেগেটিভ)</option>
+                              <option value="B+">B+</option>
+                              <option value="B-">B-</option>
+                              <option value="O+">O+ (পজিটিভ)</option>
+                              <option value="O-">O- (নেগেটিভ)</option>
+                              <option value="AB+">AB+ (পজিটিভ)</option>
+                              <option value="AB-">AB- (নেগেটিভ)</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">
+                              বর্তমান ঠিকানা / শহর
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="যেমন: ত্রিশাল, ময়মনসিংহ"
+                              value={editingStudent.location || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, location: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">রক্তের গ্রুপ</label>
-                        <select
-                          value={editingStudent.bloodGroup}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, bloodGroup: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300 font-bold"
-                        >
-                          <option value="A+">A+</option>
-                          <option value="A-">A-</option>
-                          <option value="B+">B+</option>
-                          <option value="B-">B-</option>
-                          <option value="O+">O+</option>
-                          <option value="O-">O-</option>
-                          <option value="AB+">AB+</option>
-                          <option value="AB-">AB-</option>
-                        </select>
+
+                      {/* Card 3: যোগাযোগ ও কর্মজীবন */}
+                      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs space-y-3.5">
+                        <div className="flex items-center gap-2 text-xs font-bold text-slate-800 border-b border-slate-100 pb-2">
+                          <Briefcase className="w-4 h-4 text-emerald-600" />
+                          <span>যোগাযোগ ও কর্মজীবন</span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">মোবাইল নম্বর</label>
+                            <input
+                              type="text"
+                              placeholder="017xxxxxxxx"
+                              value={editingStudent.phone || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, phone: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 font-mono transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">ইমেইল ঠিকানা</label>
+                            <input
+                              type="email"
+                              placeholder="example@mail.com"
+                              value={editingStudent.email || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, email: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 font-sans transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">পেশা / পদবি</label>
+                            <input
+                              type="text"
+                              placeholder="যেমন: সফটওয়্যার ইঞ্জিনিয়ার / ব্যবসায়ী"
+                              value={editingStudent.currentJob || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, currentJob: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 transition-all outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="text-xs font-bold text-slate-700 block mb-1">প্রতিষ্ঠান / কোম্পানি</label>
+                            <input
+                              type="text"
+                              placeholder="যেমন: ঢাকা ব্যাংক / নিজস্ব ব্যবসা"
+                              value={editingStudent.company || ''}
+                              onChange={(e) => setEditingStudent({ ...editingStudent, company: e.target.value })}
+                              className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 transition-all outline-none"
+                            />
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">বর্তমান ঠিকানা</label>
-                        <input
-                          type="text"
-                          value={editingStudent.location}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, location: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">পেশা</label>
-                        <input
-                          type="text"
-                          value={editingStudent.currentJob}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, currentJob: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
-                        />
-                      </div>
-                      <div>
-                        <label className="text-xs font-bold text-slate-700 block mb-1">প্রতিষ্ঠান / কোম্পানি</label>
-                        <input
-                          type="text"
-                          value={editingStudent.company}
-                          onChange={(e) => setEditingStudent({ ...editingStudent, company: e.target.value })}
-                          className="w-full px-3 py-2 text-xs rounded-xl border border-slate-300"
-                        />
-                      </div>
-                      <div className="sm:col-span-2">
+
+                      {/* Card 4: ছবি আপলোড */}
+                      <div className="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-2xs">
                         <ImageUploader
-                          label="শিক্ষার্থীর ছবি (Drag & Drop / Cloudinary আপলোড)"
+                          label="শিক্ষার্থীর প্রোফাইল ছবি (Drag & Drop / Cloudinary আপলোড)"
                           value={editingStudent.image}
                           onChange={(url) => setEditingStudent({ ...editingStudent, image: url })}
                           aspectRatio="square"
                           placeholder="শিক্ষার্থীর প্রোফাইল ছবি ড্রপ বা নির্বাচন করুন"
                         />
                       </div>
+
                     </div>
 
-                    <div className="flex justify-end gap-2 pt-3 border-t border-slate-200">
-                      <button
-                        onClick={() => setEditingStudent(null)}
-                        className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200"
-                      >
-                        বাতিল
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (editingStudent.id) {
-                            await apiService.updateStudent(editingStudent.id, editingStudent);
-                          } else {
-                            await apiService.addStudent(editingStudent);
-                          }
-                          flashMessage('শিক্ষার্থী তথ্য সংরক্ষিত হয়েছে');
-                          setEditingStudent(null);
-                          loadAllData();
-                        }}
-                        className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-[#00732A] hover:bg-[#005c21]"
-                      >
-                        সংরক্ষণ করুন
-                      </button>
+                    {/* Modal Footer */}
+                    <div className="bg-white border-t border-slate-200 px-5 py-4 sm:px-6 flex items-center justify-between gap-3 shrink-0">
+                      <div className="text-[11px] text-slate-500 hidden sm:flex items-center gap-1.5 font-medium">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>সকল পরিবর্তন সাথে সাথে ডাটাবেজে সংরক্ষিত হবে</span>
+                      </div>
+
+                      <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
+                        <button
+                          type="button"
+                          onClick={() => setEditingStudent(null)}
+                          disabled={isSavingStudent}
+                          className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 hover:text-slate-800 transition-colors cursor-pointer"
+                        >
+                          বাতিল
+                        </button>
+                        
+                        <button
+                          type="button"
+                          disabled={isSavingStudent}
+                          onClick={async () => {
+                            if (!editingStudent.name?.trim()) {
+                              flashMessage('দয়া করে শিক্ষার্থীর নাম পূরণ করুন', true);
+                              return;
+                            }
+                            try {
+                              setIsSavingStudent(true);
+                              const payload = {
+                                ...editingStudent,
+                                tshirtSize: editingStudent.tshirtSize || 'L'
+                              };
+                              if (editingStudent.id) {
+                                await apiService.updateStudent(editingStudent.id, payload);
+                              } else {
+                                await apiService.addStudent(payload);
+                              }
+                              flashMessage('শিক্ষার্থী তথ্য সফলভাবে সংরক্ষিত হয়েছে');
+                              setEditingStudent(null);
+                              loadAllData();
+                            } catch (err) {
+                              flashMessage('সংরক্ষণ ব্যর্থ হয়েছে: ' + (err.message || 'অজানা ত্রুটি'), true);
+                            } finally {
+                              setIsSavingStudent(false);
+                            }
+                          }}
+                          className="flex-1 sm:flex-none px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-[#00732A] hover:from-emerald-700 hover:to-[#005c21] shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
+                        >
+                          {isSavingStudent ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              <span>সংরক্ষণ হচ্ছে...</span>
+                            </>
+                          ) : (
+                            <>
+                              <Save className="w-4 h-4" />
+                              <span>সংরক্ষণ করুন</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     </div>
+
                   </div>
                 </div>
               )}
