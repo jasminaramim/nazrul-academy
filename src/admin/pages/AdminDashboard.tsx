@@ -11,7 +11,6 @@ import { CulturalTab } from '../components/tabs/CulturalTab';
 import { DonorsTab } from '../components/tabs/DonorsTab';
 import { GalleryTab } from '../components/tabs/GalleryTab';
 import { MagazineTab } from '../components/tabs/MagazineTab';
-import { MongodbTab } from '../components/tabs/MongodbTab';
 import { SettingsTab } from '../components/tabs/SettingsTab';
 import { UpcomingEventsTab } from '../components/tabs/UpcomingEventsTab';
 import { EmailLogsTab } from '../components/tabs/EmailLogsTab';
@@ -667,7 +666,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   const menuItems = [
     { id: 'reunions', label: 'পুনর্মিলনী সমূহ', icon: Calendar },
     { id: 'overview', label: 'ওভারভিউ ড্যাশবোর্ড', icon: LayoutDashboard },
-    { id: 'mongodb', label: 'MongoDB ডাটাবেজ (Cloud)', icon: Database, badge: mongoStatus.connected ? 'সংযুক্ত' : 'অফলাইন' },
     { id: 'hero', label: 'হিরো স্লাইডার (Hero)', icon: Sliders, badge: heroSlides.length ? `${heroSlides.length}` : undefined },
     { id: 'teachers', label: 'প্রাক্তনদের প্রতি আহবান', icon: UserCheck, badge: teacherMessages.length ? `${teacherMessages.length}` : undefined },
     { id: 'stats', label: 'পরিসংখ্যান ও তারিখ', icon: BarChart3, badge: statsData?.customStats?.length ? `${statsData.customStats.length}` : undefined },
@@ -922,7 +920,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
           {activeTab === 'admin-settings' && <AdminSettingsTab />}
 
           {/* ===================== TAB MONGODB CLOUD DATABASE ===================== */}
-          {activeTab === 'mongodb' && <MongodbTab heroSlides={heroSlides} teacherMessages={teacherMessages} students={students} finance={finance} notices={notices} schedule={schedule} culturalSchedule={culturalSchedule} donors={donors} gallery={gallery} magazineArticles={magazineArticles} mongoStatus={mongoStatus} selectedMongoCollection={selectedMongoCollection} collectionDocs={collectionDocs} collectionLoading={collectionLoading} syncingMongo={syncingMongo} seedingDemo={seedingDemo} mongoUriInput={mongoUriInput} setMongoUriInput={setMongoUriInput} flashMessage={flashMessage} handleSyncMongo={handleSyncMongo} handleSeedDemoData={handleSeedDemoData} handleSaveMongoUri={handleSaveMongoUri} loadMongoCollectionDocs={loadMongoCollectionDocs} />}
 
           {/* ===================== TAB 13: SETTINGS & MONGODB ===================== */}
           {activeTab === 'settings' && <SettingsTab globalConfig={globalConfig} setGlobalConfig={setGlobalConfig} mongoStatus={mongoStatus} flashMessage={flashMessage} loadAllData={loadAllData} />}
