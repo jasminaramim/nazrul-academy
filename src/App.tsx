@@ -16,6 +16,7 @@ import { DonationFormModal } from './frontend/components/DonationFormModal';
 import { DonationPage } from './frontend/pages/DonationPage';
 import { UpcomingEventModal } from './frontend/components/UpcomingEventModal';
 import { CheckStatusModal } from './frontend/components/CheckStatusModal';
+import { WebsitePreloader } from './frontend/components/WebsitePreloader';
 
 import {
   GlobalConfig,
@@ -193,10 +194,18 @@ function MainAppContent() {
   // If in Admin page, show the dedicated admin layout
   if (currentPage === 'admin') {
     return (
-      <AdminDashboard
-        onNavigateHome={() => handleNavigate('home')}
-        onRefreshData={fetchData}
-      />
+      <>
+        <WebsitePreloader
+          isLoading={loading}
+          logoUrl={globalConfig?.logoUrl}
+          siteTitle={globalConfig?.siteTitle}
+          siteSubtitle={globalConfig?.siteSubtitle}
+        />
+        <AdminDashboard
+          onNavigateHome={() => handleNavigate('home')}
+          onRefreshData={fetchData}
+        />
+      </>
     );
   }
 
@@ -221,6 +230,14 @@ function MainAppContent() {
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-slate-900 font-sans selection:bg-[#00732A] selection:text-white">
+      {/* Website Initial Loading Screen & Status */}
+      <WebsitePreloader
+        isLoading={loading}
+        logoUrl={globalConfig?.logoUrl}
+        siteTitle={globalConfig?.siteTitle}
+        siteSubtitle={globalConfig?.siteSubtitle}
+      />
+
       {/* Universal Header */}
       <Navbar
         currentPage={currentPage}
