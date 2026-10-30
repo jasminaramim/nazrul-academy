@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     checkAuth();
   }, []);
 
-  const login = async (credentials: { email: string; password: string }) => {
+  const login = async (credentials: { email?: string; username?: string; password?: string; twoFactorCode?: string }) => {
     try {
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
@@ -68,6 +68,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         body: JSON.stringify(credentials),
       });
       const data = await res.json();
+      if (data.requires2FA) {
+        return { 
+          success: true, 
+          requires2FA: true, 
+          email: data.email, 
+          maskedEmail: data.maskedEmail, 
+          message: data.message 
+        };
+      }
       if (data.success && data.token) {
         localStorage.setItem('trishal_auth_token', data.token);
         setToken(data.token);

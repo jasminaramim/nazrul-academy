@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight, CreditCard, Copy, Check, Building2, AlertTriangle, Sparkles } from 'lucide-react';
+import { UserPlus, CheckCircle2, Droplet, MapPin, Briefcase, Phone, Mail, Shirt, Users, AlertCircle, ArrowRight, CreditCard, Copy, Check, Building2, AlertTriangle, Sparkles, ShieldCheck, Lock, Send, RefreshCw } from 'lucide-react';
 import { useAuth } from '../../shared/context/AuthContext';
 import { ImageUploader } from '../../shared/components/ImageUploader';
 import { apiService } from '../../shared/services/api';
@@ -18,6 +18,89 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [limitModal, setLimitModal] = useState<{ isOpen: boolean; methodName: string; methodId: string } | null>(null);
   const [imageAlertModal, setImageAlertModal] = useState(false);
+
+  // 🛡️ Security & Anti-Spam States
+  const [hpWebsite, setHpWebsite] = useState('');
+  const [turnstileToken, setTurnstileToken] = useState('');
+  const turnstileContainerRef = useRef<HTMLDivElement>(null);
+
+  // 📧 Email OTP Verification States
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpSuccess, setOtpSuccess] = useState<string | null>(null);
+  const [resendTimer, setResendTimer] = useState(0);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
+  useEffect(() => {
+    const siteKey = (import.meta as any).env?.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY;
+    if (siteKey && (window as any).turnstile && turnstileContainerRef.current) {
+      try {
+        (window as any).turnstile.render(turnstileContainerRef.current, {
+          sitekey: siteKey,
+          callback: (token: string) => setTurnstileToken(token),
+        });
+      } catch (e) {
+        console.error('Turnstile render error', e);
+      }
+    }
+  }, []);
+
+  const handleSendOtp = async () => {
+    if (!formData.email || !formData.email.includes('@')) {
+      setOtpError('অনুগ্রহ করে একটি সঠিক ইমেইল ঠিকানা প্রদান করুন।');
+      return;
+    }
+    setOtpError(null);
+    setOtpSuccess(null);
+    setIsSendingOtp(true);
+    try {
+      const res = await apiService.sendVerificationCode(formData.email);
+      if (res.success) {
+        setOtpSent(true);
+        setResendTimer(60);
+        setOtpSuccess('আপনার ইমেইলে ৬-সংখ্যার ভেরিফিকেশন কোড পাঠানো হয়েছে।');
+      } else {
+        setOtpError(res.message || 'কোড পাঠাতে ব্যর্থ হয়েছে।');
+      }
+    } catch (err: any) {
+      setOtpError(err.message || 'কোড পাঠাতে সমস্যা হয়েছে।');
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otpCode || otpCode.trim().length !== 6) {
+      setOtpError('অনুগ্রহ করে ৬-সংখ্যার কোডটি লিখুন।');
+      return;
+    }
+    setOtpError(null);
+    setOtpSuccess(null);
+    setIsVerifyingOtp(true);
+    try {
+      const res = await apiService.verifyOtp(formData.email, otpCode.trim());
+      if (res.success) {
+        setIsEmailVerified(true);
+        setOtpSuccess('✓ আপনার ইমেইল সফলভাবে যাচাই হয়েছে!');
+      } else {
+        setOtpError(res.message || 'ভুল বা মেয়াদোত্তীর্ণ কোড প্রদান করেছেন।');
+      }
+    } catch (err: any) {
+      setOtpError(err.message || 'কোড যাচাই করতে ত্রুটি হয়েছে।');
+    } finally {
+      setIsVerifyingOtp(false);
+    }
+  };
 
   useEffect(() => {
     apiService.getGlobalConfig().then((res) => setConfig(res));
@@ -218,6 +301,27 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     e.preventDefault();
     setError(null);
 
+    // 🔒 1. Mandatory Email OTP Verification Check
+    if (!isEmailVerified) {
+      setError('নিবন্ধন সম্পন্ন করতে অনুগ্রহ করে প্রথমে আপনার ইমেইল ওটিপি (OTP) দিয়ে যাচাই করুন।');
+      return;
+    }
+
+    // 🔒 2. Strict BD Phone Number Check
+    const bdPhoneRegex = /^01[3-9]\d{8}$/;
+    const cleanPhone = formData.phone.replace(/[-\s+]/g, '').replace(/^88/, '');
+    if (!bdPhoneRegex.test(cleanPhone)) {
+      setError('অনুগ্রহ করে সঠিক ১১-সংখ্যার বাংলাদেশী মোবাইল নম্বর প্রদান করুন (যেমন: 017xxxxxxxx)।');
+      return;
+    }
+
+    // 🔒 3. Strict Transaction ID Check
+    const cleanTrx = formData.transactionId.trim().toUpperCase();
+    if (!cleanTrx || cleanTrx.length < 6 || cleanTrx.length > 25 || !/^[A-Z0-9]+$/.test(cleanTrx)) {
+      setError('অনুগ্রহ করে সঠিক আলফানিউমেরিক ট্রানজ্যাকশন আইডি (Transaction ID) প্রদান করুন।');
+      return;
+    }
+
     if (!formData.image) {
       setImageAlertModal(true);
       return;
@@ -225,7 +329,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
 
     const currentMethodObj = availableMethods.find((m) => m.id === formData.paymentMethod);
 
-    // 1. Local limit out check
+    // 4. Local limit out check
     if (currentMethodObj?.isLimitOut) {
       setLimitModal({
         isOpen: true,
@@ -236,7 +340,7 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
       return;
     }
 
-    // 2. Background live check with server before submitting
+    // 5. Background live check with server before submitting
     try {
       const latest = await apiService.getGlobalConfig();
       if (latest) {
@@ -262,10 +366,16 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     setLoading(true);
 
     try {
-      const res = await register(formData);
+      const res = await register({
+        ...formData,
+        phone: cleanPhone,
+        transactionId: cleanTrx,
+        hp_website_url: hpWebsite,
+        turnstileToken,
+      });
       if (res.success) {
         setSuccess(true);
-        setRegisteredData({ ...formData });
+        setRegisteredData({ ...formData, phone: cleanPhone, transactionId: cleanTrx });
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       } else {
         if ((res as any).isLimitOut) {
@@ -400,6 +510,18 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
           onSubmit={handleSubmit}
           className="bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-md space-y-8"
         >
+          {/* 🛡️ Honeypot Bot Trap (Invisible to humans, traps automated spam scripts) */}
+          <div style={{ display: 'none', position: 'absolute', left: '-9999px', opacity: 0 }} aria-hidden="true">
+            <input
+              type="text"
+              name="hp_website_url"
+              tabIndex={-1}
+              autoComplete="off"
+              value={hpWebsite}
+              onChange={(e) => setHpWebsite(e.target.value)}
+            />
+          </div>
+
           {/* Group 1: Account & Basic Info */}
           <div>
             <h3 className="text-base font-bold text-slate-900 pb-2 border-b border-slate-200 flex items-center gap-2 mb-4">
@@ -426,21 +548,107 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                 <label className="text-xs font-bold text-slate-700 block mb-1">
                   ইমেইল ঠিকানা (লগইনের জন্য) *
                 </label>
-                <input
-                  required
-                  type="email"
-                  placeholder="example@gmail.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border border-slate-300 focus:ring-2 focus:ring-[#00732A] focus:outline-none"
-                />
-                {validationErrors.email ? (
+                <div className="relative">
+                  <input
+                    required
+                    type="email"
+                    placeholder="example@gmail.com"
+                    value={formData.email}
+                    disabled={isEmailVerified}
+                    onChange={(e) => {
+                      setFormData({ ...formData, email: e.target.value });
+                      setIsEmailVerified(false);
+                      setOtpSent(false);
+                      setOtpSuccess(null);
+                      setOtpError(null);
+                    }}
+                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm rounded-xl border ${isEmailVerified ? 'border-emerald-500 bg-emerald-50/50 text-slate-700 font-semibold' : 'border-slate-300'} focus:ring-2 focus:ring-[#00732A] focus:outline-none`}
+                  />
+                  {isEmailVerified && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsEmailVerified(false);
+                        setOtpSent(false);
+                        setOtpSuccess(null);
+                      }}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-500 hover:text-emerald-700 underline font-semibold"
+                    >
+                      পরিবর্তন
+                    </button>
+                  )}
+                </div>
+
+                {/* Email Verification State & OTP Box */}
+                {isEmailVerified ? (
+                  <div className="mt-2 flex items-center gap-1.5 text-emerald-700 text-xs font-bold bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    <span>ইমেইল সফলভাবে ওটিপি দ্বারা যাচাইকৃত</span>
+                  </div>
+                ) : (
+                  <div className="mt-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold text-slate-700 flex items-center gap-1.5">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                        ইমেইল যাচাইকরণ আবশ্যক
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleSendOtp}
+                        disabled={isSendingOtp || resendTimer > 0 || !formData.email || !formData.email.includes('@')}
+                        className="px-2.5 py-1 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        {isSendingOtp ? (
+                          <span>পাঠানো হচ্ছে...</span>
+                        ) : resendTimer > 0 ? (
+                          <span>পুনরায় পাঠান ({resendTimer}s)</span>
+                        ) : (
+                          <>
+                            <Send className="w-3 h-3" />
+                            <span>{otpSent ? 'পুনরায় কোড পাঠান' : 'ভেরিফিকেশন কোড পাঠান'}</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+
+                    {otpSent && (
+                      <div className="pt-2 border-t border-slate-200 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            maxLength={6}
+                            placeholder="৬-সংখ্যার কোড দিন"
+                            value={otpCode}
+                            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                            className="w-36 px-3 py-1.5 text-xs sm:text-sm font-mono tracking-widest text-center rounded-lg border border-slate-300 focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white font-bold"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyOtp}
+                            disabled={isVerifyingOtp || otpCode.trim().length !== 6}
+                            className="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-[#00732A] hover:bg-[#005c21] text-white disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                          >
+                            {isVerifyingOtp ? 'যাচাই হচ্ছে...' : 'যাচাই করুন'}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-slate-500">
+                          আপনার <span className="font-semibold">{formData.email}</span> ইনবক্সে প্রেরিত ৬-সংখ্যার কোডটি লিখুন।
+                        </p>
+                      </div>
+                    )}
+
+                    {otpSuccess && (
+                      <p className="text-[11px] font-bold text-emerald-700">{otpSuccess}</p>
+                    )}
+                    {otpError && (
+                      <p className="text-[11px] font-bold text-red-600">{otpError}</p>
+                    )}
+                  </div>
+                )}
+
+                {validationErrors.email && (
                   <p className="text-[10px] sm:text-xs text-red-600 mt-1.5 ml-1 font-bold">
                     * {validationErrors.email}
-                  </p>
-                ) : (
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-1.5 ml-1">
-                    * অনুগ্রহ করে আপনার সঠিক ও সচল ইমেইল দিন, যাতে আমরা আপনার সাথে যোগাযোগ করতে পারি।
                   </p>
                 )}
               </div>
@@ -828,6 +1036,9 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
             />
           </div>
 
+          {/* Cloudflare Turnstile CAPTCHA (if configured) */}
+          <div ref={turnstileContainerRef} className="my-2 flex justify-center"></div>
+
           {/* Submit Button */}
           <div className="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
             {availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut ? (
@@ -835,12 +1046,17 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                 <AlertTriangle className="w-4 h-4 text-[#CA0000] shrink-0" />
                 <span>বর্তমানে {availableMethods.find((m) => m.id === formData.paymentMethod)?.label} অ্যাকাউন্টের লিমিট শেষ। অনুগ্রহ করে অন্য মাধ্যম নির্বাচন করুন।</span>
               </div>
+            ) : !isEmailVerified ? (
+              <div className="text-xs text-amber-700 font-bold flex items-center gap-1.5 bg-amber-50 px-3 py-1.5 rounded-lg border border-amber-200">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>নিবন্ধন জমা দেওয়ার পূর্বে উপরে আপনার ইমেইল যাচাই সম্পন্ন করুন।</span>
+              </div>
             ) : <div />}
 
             <button
               type="submit"
-              disabled={loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut}
-              className={`px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white shadow-lg transition-all flex items-center gap-2 ${loading || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut
+              disabled={loading || !isEmailVerified || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut}
+              className={`px-8 py-3.5 rounded-xl text-sm sm:text-base font-bold text-white shadow-lg transition-all flex items-center gap-2 ${loading || !isEmailVerified || Object.keys(validationErrors).length > 0 || availableMethods.find((m) => m.id === formData.paymentMethod)?.isLimitOut
                   ? 'bg-slate-400 cursor-not-allowed opacity-75'
                   : 'bg-[#00732A] hover:bg-[#005c21] hover:shadow-xl cursor-pointer'
                 }`}
@@ -851,6 +1067,11 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
                 <>
                   <AlertTriangle className="w-5 h-5" />
                   <span>{availableMethods.find((m) => m.id === formData.paymentMethod)?.label} লিমিট শেষ (অন্য মাধ্যম বাছুন)</span>
+                </>
+              ) : !isEmailVerified ? (
+                <>
+                  <Lock className="w-5 h-5" />
+                  <span>ইমেইল যাচাই করুন</span>
                 </>
               ) : (
                 <>

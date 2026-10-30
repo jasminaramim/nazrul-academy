@@ -108,6 +108,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
   const [adminLoginLoading, setAdminLoginLoading] = useState(false);
   const [adminLoginError, setAdminLoginError] = useState<string | null>(null);
   const [copiedCreds, setCopiedCreds] = useState(false);
+  // 🔒 Admin 2FA States
+  const [admin2FAStep, setAdmin2FAStep] = useState(false);
+  const [admin2FACode, setAdmin2FACode] = useState('');
+  const [admin2FAMaskedEmail, setAdmin2FAMaskedEmail] = useState('');
+  const [admin2FAMsg, setAdmin2FAMsg] = useState('');
 
   // Forgot Password States
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -257,18 +262,53 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     loadAllData();
   }, []);
 
+  // 🔒 20-minute Inactivity Auto-Logout for Admin Security
+  useEffect(() => {
+    if (!user || !['admin', 'super-admin'].includes(user.role)) return;
+
+    let timeoutId: any;
+    const INACTIVITY_LIMIT_MS = 20 * 60 * 1000; // 20 minutes
+
+    const resetTimer = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        logout();
+        alert('নিরাপত্তার স্বার্থে ২০ মিনিট নিষ্ক্রিয় (Inactive) থাকায় আপনার অ্যাডমিন সেশন সমাপ্ত করা হয়েছে। অনুগ্রহ করে আবার লগইন করুন।');
+      }, INACTIVITY_LIMIT_MS);
+    };
+
+    const events = ['mousemove', 'mousedown', 'keydown', 'scroll', 'touchstart'];
+    events.forEach((evt) => window.addEventListener(evt, resetTimer, { passive: true }));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timeoutId);
+      events.forEach((evt) => window.removeEventListener(evt, resetTimer));
+    };
+  }, [user, logout]);
+
   const handleAdminGateLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAdminLoginError(null);
     setAdminLoginLoading(true);
 
     try {
-      const res = await login({ email: adminUsername, password: adminPassword });
-      if (res.success) {
+      const payload: any = { username: adminUsername, password: adminPassword };
+      if (admin2FAStep) {
+        payload.twoFactorCode = admin2FACode;
+      }
+      const res: any = await login(payload);
+      if (res?.requires2FA) {
+        setAdmin2FAStep(true);
+        setAdmin2FAMaskedEmail(res.maskedEmail || '');
+        setAdmin2FAMsg(res.message || 'আপনার ইমেইলে প্রেরিত ৬-সংখ্যার ওটিপি কোডটি দিন।');
+      } else if (res?.success) {
+        setAdmin2FAStep(false);
+        setAdmin2FACode('');
         await loadAllData();
         if (onRefreshData) onRefreshData();
       } else {
-        setAdminLoginError(res.message || 'ভুল ইউজারনেম বা পাসওয়ার্ড');
+        setAdminLoginError(res?.message || 'ভুল ইউজারনেম বা পাসওয়ার্ড');
       }
     } catch (err: any) {
       setAdminLoginError(err.message || 'লগইনে ত্রুটি ঘটেছে');
@@ -492,50 +532,99 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
                   )}
 
                   <form onSubmit={handleAdminGateLogin} className="space-y-5">
-                    <div>
-                      <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
-                        ইউজারনেম (Username)
-                      </label>
-                      <div className="relative group">
-                        <UserCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-emerald-400 transition-colors" />
-                        <input
-                          required
-                          type="text"
-                          autoComplete="off"
-                          placeholder="ইউজারনেম দিন"
-                          value={adminUsername}
-                          onChange={(e) => setAdminUsername(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-600 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 focus:bg-white/10 focus:outline-none transition-all"
-                        />
-                      </div>
-                    </div>
+                    {admin2FAStep ? (
+                      /* 🔒 2FA OTP Step */
+                      <div className="space-y-4">
+                        <div className="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs">
+                          <div className="flex items-center gap-2 font-bold mb-1">
+                            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+                            <span>দ্বি-স্তর বিশিষ্ট নিরাপত্তা (2FA)</span>
+                          </div>
+                          <p className="leading-relaxed">{admin2FAMsg}</p>
+                        </div>
 
-                    <div>
-                      <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
-                        পাসওয়ার্ড (Password)
-                      </label>
-                      <div className="relative group">
-                        <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-emerald-400 transition-colors" />
-                        <input
-                          required
-                          type="password"
-                          autoComplete="new-password"
-                          placeholder="পাসওয়ার্ড দিন"
-                          value={adminPassword}
-                          onChange={(e) => setAdminPassword(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-600 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 focus:bg-white/10 focus:outline-none transition-all"
-                        />
-                      </div>
-                    </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
+                            ৬-সংখ্যার সিকিউরিটি ওটিপি (OTP)
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            maxLength={6}
+                            autoFocus
+                            placeholder="যেমন: 123456"
+                            value={admin2FACode}
+                            onChange={(e) => setAdmin2FACode(e.target.value.replace(/\D/g, ''))}
+                            className="w-full text-center tracking-[0.4em] font-mono font-bold text-lg py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder:text-slate-600 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 focus:bg-white/10 focus:outline-none transition-all"
+                          />
+                        </div>
 
-                    <button
-                      type="submit"
-                      disabled={adminLoginLoading}
-                      className="w-full py-3.5 mt-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {adminLoginLoading ? 'প্রবেশ করা হচ্ছে...' : 'প্রবেশ করুন'}
-                      {!adminLoginLoading && <ArrowRight className="w-4 h-4" />}
-                    </button>
+                        <button
+                          type="submit"
+                          disabled={adminLoginLoading || admin2FACode.length !== 6}
+                          className="w-full py-3.5 mt-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          {adminLoginLoading ? 'যাচাই করা হচ্ছে...' : 'ওটিপি নিশ্চিত করে প্রবেশ করুন'}
+                          {!adminLoginLoading && <ArrowRight className="w-4 h-4" />}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => { setAdmin2FAStep(false); setAdmin2FACode(''); setAdminLoginError(null); }}
+                          className="w-full text-xs text-slate-400 hover:text-white transition-colors text-center cursor-pointer py-1"
+                        >
+                          ← পুনরায় ইউজারনেম/পাসওয়ার্ড পরিবর্তন করুন
+                        </button>
+                      </div>
+                    ) : (
+                      /* Standard Username & Password Step */
+                      <>
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
+                            ইউজারনেম (Username)
+                          </label>
+                          <div className="relative group">
+                            <UserCheck className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-emerald-400 transition-colors" />
+                            <input
+                              required
+                              type="text"
+                              autoComplete="off"
+                              placeholder="ইউজারনেম দিন"
+                              value={adminUsername}
+                              onChange={(e) => setAdminUsername(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-600 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 focus:bg-white/10 focus:outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-bold text-slate-300 block mb-1.5 uppercase tracking-wider">
+                            পাসওয়ার্ড (Password)
+                          </label>
+                          <div className="relative group">
+                            <Key className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 group-focus-within:text-emerald-400 transition-colors" />
+                            <input
+                              required
+                              type="password"
+                              autoComplete="new-password"
+                              placeholder="পাসওয়ার্ড দিন"
+                              value={adminPassword}
+                              onChange={(e) => setAdminPassword(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-sm text-white placeholder:text-slate-600 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 focus:bg-white/10 focus:outline-none transition-all"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={adminLoginLoading}
+                          className="w-full py-3.5 mt-2 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        >
+                          {adminLoginLoading ? 'প্রবেশ করা হচ্ছে...' : 'প্রবেশ করুন'}
+                          {!adminLoginLoading && <ArrowRight className="w-4 h-4" />}
+                        </button>
+                      </>
+                    )}
                   </form>
 
                   <div className="pt-6 flex flex-col gap-3">
