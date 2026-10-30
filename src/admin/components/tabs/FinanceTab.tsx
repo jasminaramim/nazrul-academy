@@ -122,7 +122,7 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                   if (finance?.transactions) {
                     finance.transactions.forEach((t: any) => {
                       if (t.type === 'income') {
-                        if (t.source === 'Registration') return; // Handled by student breakdown
+                        if (t.source === 'Registration' || t.source === 'Donation') return; // Handled by verified breakdown
 
                         const isReg = t.fundSource === 'registration' || 
                                       /নিবন্ধন|registration/i.test(t.category || '') ||

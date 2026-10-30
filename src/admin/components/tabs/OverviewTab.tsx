@@ -115,7 +115,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
                     if (activeFinance.transactions) {
                       activeFinance.transactions.forEach((t: any) => {
                         if (t.type === 'income') {
-                          if (t.source === 'Registration') return;
+                          if (t.source === 'Registration' || t.source === 'Donation') return; // Handled by verified breakdown
 
                           const isReg = t.fundSource === 'registration' || 
                                         /নিবন্ধন|registration/i.test(t.category || '') ||

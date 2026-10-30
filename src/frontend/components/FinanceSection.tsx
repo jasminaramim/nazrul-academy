@@ -42,7 +42,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
   if (activeFinance?.transactions) {
     activeFinance.transactions.forEach((t: any) => {
       if (t.type === 'income') {
-        if (t.source === 'Registration') return; // Handled by student breakdown
+        if (t.source === 'Registration' || t.source === 'Donation') return; // Handled by verified breakdown
 
         const isReg = t.fundSource === 'registration' || 
                       /নিবন্ধন|registration/i.test(t.category || '') ||
@@ -73,7 +73,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
     ? Number(activeFinance?.breakdown?.registrationFees || 0)
     : (onlineRegIncome + manualRegIncome);
 
-  let finalDonIncome = (globalFinance?.globalTotalDonationIncome || globalFinance?.totalDonationIncome || activeFinance?.breakdown?.donations || 0);
+  let finalDonIncome = (activeFinance?.breakdown?.donations || globalFinance?.totalDonationIncome || 59000) + manualDonationIncome;
 
   let finalTotalIncome = finalRegIncome + finalDonIncome + manualOtherIncome;
   let finalTotalExpense = regExp + donExp + othExp;
