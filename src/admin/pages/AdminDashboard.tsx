@@ -292,25 +292,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateHome, 
     setAdminLoginError(null);
     setAdminLoginLoading(true);
 
+    console.log(`%c[AdminLogin] 🚀 সাবমিট করা হচ্ছে:`, 'color: #10b981; font-weight: bold;', {
+      username: adminUsername,
+      has2FACode: !!admin2FACode,
+      code: admin2FACode ? '******' : 'None'
+    });
+
     try {
       const payload: any = { username: adminUsername, password: adminPassword };
       if (admin2FAStep) {
         payload.twoFactorCode = admin2FACode;
       }
       const res: any = await login(payload);
+
+      console.log(`%c[AdminLogin] 📥 সার্ভার রেসপন্স:`, 'color: #3b82f6; font-weight: bold;', res);
+
       if (res?.requires2FA) {
+        console.log(`%c[AdminLogin] 🔒 2FA সক্রিয় হয়েছে। ইমেইলে ওটিপি পাঠানো হয়েছে:`, 'color: #f59e0b; font-weight: bold;', res.maskedEmail);
         setAdmin2FAStep(true);
         setAdmin2FAMaskedEmail(res.maskedEmail || '');
         setAdmin2FAMsg(res.message || 'আপনার ইমেইলে প্রেরিত ৬-সংখ্যার ওটিপি কোডটি দিন।');
       } else if (res?.success) {
+        console.log(`%c[AdminLogin] ✅ লগইন সফল! ড্যাশবোর্ডে প্রবেশাধিকার দেওয়া হলো।`, 'color: #10b981; font-weight: bold;');
         setAdmin2FAStep(false);
         setAdmin2FACode('');
         await loadAllData();
         if (onRefreshData) onRefreshData();
       } else {
+        console.warn(`%c[AdminLogin] ❌ লগইন ব্যর্থ:`, 'color: #ef4444; font-weight: bold;', res?.message);
         setAdminLoginError(res?.message || 'ভুল ইউজারনেম বা পাসওয়ার্ড');
       }
     } catch (err: any) {
+      console.error(`%c[AdminLogin] 💥 ত্রুটি:`, 'color: #ef4444; font-weight: bold;', err);
       setAdminLoginError(err.message || 'লগইনে ত্রুটি ঘটেছে');
     } finally {
       setAdminLoginLoading(false);
