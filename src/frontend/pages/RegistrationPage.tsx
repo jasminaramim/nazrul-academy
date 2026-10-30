@@ -41,17 +41,40 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
     }
   }, [resendTimer]);
 
+  const turnstileWidgetIdRef = useRef<string | null>(null);
+
   useEffect(() => {
-    const siteKey = (import.meta as any).env?.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY;
-    if (siteKey && (window as any).turnstile && turnstileContainerRef.current) {
-      try {
-        (window as any).turnstile.render(turnstileContainerRef.current, {
-          sitekey: siteKey,
-          callback: (token: string) => setTurnstileToken(token),
-        });
-      } catch (e) {
-        console.error('Turnstile render error', e);
+    const siteKey = (import.meta as any).env?.VITE_CLOUDFLARE_TURNSTILE_SITE_KEY || '0x4AAAAAAFtEBOpuiQ60Vb6U';
+    
+    const renderWidget = () => {
+      if (siteKey && (window as any).turnstile && turnstileContainerRef.current) {
+        try {
+          if (!turnstileWidgetIdRef.current && turnstileContainerRef.current.innerHTML === '') {
+            const widgetId = (window as any).turnstile.render(turnstileContainerRef.current, {
+              sitekey: siteKey,
+              action: 'signup',
+              callback: (token: string) => setTurnstileToken(token),
+              'expired-callback': () => setTurnstileToken(''),
+              'error-callback': () => setTurnstileToken(''),
+            });
+            turnstileWidgetIdRef.current = widgetId;
+          }
+        } catch (e) {
+          console.error('Turnstile render error', e);
+        }
       }
+    };
+
+    if ((window as any).turnstile) {
+      renderWidget();
+    } else {
+      const interval = setInterval(() => {
+        if ((window as any).turnstile) {
+          renderWidget();
+          clearInterval(interval);
+        }
+      }, 300);
+      return () => clearInterval(interval);
     }
   }, []);
 
@@ -372,12 +395,16 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
         transactionId: cleanTrx,
         hp_website_url: hpWebsite,
         turnstileToken,
+        'cf-turnstile-response': turnstileToken,
       });
       if (res.success) {
         setSuccess(true);
         setRegisteredData({ ...formData, phone: cleanPhone, transactionId: cleanTrx });
         window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       } else {
+        if ((window as any).turnstile && turnstileWidgetIdRef.current) {
+          try { (window as any).turnstile.reset(turnstileWidgetIdRef.current); } catch (e) {}
+        }
         if ((res as any).isLimitOut) {
           setLimitModal({
             isOpen: true,
@@ -388,6 +415,9 @@ export const RegistrationPage: React.FC<RegistrationPageProps> = ({ onSuccessNav
         setError(res.message || 'নিবন্ধন সম্পন্ন করতে ব্যর্থ হয়েছে।');
       }
     } catch (err: any) {
+      if ((window as any).turnstile && turnstileWidgetIdRef.current) {
+        try { (window as any).turnstile.reset(turnstileWidgetIdRef.current); } catch (e) {}
+      }
       setError(err.message || 'সার্ভার সমস্যা দেখা দিয়েছে।');
     } finally {
       setLoading(false);
