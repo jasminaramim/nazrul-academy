@@ -49,7 +49,12 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
     ? students.filter((s: any) => s.reunionId === selectedReunionId)
     : students;
 
-  const registrationIncome = filteredStudents.reduce((sum: number, s: any) => sum + (Number(s.registrationFee) || 0), 0);
+  const approvedStudents = filteredStudents.filter(
+    (s: any) => s.status === 'approved' || (!s.status && s.status !== 'pending' && s.status !== 'rejected')
+  );
+  const pendingCount = filteredStudents.filter((s: any) => s.status === 'pending').length;
+
+  const registrationIncome = approvedStudents.reduce((sum: number, s: any) => sum + (Number(s.registrationFee) || 0), 0);
 
   return (
     <>
@@ -75,13 +80,18 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
               {/* Stat Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
                 <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
-                  <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">নিবন্ধিত শিক্ষার্থী</span>
-                  <div className="flex items-baseline justify-between mt-2">
+                  <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">অনুমোদিত শিক্ষার্থী</span>
+                  <div className="flex items-baseline justify-between mt-1">
                     <span className="text-3xl font-extrabold text-[#00732A]">
-                      {toBengaliNumber(filteredStudents.length)}
+                      {toBengaliNumber(approvedStudents.length)}
                     </span>
                     <Users className="w-8 h-8 text-emerald-600 opacity-80 group-hover:scale-110 transition-transform" />
                   </div>
+                  {pendingCount > 0 && (
+                    <span className="text-[11px] text-amber-600 font-semibold mt-1">
+                      অপেক্ষমান: {toBengaliNumber(pendingCount)} জন
+                    </span>
+                  )}
                 </div>
 
 

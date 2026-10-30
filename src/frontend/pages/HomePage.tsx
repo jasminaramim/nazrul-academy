@@ -83,18 +83,27 @@ export const HomePage: React.FC<HomePageProps> = ({
       <TeacherCallSection messages={teacherMessages} />
 
       {/* পরিসংখ্যান */}
-      <StatsSection
-        stats={statsData}
-        studentsCount={students.length}
-        batchesCount={new Set(students.map(s => s.batch)).size}
-      />
+      {(() => {
+        const approvedStudents = students.filter(
+          (s) => s.status === 'approved' || (!s.status && s.status !== 'pending' && s.status !== 'rejected')
+        );
+        return (
+          <>
+            <StatsSection
+              stats={statsData}
+              studentsCount={approvedStudents.length}
+              batchesCount={new Set(approvedStudents.map(s => s.batch)).size}
+            />
 
-      {/* প্রাক্তন ছাত্র/ছাত্রী তালিকা (All ex-student lists) */}
-      <StudentListSection
-        students={students}
-        onNavigate={onNavigate}
-        showAll={false}
-      />
+            {/* প্রাক্তন ছাত্র/ছাত্রী তালিকা (All ex-student lists) */}
+            <StudentListSection
+              students={approvedStudents}
+              onNavigate={onNavigate}
+              showAll={false}
+            />
+          </>
+        );
+      })()}
 
       {/* আর্থিক চিত্র (Financial Condition) */}
       <FinanceSection finance={finance}

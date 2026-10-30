@@ -21,14 +21,18 @@ export const StudentListSection: React.FC<StudentListSectionProps> = ({
   const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  const uniqueYears = Array.from(new Set(students.map(s => s.batch))).sort((a, b) => {
+  // Filter only approved students for the public list
+  const approvedStudents = students.filter(
+    (s) => s.status === 'approved' || (!s.status && s.status !== 'pending' && s.status !== 'rejected')
+  );
+
+  const uniqueYears = Array.from(new Set(approvedStudents.map(s => s.batch))).sort((a, b) => {
     const numA = parseInt(String(a).replace(/\D/g, '')) || 0;
     const numB = parseInt(String(b).replace(/\D/g, '')) || 0;
     return numB - numA;
   });
 
-  const filteredStudents = students.filter((s) => {
-    if (s.status === 'pending') return false;
+  const filteredStudents = approvedStudents.filter((s) => {
     if (filterType !== 'all' && s.batchType !== filterType) return false;
     if (selectedBloodGroup !== 'all' && s.bloodGroup !== selectedBloodGroup) return false;
     if (selectedYear !== 'all' && s.batch !== selectedYear) return false;
