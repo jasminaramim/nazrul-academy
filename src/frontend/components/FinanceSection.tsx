@@ -11,6 +11,7 @@ interface FinanceSectionProps {
 
 export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalFinance }) => {
   const [showDetails, setShowDetails] = useState(false);
+  const [modalFilter, setModalFilter] = useState<'all' | 'income' | 'expense'>('all');
   const [activeReunion, setActiveReunion] = useState<any>(null);
   const [activeFinance, setActiveFinance] = useState<any>(finance);
 
@@ -31,24 +32,50 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
     fetchActive();
   }, []);
 
-  let regIncome = activeFinance?.breakdown?.registrationFees || 0;
-  let donIncome = globalFinance?.globalTotalDonationIncome || globalFinance?.totalDonationIncome || activeFinance?.breakdown?.donations || 0;
-
+  let manualRegIncome = 0;
+  let manualDonationIncome = 0;
+  let manualOtherIncome = 0;
   let donExp = 0;
   let regExp = 0;
   let othExp = 0;
 
   if (activeFinance?.transactions) {
     activeFinance.transactions.forEach((t: any) => {
+      if (t.type === 'income') {
+        if (t.source === 'Registration') return; // Handled by student breakdown
+
+        const isReg = t.fundSource === 'registration' || 
+                      /নিবন্ধন|registration/i.test(t.category || '') ||
+                      /নিবন্ধন|registration/i.test(t.title || '');
+        const isDon = t.fundSource === 'donation' || 
+                      /অনুদান|donation/i.test(t.category || '') ||
+                      /অনুদান|donation/i.test(t.title || '');
+
+        if (isReg) manualRegIncome += Number(t.amount || 0);
+        else if (isDon) manualDonationIncome += Number(t.amount || 0);
+        else manualOtherIncome += Number(t.amount || 0);
+      }
       if (t.type === 'expense') {
-        if (t.fundSource === 'donation') donExp += Number(t.amount);
-        else if (t.fundSource === 'registration') regExp += Number(t.amount);
-        else othExp += Number(t.amount);
+        if (t.fundSource === 'donation') donExp += Number(t.amount || 0);
+        else if (t.fundSource === 'registration') regExp += Number(t.amount || 0);
+        else othExp += Number(t.amount || 0);
       }
     });
   }
 
-  let finalTotalIncome = regIncome + donIncome;
+  // Online registration fees from students
+  const onlineRegIncome = activeFinance?.breakdown?.onlineRegistrationFees !== undefined
+    ? Number(activeFinance?.breakdown?.onlineRegistrationFees)
+    : (Number(activeFinance?.breakdown?.registrationFees) || 0);
+
+  // Total registration income = online student fees + manual vouchers
+  const finalRegIncome = activeFinance?.breakdown?.manualRegistrationFees !== undefined
+    ? Number(activeFinance?.breakdown?.registrationFees || 0)
+    : (onlineRegIncome + manualRegIncome);
+
+  let finalDonIncome = (globalFinance?.globalTotalDonationIncome || globalFinance?.totalDonationIncome || activeFinance?.breakdown?.donations || 0);
+
+  let finalTotalIncome = finalRegIncome + finalDonIncome + manualOtherIncome;
   let finalTotalExpense = regExp + donExp + othExp;
   let finalBalance = finalTotalIncome - finalTotalExpense;
 
@@ -59,8 +86,8 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
   const cards = [
     {
       label: 'নিবন্ধন থেকে আয়',
-      sublabel: 'নিবন্ধিত শিক্ষার্থী হতে প্রাপ্ত',
-      value: regIncome,
+      sublabel: manualRegIncome > 0 ? `অনলাইন: ${formatTaka(onlineRegIncome)} + ভাউচার: ${formatTaka(manualRegIncome)}` : 'নিবন্ধিত শিক্ষার্থী হতে প্রাপ্ত',
+      value: finalRegIncome,
       icon: Users,
       color: 'emerald',
       gradient: 'from-emerald-500 to-teal-500',
@@ -76,7 +103,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
     {
       label: 'অনুদান থেকে আয়',
       sublabel: 'এ পর্যন্ত মোট অনুদান',
-      value: donIncome,
+      value: finalDonIncome,
       icon: Heart,
       color: 'violet',
       gradient: 'from-violet-500 to-purple-500',
@@ -91,7 +118,7 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
     },
     {
       label: 'সর্বমোট আয়',
-      sublabel: 'নিবন্ধন + অনুদান',
+      sublabel: manualOtherIncome > 0 ? 'নিবন্ধন + অনুদান + অন্যান্য' : 'নিবন্ধন + অনুদান',
       value: finalTotalIncome,
       icon: TrendingUp,
       color: 'blue',
@@ -330,16 +357,33 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
                   </div>
                   আয়ের খাতসমূহ
                 </h4>
-                <ul className="space-y-2 text-xs sm:text-sm">
-                  {activeFinance?.breakdown?.incomeCategories?.map((item: any, idx: number) => (
-                    <li key={idx} className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
-                      <span className="text-slate-300">{item.category}</span>
-                      <span className="font-bold text-emerald-400">{formatTaka(item.amount)}</span>
+                <ul className="space-y-2.5 text-xs sm:text-sm">
+                  <li className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
+                    <span className="text-slate-300">অনলাইন শিক্ষার্থী নিবন্ধন ফি</span>
+                    <span className="font-bold text-emerald-400">{formatTaka(onlineRegIncome)}</span>
+                  </li>
+                  {manualRegIncome > 0 && (
+                    <li className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl border border-emerald-500/20">
+                      <div>
+                        <span className="text-slate-200 font-bold block">অফলাইন / ভাউচার নিবন্ধন ফি</span>
+                        <span className="text-[10px] text-emerald-400/80">ব্যাচ ও সরাসরি রসিদ জমা</span>
+                      </div>
+                      <span className="font-bold text-emerald-400">{formatTaka(manualRegIncome)}</span>
                     </li>
-                  ))}
-                  <li className="flex justify-between pt-2 text-sm font-black text-emerald-400 border-t border-emerald-500/20 mt-2">
+                  )}
+                  <li className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
+                    <span className="text-slate-300">মোট অনুদান তহবিল (এ যাবৎ)</span>
+                    <span className="font-bold text-emerald-400">{formatTaka(finalDonIncome)}</span>
+                  </li>
+                  {manualOtherIncome > 0 && (
+                    <li className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
+                      <span className="text-slate-300">অন্যান্য সাধারণ আয়</span>
+                      <span className="font-bold text-emerald-400">{formatTaka(manualOtherIncome)}</span>
+                    </li>
+                  )}
+                  <li className="flex justify-between pt-2.5 text-sm font-black text-emerald-400 border-t border-emerald-500/30 mt-2">
                     <span>সর্বমোট আয়:</span>
-                    <span>{formatTaka(finalTotalIncome)}</span>
+                    <span className="text-base text-emerald-300 font-black">{formatTaka(finalTotalIncome)}</span>
                   </li>
                 </ul>
               </div>
@@ -352,49 +396,91 @@ export const FinanceSection: React.FC<FinanceSectionProps> = ({ finance, globalF
                   ব্যয়ের খাতসমূহ
                 </h4>
                 <ul className="space-y-2 text-xs sm:text-sm">
-                  {activeFinance?.breakdown?.expenseCategories?.map((item: any, idx: number) => (
-                    <li key={idx} className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
-                      <span className="text-slate-300">{item.category}</span>
-                      <span className="font-bold text-rose-400">{formatTaka(item.amount)}</span>
-                    </li>
-                  ))}
-                  <li className="flex justify-between pt-2 text-sm font-black text-rose-400 border-t border-rose-500/20 mt-2">
+                  {(() => {
+                    const expenseTxs = (activeFinance?.transactions || []).filter((t: any) => t.type === 'expense');
+                    if (expenseTxs.length === 0) {
+                      return (
+                        <li className="text-center py-8 text-slate-400 text-xs italic">
+                          আপাতত কোনো ব্যয় বা খরচ ভাউচার নেই
+                        </li>
+                      );
+                    }
+                    return expenseTxs.map((item: any, idx: number) => (
+                      <li key={idx} className="flex justify-between items-center bg-white/5 px-3 py-2 rounded-xl">
+                        <span className="text-slate-300 truncate pr-2">{item.title}</span>
+                        <span className="font-bold text-rose-400 shrink-0">{formatTaka(item.amount)}</span>
+                      </li>
+                    ));
+                  })()}
+                  <li className="flex justify-between pt-2.5 text-sm font-black text-rose-400 border-t border-rose-500/30 mt-2">
                     <span>সর্বমোট ব্যয়:</span>
-                    <span>{formatTaka(finalTotalExpense)}</span>
+                    <span className="text-base text-rose-300 font-black">{formatTaka(finalTotalExpense)}</span>
                   </li>
                 </ul>
               </div>
             </div>
 
             {activeFinance?.transactions && activeFinance?.transactions.length > 0 && (
-              <div className="mt-5">
-                <h4 className="text-xs font-bold text-slate-400 mb-3 uppercase tracking-wider flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" />
-                  সাম্প্রতিক আর্থিক ভাউচার ও ট্রানজেকশন
-                </h4>
-                <div className="max-h-52 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 divide-y divide-white/5 shadow-inner">
-                  {activeFinance?.transactions.map((tx: any) => (
-                    <div key={tx.id} className="flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors">
-                      <div className="flex-1 min-w-0 pr-4">
-                        <p className="text-xs sm:text-sm font-bold text-slate-200 truncate mb-1">{tx.title}</p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-slate-500">{tx.date}</span>
-                          <span className={`px-2 py-0.5 rounded-md text-[9px] font-bold ${
-                            tx.type === 'income'
-                              ? 'bg-emerald-500/15 text-emerald-400'
-                              : 'bg-rose-500/15 text-rose-400'
-                          }`}>
-                            {tx.type === 'income' ? '↑ আয়' : '↓ ব্যয়'}
-                          </span>
+              <div className="mt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                  <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                    <BarChart3 className="w-4 h-4 text-emerald-400" />
+                    আর্থিক রসিদ ও ভাউচার লেনদেন তালিকা ({activeFinance.transactions.length})
+                  </h4>
+                  <div className="flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 w-fit">
+                    {(['all', 'income', 'expense'] as const).map((mode) => (
+                      <button
+                        key={mode}
+                        onClick={() => setModalFilter(mode)}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold transition-all cursor-pointer ${
+                          modalFilter === mode
+                            ? 'bg-[#00732A] text-white shadow-sm'
+                            : 'text-slate-400 hover:text-white'
+                        }`}
+                      >
+                        {mode === 'all' ? 'সকল' : mode === 'income' ? 'আয় / জমা' : 'ব্যয় / খরচ'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="max-h-64 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 divide-y divide-white/5 shadow-inner">
+                  {activeFinance.transactions
+                    .filter((t: any) => modalFilter === 'all' || t.type === modalFilter)
+                    .map((tx: any) => (
+                      <div key={tx.id} className="flex items-center justify-between p-3.5 hover:bg-white/5 transition-colors">
+                        <div className="flex-1 min-w-0 pr-4">
+                          <div className="flex items-center gap-2 mb-1">
+                            {tx.voucherNo && (
+                              <span className="px-1.5 py-0.5 rounded bg-white/10 text-slate-300 text-[10px] font-mono border border-white/10">
+                                {tx.voucherNo}
+                              </span>
+                            )}
+                            <p className="text-xs sm:text-sm font-bold text-slate-100 truncate">{tx.title}</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-[10px] text-slate-400">{tx.date}</span>
+                            {tx.category && (
+                              <span className="text-[10px] text-emerald-300 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/20">
+                                {tx.category}
+                              </span>
+                            )}
+                            <span className={`px-2 py-0.5 rounded text-[9px] font-black ${
+                              tx.type === 'income'
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                            }`}>
+                              {tx.type === 'income' ? '↑ আয় / জমা' : '↓ ব্যয় / খরচ'}
+                            </span>
+                          </div>
+                        </div>
+                        <div className={`text-sm sm:text-base font-black whitespace-nowrap shrink-0 ${
+                          tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
+                        }`}>
+                          {tx.type === 'income' ? '+' : '-'} {formatTaka(tx.amount)}
                         </div>
                       </div>
-                      <div className={`text-sm font-black whitespace-nowrap shrink-0 ${
-                        tx.type === 'income' ? 'text-emerald-400' : 'text-rose-400'
-                      }`}>
-                        {formatTaka(tx.amount)}
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             )}

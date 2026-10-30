@@ -97,22 +97,37 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
 
 
                 {(() => {
+                  let manualRegIncome = 0;
+                  let manualDonationIncome = 0;
+                  let manualOtherIncome = 0;
                   let totalDonationSoFar = 0;
                   let grandTotalIncome = 0;
                   let grandTotalExpense = 0;
                   let grandBalance = 0;
-                  let regIncome = 0;
+                  let totalRegIncome = 0;
+                  let onlineRegIncome = 0;
 
                   if (selectedReunionId && activeFinance) {
-                    regIncome = activeFinance.breakdown?.registrationFees || 0;
-                    totalDonationSoFar = activeFinance.globalTotalDonationIncome || activeFinance.totalDonationIncome || activeFinance.breakdown?.donations || 0;
-
                     let donExp = 0;
                     let regExp = 0;
                     let othExp = 0;
 
                     if (activeFinance.transactions) {
                       activeFinance.transactions.forEach((t: any) => {
+                        if (t.type === 'income') {
+                          if (t.source === 'Registration') return;
+
+                          const isReg = t.fundSource === 'registration' || 
+                                        /নিবন্ধন|registration/i.test(t.category || '') ||
+                                        /নিবন্ধন|registration/i.test(t.title || '');
+                          const isDon = t.fundSource === 'donation' || 
+                                        /অনুদান|donation/i.test(t.category || '') ||
+                                        /অনুদান|donation/i.test(t.title || '');
+
+                          if (isReg) manualRegIncome += Number(t.amount || 0);
+                          else if (isDon) manualDonationIncome += Number(t.amount || 0);
+                          else manualOtherIncome += Number(t.amount || 0);
+                        }
                         if (t.type === 'expense') {
                           if (t.fundSource === 'donation') donExp += Number(t.amount);
                           else if (t.fundSource === 'registration') regExp += Number(t.amount);
@@ -121,13 +136,24 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
                       });
                     }
 
-                    grandTotalIncome = regIncome + totalDonationSoFar;
+                    onlineRegIncome = activeFinance.breakdown?.onlineRegistrationFees !== undefined
+                      ? Number(activeFinance.breakdown?.onlineRegistrationFees)
+                      : (Number(activeFinance.breakdown?.registrationFees) || 0);
+
+                    totalRegIncome = activeFinance.breakdown?.manualRegistrationFees !== undefined
+                      ? Number(activeFinance.breakdown?.registrationFees || 0)
+                      : (onlineRegIncome + manualRegIncome);
+
+                    totalDonationSoFar = (activeFinance.globalTotalDonationIncome || activeFinance.totalDonationIncome || activeFinance.breakdown?.donations || 0);
+                    grandTotalIncome = totalRegIncome + totalDonationSoFar + manualOtherIncome;
                     grandTotalExpense = regExp + donExp + othExp;
                     grandBalance = grandTotalIncome - grandTotalExpense;
                   } else {
-                    regIncome = globalFinance?.totalRegistrationIncome || 0;
+                    onlineRegIncome = globalFinance?.totalOnlineRegistrationIncome || globalFinance?.totalRegistrationIncome || 0;
+                    manualRegIncome = globalFinance?.totalManualRegistrationIncome || 0;
+                    totalRegIncome = globalFinance?.totalRegistrationIncome || (onlineRegIncome + manualRegIncome);
                     totalDonationSoFar = globalFinance?.globalTotalDonationIncome || globalFinance?.totalDonationIncome || 0;
-                    grandTotalIncome = regIncome + totalDonationSoFar;
+                    grandTotalIncome = globalFinance?.grandTotalIncome || (totalRegIncome + totalDonationSoFar);
                     grandTotalExpense = globalFinance?.grandTotalExpense || 0;
                     grandBalance = grandTotalIncome - grandTotalExpense;
                   }
@@ -136,12 +162,15 @@ export const OverviewTab: React.FC<OverviewTabProps> = ({ heroSlides, statsData,
                     <>
                       <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">
                         <span className="text-[13px] text-slate-500 font-bold mb-1 relative z-10">নিবন্ধন থেকে আয়</span>
-                        <div className="flex items-baseline justify-between mt-2">
+                        <div className="flex items-baseline justify-between mt-1">
                           <span className="text-2xl font-extrabold text-blue-600">
-                            {formatTaka(regIncome)}
+                            {formatTaka(totalRegIncome)}
                           </span>
                           <BdtIcon className="w-8 h-8 text-blue-600 opacity-80 group-hover:scale-110 transition-transform" />
                         </div>
+                        <span className="text-[10px] text-blue-600/70 font-medium mt-1">
+                          অনলাইন: {formatTaka(onlineRegIncome)} + ভাউচার: {formatTaka(manualRegIncome)}
+                        </span>
                       </div>
 
                       <div className="bg-white p-7 rounded-3xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 hover:-translate-y-1 transition-all duration-300 min-h-[150px] flex flex-col justify-center relative overflow-hidden group">

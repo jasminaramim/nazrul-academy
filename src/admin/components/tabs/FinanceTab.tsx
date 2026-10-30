@@ -112,41 +112,69 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                 </div>
 
                 {(() => {
-                  const regIncome = finance?.breakdown?.registrationFees || 0;
-                  
+                  let manualRegIncome = 0;
+                  let manualDonationIncome = 0;
+                  let manualOtherIncome = 0;
                   let donExp = 0;
                   let regExpense = 0;
                   let otherExpense = 0;
                   
                   if (finance?.transactions) {
                     finance.transactions.forEach((t: any) => {
+                      if (t.type === 'income') {
+                        if (t.source === 'Registration') return; // Handled by student breakdown
+
+                        const isReg = t.fundSource === 'registration' || 
+                                      /নিবন্ধন|registration/i.test(t.category || '') ||
+                                      /নিবন্ধন|registration/i.test(t.title || '');
+                        const isDon = t.fundSource === 'donation' || 
+                                      /অনুদান|donation/i.test(t.category || '') ||
+                                      /অনুদান|donation/i.test(t.title || '');
+
+                        if (isReg) manualRegIncome += Number(t.amount || 0);
+                        else if (isDon) manualDonationIncome += Number(t.amount || 0);
+                        else manualOtherIncome += Number(t.amount || 0);
+                      }
                       if (t.type === 'expense') {
-                        if (t.fundSource === 'donation') donExp += Number(t.amount);
-                        else if (t.fundSource === 'registration') regExpense += Number(t.amount);
-                        else otherExpense += Number(t.amount);
+                        if (t.fundSource === 'donation') donExp += Number(t.amount || 0);
+                        else if (t.fundSource === 'registration') regExpense += Number(t.amount || 0);
+                        else otherExpense += Number(t.amount || 0);
                       }
                     });
                   }
+
+                  // Online registration fees from students
+                  const onlineRegIncome = finance?.breakdown?.onlineRegistrationFees !== undefined
+                    ? Number(finance?.breakdown?.onlineRegistrationFees)
+                    : (Number(finance?.breakdown?.registrationFees) || 0);
+
+                  // Total registration income = online student fees + manual vouchers
+                  const totalRegIncome = finance?.breakdown?.manualRegistrationFees !== undefined
+                    ? Number(finance?.breakdown?.registrationFees || 0)
+                    : (onlineRegIncome + manualRegIncome);
+
+                  const totalDonationSoFar = (finance?.globalTotalDonationIncome || finance?.totalDonationIncome || finance?.breakdown?.donations || 0);
                   
-                  const totalDonationSoFar = finance?.globalTotalDonationIncome || finance?.totalDonationIncome || finance?.breakdown?.donations || 0;
-                  
-                  const grandTotalIncome = regIncome + totalDonationSoFar;
+                  const grandTotalIncome = totalRegIncome + totalDonationSoFar + manualOtherIncome;
                   const grandTotalExpense = regExpense + donExp + otherExpense;
                   const grandBalance = grandTotalIncome - grandTotalExpense;
 
                   return (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                       
-                      <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200">
+                      <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-200 relative overflow-hidden">
                         <label className="text-xs font-bold text-blue-900 block mb-1">
                           নিবন্ধন থেকে আয়
                         </label>
                         <input
                           type="text"
-                          value={formatTaka(regIncome)}
+                          value={formatTaka(totalRegIncome)}
                           readOnly
                           className="w-full px-3 py-2 text-sm rounded-xl border border-blue-300 font-black text-blue-800 bg-blue-50 cursor-not-allowed"
                         />
+                        <span className="text-[10px] text-blue-600/80 font-medium mt-1 block">
+                          অনলাইন: {formatTaka(onlineRegIncome)} + ভাউচার: {formatTaka(manualRegIncome)}
+                        </span>
                       </div>
                       
                       <div className="p-4 rounded-xl bg-indigo-50/60 border border-indigo-200 relative overflow-hidden">
@@ -159,7 +187,9 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                           readOnly
                           className="w-full px-3 py-2 text-sm rounded-xl border border-indigo-300 font-black text-indigo-800 bg-indigo-50 cursor-not-allowed"
                         />
-                        <span className="absolute bottom-1 right-3 text-[9px] text-indigo-400">খরচ সহ মোট প্রাপ্তি</span>
+                        <span className="text-[10px] text-indigo-500 font-medium mt-1 block">
+                          খরচ সহ মোট প্রাপ্তি
+                        </span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-emerald-50/60 border border-emerald-200 relative overflow-hidden">
@@ -172,7 +202,9 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                           readOnly
                           className="w-full px-3 py-2 text-sm rounded-xl border border-emerald-300 font-black text-emerald-800 bg-emerald-50 cursor-not-allowed"
                         />
-                        <span className="absolute bottom-1 right-3 text-[9px] text-emerald-500/70">নিবন্ধন + অনুদান</span>
+                        <span className="text-[10px] text-emerald-600 font-medium mt-1 block">
+                          নিবন্ধন + অনুদান {manualOtherIncome > 0 ? `+ অন্যান্য` : ''}
+                        </span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-rose-50/60 border border-rose-200">
@@ -185,6 +217,9 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                           readOnly
                           className="w-full px-3 py-2 text-sm rounded-xl border border-rose-300 font-black text-rose-800 bg-rose-50 cursor-not-allowed"
                         />
+                        <span className="text-[10px] text-rose-500 font-medium mt-1 block">
+                          মোট খরচ ভাউচার
+                        </span>
                       </div>
 
                       <div className="p-4 rounded-xl bg-yellow-50/60 border border-yellow-200 flex flex-col justify-between">
@@ -194,6 +229,9 @@ export const FinanceTab: React.FC<FinanceTabProps> = ({ reunions, finance, setFi
                         <div className="px-3 py-2 bg-white rounded-xl border border-yellow-300 text-base font-black text-yellow-700">
                           {formatTaka(grandBalance)}
                         </div>
+                        <span className="text-[10px] text-yellow-700/80 font-medium mt-1 block">
+                          সর্বমোট আয় - ব্যয়
+                        </span>
                       </div>
                     </div>
                   );
