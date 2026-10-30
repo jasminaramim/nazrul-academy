@@ -30,6 +30,8 @@ jobs:
         npm install
         npm run build
         npx tsc
+        mkdir -p dist/tmp
+        date > dist/tmp/restart.txt
 
     - name: Deploy Backend via FTP
       uses: SamKirkland/FTP-Deploy-Action@v4.3.4
