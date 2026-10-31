@@ -1,6 +1,10 @@
 import { Request, Response } from 'express';
 import { GlobalConfig, AdminInfo, Finance, Stats } from '../model/configModel';
 import { User } from '../model/userModel';
+import { Student } from '../model/studentModel';
+import { Donor } from '../model/miscModel';
+import { SecurityAudit, recordSecurityAudit } from '../model/securityAuditModel';
+import { sendStudentApprovalEmail } from '../utils/emailService';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
@@ -68,8 +72,6 @@ export const getFinance = async (req: Request, res: Response) => {
     finance = finance.toObject();
 
     // Auto-fix old data if necessary
-    const Student = mongoose.model('Student');
-    const Donor = mongoose.model('Donor');
     const unassignedStudents = await Student.countDocuments({ $or: [{ reunionId: { $exists: false } }, { reunionId: null }, { reunionId: '' }] });
     if (unassignedStudents > 0) {
       const oldestReunion = await mongoose.model('Reunion').findOne().sort({ year: 1 });
@@ -178,14 +180,12 @@ export const getFinance = async (req: Request, res: Response) => {
 
 export const getGlobalFinance = async (req: Request, res: Response) => {
   try {
-    const Student = mongoose.model('Student');
     const studentAgg = await Student.aggregate([
       { $match: { status: 'approved' } },
       { $group: { _id: null, total: { $sum: { $convert: { input: "$registrationFee", to: "double", onError: 0, onNull: 0 } } } } }
     ]);
     const totalRegistrationIncome = studentAgg[0] ? studentAgg[0].total : 0;
 
-    const Donor = mongoose.model('Donor');
     const donorAgg = await Donor.aggregate([
       { $match: { status: 'approved' } },
       { $group: { _id: null, total: { $sum: { $convert: { input: "$amount", to: "double", onError: 0, onNull: 0 } } } } }
@@ -318,10 +318,6 @@ export const getMongoCollectionDocs = async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-
-
-import { Student } from '../model/studentModel';
-import { sendStudentApprovalEmail } from '../utils/emailService';
 
 export const approveRegistration = async (req: Request, res: Response) => {
   try {
@@ -494,5 +490,63 @@ export const transferSuperAdmin = async (req: any, res: Response) => {
     res.json({ success: true, message: 'সুপার-অ্যাডমিন ভূমিকা সফলভাবে স্থানান্তর করা হয়েছে' });
   } catch (err: any) {
     res.status(500).json({ success: false, message: 'সমস্যা হয়েছে' });
+  }
+};
+
+// --- Security Audit Logs ---
+export const getSecurityAuditLogs = async (req: any, res: Response) => {
+  try {
+    const logs = await SecurityAudit.find()
+      .sort({ createdAt: -1 })
+      .limit(100);
+    res.json({ success: true, data: logs });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: 'অডিট লগ লোড করতে ব্যর্থ হয়েছে' });
+  }
+};
+
+// --- 1-Click Database Cloud Backup ---
+export const exportDatabaseBackup = async (req: any, res: Response) => {
+  try {
+    const [students, donors, users, globalConfig] = await Promise.all([
+      Student.find().lean(),
+      Donor.find().lean(),
+      User.find().select('-passwordHash').lean(),
+      GlobalConfig.findOne().lean()
+    ]);
+
+    const backupPayload = {
+      backupMetadata: {
+        appName: 'Trishal Nazrul Academy Alumni System',
+        exportedAt: new Date().toISOString(),
+        exportedBy: { id: req.user.id, email: req.user.email, name: req.user.name, role: req.user.role },
+        counts: {
+          students: students.length,
+          donors: donors.length,
+          users: users.length,
+        }
+      },
+      data: {
+        students,
+        donors,
+        users,
+        globalConfig
+      }
+    };
+
+    await recordSecurityAudit({
+      action: 'database_backup_exported',
+      performedBy: { id: req.user.id, email: req.user.email, name: req.user.name, role: req.user.role },
+      ipAddress: (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || '',
+      userAgent: req.headers['user-agent'] as string,
+      status: 'success',
+      details: backupPayload.backupMetadata.counts
+    });
+
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=nazrul_academy_backup_${new Date().toISOString().split('T')[0]}.json`);
+    res.json({ success: true, ...backupPayload });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: 'ডাটাবেজ ব্যাকআপ সম্পন্ন করতে সমস্যা হয়েছে: ' + err.message });
   }
 };
