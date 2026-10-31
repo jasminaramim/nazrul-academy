@@ -60,6 +60,50 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
   const cardRef = React.useRef<HTMLDivElement>(null);
   const viewCardRef = React.useRef<HTMLDivElement>(null);
 
+  const handleExportCSV = () => {
+    if (!students || students.length === 0) {
+      alert('কোন শিক্ষার্থীর ডাটা পাওয়া যায়নি!');
+      return;
+    }
+    const headers = [
+      'ID', 'নাম (বাংলা)', 'Name (English)', 'মোবাইল', 'ইমেইল', 
+      'এসএসসি ব্যাচ', 'রক্তের গ্রুপ', 'পেশা', 'প্রতিষ্ঠান/কর্মস্থল', 
+      'ঠিকানা/জেলা', 'টি-শার্ট সাইজ', 'অনুমোদন স্ট্যাটাস', 'রেজিস্ট্রেশন ফি', 
+      'পেমেন্ট মেথড', 'ট্রানজেকশন আইডি', 'রেজিস্ট্রেশন তারিখ'
+    ];
+    
+    const rows = students.map((s: any) => [
+      `"${s.id || s._id || ''}"`,
+      `"${(s.name || '').replace(/"/g, '""')}"`,
+      `"${(s.nameEn || '').replace(/"/g, '""')}"`,
+      `"${(s.phone || '').replace(/"/g, '""')}"`,
+      `"${(s.email || '').replace(/"/g, '""')}"`,
+      `"${(s.sscBatch || s.batch || '').replace(/"/g, '""')}"`,
+      `"${(s.bloodGroup || '').replace(/"/g, '""')}"`,
+      `"${(s.profession || s.currentJob || '').replace(/"/g, '""')}"`,
+      `"${(s.workplace || s.company || '').replace(/"/g, '""')}"`,
+      `"${(s.district || s.location || '').replace(/"/g, '""')}"`,
+      `"${(s.tshirtSize || '').replace(/"/g, '""')}"`,
+      `"${s.isApproved ? 'Approved' : 'Pending'}"`,
+      `"${s.registrationFee || 0}"`,
+      `"${(s.paymentMethod || '').replace(/"/g, '""')}"`,
+      `"${(s.transactionId || '').replace(/"/g, '""')}"`,
+      `"${s.createdAt ? new Date(s.createdAt).toLocaleDateString() : ''}"`
+    ]);
+
+    const csvContent = "\uFEFF" + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    const dateStr = new Date().toISOString().split('T')[0];
+    link.download = `nazrul_academy_students_${dateStr}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <>
       
@@ -101,30 +145,42 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                   </select>
                 </div>
 
-                <button
-                  onClick={() =>
-                    setEditingStudent({
-                      id: '',
-                      name: '',
-                      nameEn: '',
-                      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
-                      batch: 'ব্যাচ ২০১১',
-                      batchType: 'new',
-                      location: 'ত্রিশাল, ময়মনসিংহ',
-                      bloodGroup: 'B+',
-                      phone: '',
-                      email: '',
-                      school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
-                      currentJob: '',
-                      company: '',
-                      tshirtSize: 'L'
-                    })
-                  }
-                  className="flex items-center gap-1.5 px-4 py-2 bg-[#00732A] text-white rounded-xl text-xs font-bold hover:bg-[#005c21] shrink-0"
-                >
-                  <Plus className="w-4 h-4" />
-                  <span>নতুন শিক্ষার্থী যোগ করুন</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleExportCSV}
+                    className="flex items-center gap-1.5 px-3.5 py-2 bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 rounded-xl text-xs font-bold transition shadow-xs shrink-0 cursor-pointer"
+                    title="সকল শিক্ষার্থীর ডাটা এক্সেল/CSV ফাইলে ডাউনলোড করুন"
+                  >
+                    <Download className="w-4 h-4 text-emerald-700" />
+                    <span>এক্সেল / CSV এক্সপোর্ট</span>
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      setEditingStudent({
+                        id: '',
+                        name: '',
+                        nameEn: '',
+                        image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+                        batch: 'ব্যাচ ২০১১',
+                        batchType: 'new',
+                        location: 'ত্রিশাল, ময়মনসিংহ',
+                        bloodGroup: 'B+',
+                        phone: '',
+                        email: '',
+                        school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
+                        currentJob: '',
+                        company: '',
+                        tshirtSize: 'L'
+                      })
+                    }
+                    className="flex items-center gap-1.5 px-4 py-2 bg-[#00732A] text-white rounded-xl text-xs font-bold hover:bg-[#005c21] shrink-0"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>নতুন শিক্ষার্থী যোগ করুন</span>
+                  </button>
+                </div>
               </div>
 
               {/* Students Table */}
