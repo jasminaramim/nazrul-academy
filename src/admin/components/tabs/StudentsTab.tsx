@@ -172,7 +172,12 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                         school: 'ত্রিশাল সরকারি নজরুল একাডেমি',
                         currentJob: '',
                         company: '',
-                        tshirtSize: 'L'
+                        tshirtSize: 'L',
+                        // ── পেমেন্ট ডিফল্ট (admin-added) ──
+                        adminAdded: true,
+                        registrationFee: globalConfig?.feeNewBatch || 1000,
+                        paymentMethod: 'cash',
+                        transactionId: `ADMIN-${Date.now()}`,
                       })
                     }
                     className="flex items-center gap-1.5 px-4 py-2 bg-[#00732A] text-white rounded-xl text-xs font-bold hover:bg-[#005c21] shrink-0"
@@ -393,7 +398,11 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                                   const year = parseInt(yearMatch[0], 10);
                                   batchType = year <= 2015 ? 'old' : 'new';
                                 }
-                                setEditingStudent({ ...editingStudent, batch: val, batchType });
+                                // ব্যাচ টাইপ পরিবর্তন হলে fee অটো আপডেট (শুধু নতুন যোগের সময়)
+                                const autoFee = batchType === 'old'
+                                  ? (globalConfig?.feeOldBatch || 1500)
+                                  : (globalConfig?.feeNewBatch || 1000);
+                                setEditingStudent({ ...editingStudent, batch: val, batchType, registrationFee: editingStudent.id ? editingStudent.registrationFee : autoFee });
                               }}
                             />
                           </div>
@@ -402,7 +411,18 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                             <label className="text-xs font-bold text-slate-700 block mb-1">ব্যাচ টাইপ</label>
                             <select
                               value={editingStudent.batchType}
-                              onChange={(e) => setEditingStudent({ ...editingStudent, batchType: e.target.value })}
+                              onChange={(e) => {
+                                const bt = e.target.value;
+                                const autoFee = bt === 'old'
+                                  ? (globalConfig?.feeOldBatch || 1500)
+                                  : (globalConfig?.feeNewBatch || 1000);
+                                setEditingStudent({
+                                  ...editingStudent,
+                                  batchType: bt,
+                                  // নতুন শিক্ষার্থীর ক্ষেত্রে ব্যাচ টাইপ বদলালে fee অটো আপডেট
+                                  registrationFee: editingStudent.id ? editingStudent.registrationFee : autoFee
+                                });
+                              }}
                               className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-[#00732A] focus:ring-2 focus:ring-emerald-500/20 font-medium text-slate-800 bg-white transition-all outline-none"
                             >
                               <option value="new">নতুন ব্যাচ (২০১১ পরবর্তী)</option>
@@ -557,6 +577,101 @@ export const StudentsTab: React.FC<StudentsTabProps> = ({ students, globalConfig
                           placeholder="শিক্ষার্থীর প্রোফাইল ছবি ড্রপ বা নির্বাচন করুন"
                         />
                       </div>
+
+                      {/* Card 5: পেমেন্ট ও রেজিস্ট্রেশন ফি (শুধুমাত্র নতুন যোগের সময়) */}
+                      {(!editingStudent.id || editingStudent.adminAdded) && (
+                        <div className="bg-white p-4 sm:p-5 rounded-2xl border border-emerald-300 shadow-2xs space-y-3.5 relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-emerald-50 to-transparent rounded-bl-full pointer-events-none" />
+
+                          <div className="flex items-center gap-2 text-xs font-bold text-slate-800 border-b border-slate-100 pb-2">
+                            <BdtIcon className="w-4 h-4 text-emerald-600" />
+                            <span>রেজিস্ট্রেশন ফি ও পেমেন্ট তথ্য</span>
+                            {editingStudent.batchType === 'old' ? (
+                              <span className="ml-auto text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full font-bold border border-orange-200">
+                                পুরাতন ব্যাচ → সাজেস্টেড: ৳ {(globalConfig?.feeOldBatch || 1500).toLocaleString('bn-BD')}
+                              </span>
+                            ) : (
+                              <span className="ml-auto text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold border border-emerald-200">
+                                নতুন ব্যাচ → সাজেস্টেড: ৳ {(globalConfig?.feeNewBatch || 1000).toLocaleString('bn-BD')}
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {/* রেজিস্ট্রেশন ফি */}
+                            <div>
+                              <label className="text-xs font-bold text-slate-700 block mb-1">
+                                রেজিস্ট্রেশন ফি (টাকা) <span className="text-red-500">*</span>
+                              </label>
+                              <div className="relative">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-emerald-700">৳</span>
+                                <input
+                                  type="number"
+                                  min="0"
+                                  placeholder={String(editingStudent.batchType === 'old' ? (globalConfig?.feeOldBatch || 1500) : (globalConfig?.feeNewBatch || 1000))}
+                                  value={editingStudent.registrationFee ?? (editingStudent.batchType === 'old' ? (globalConfig?.feeOldBatch || 1500) : (globalConfig?.feeNewBatch || 1000))}
+                                  onChange={(e) => setEditingStudent({ ...editingStudent, registrationFee: Number(e.target.value) })}
+                                  className="w-full pl-7 pr-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-bold text-slate-800 transition-all outline-none"
+                                />
+                              </div>
+                              <p className="text-[10px] text-slate-400 mt-1">ম্যানুয়ালি পরিবর্তন করা যাবে</p>
+                            </div>
+
+                            {/* পেমেন্ট মেথড */}
+                            <div>
+                              <label className="text-xs font-bold text-slate-700 block mb-1">পেমেন্ট মেথড</label>
+                              <div className="grid grid-cols-5 gap-1.5">
+                                {['cash', 'bkash', 'nagad', 'rocket', 'bank'].map((method) => {
+                                  const labels: Record<string, string> = { cash: 'নগদ', bkash: 'bKash', nagad: 'Nagad', rocket: 'Rocket', bank: 'Bank' };
+                                  const isSelected = (editingStudent.paymentMethod || 'cash') === method;
+                                  return (
+                                    <button
+                                      key={method}
+                                      type="button"
+                                      onClick={() => setEditingStudent({ ...editingStudent, paymentMethod: method })}
+                                      className={`py-2 px-1 rounded-xl border text-[10px] font-bold transition-all cursor-pointer ${
+                                        isSelected
+                                          ? 'border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-400/30'
+                                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                                      }`}
+                                    >
+                                      {labels[method]}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* ট্রানজেকশন ID */}
+                            <div className="sm:col-span-2">
+                              <label className="text-xs font-bold text-slate-700 block mb-1">
+                                ট্রানজেকশন ID / রশিদ নম্বর
+                              </label>
+                              <input
+                                type="text"
+                                placeholder={`ADMIN-${Date.now()}`}
+                                value={editingStudent.transactionId || `ADMIN-${Date.now()}`}
+                                onChange={(e) => setEditingStudent({ ...editingStudent, transactionId: e.target.value })}
+                                className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-300 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 font-mono text-slate-800 transition-all outline-none"
+                              />
+                              <p className="text-[10px] text-slate-400 mt-1">অটো তৈরি হয়েছে — চাইলে পরিবর্তন করুন</p>
+                            </div>
+                          </div>
+
+                          {/* Fee preview chip */}
+                          {Number(editingStudent.registrationFee) > 0 && (
+                            <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 text-xs font-bold text-emerald-800">
+                              <Check className="w-3.5 h-3.5 text-emerald-600 stroke-[3]" />
+                              <span>৳ {Number(editingStudent.registrationFee).toLocaleString('bn-BD')} টাকা Finance-এ Income হিসেবে যোগ হবে</span>
+                            </div>
+                          )}
+                          {(!editingStudent.registrationFee || Number(editingStudent.registrationFee) === 0) && (
+                            <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 text-xs font-bold text-amber-800">
+                              <span>⚠️ ফি ০ টাকা — Finance-এ কোনো income যোগ হবে না</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                     </div>
 
